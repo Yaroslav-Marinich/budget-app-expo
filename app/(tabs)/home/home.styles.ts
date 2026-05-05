@@ -75,45 +75,53 @@ export const styles = StyleSheet.create({
     textTransform: "capitalize",
   },
 
+  // --- ГОЛОВНИЙ БЛОК (ОСТРІВ) ---
+  transactionsBoard: {
+    backgroundColor: Colors.surface, 
+    marginHorizontal: 20,
+    borderRadius: 32,
+    paddingTop: 20,
+    paddingBottom: 5,
+    marginBottom: 40,
+  },
+
   // =======================
   // Перемикач Витрати / Доходи
   // =======================
-  toggleContainer: {
-    flexDirection: "row",
-    paddingHorizontal: 20,
-    gap: 15,
-    marginBottom: 25,
+toggleContainer: { 
+    flexDirection: 'row', 
+    paddingHorizontal: 15,
+    gap: 15, 
+    marginBottom: 20 
   },
 
-  toggleBtn: {
-    flex: 1,
-    padding: 16,
-    borderRadius: 20,
-    backgroundColor: Colors.surface,
-    borderWidth: 1,
+toggleBtn: { 
+    flex: 1, 
+    padding: 16, 
+    borderRadius: 20, 
+    backgroundColor: 'transparent',
+    borderWidth: 1, 
+    borderColor: 'transparent'
+  },
+
+toggleBtnActive: { 
+    backgroundColor: Colors.background, 
     borderColor: Colors.outline,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 3,
   },
+  toggleLabel: { color: Colors.textSecondary, fontSize: 14, marginBottom: 4 },
+  toggleAmount: { color: Colors.text, fontSize: 20, fontWeight: 'bold' },
 
-  toggleBtnActiveExpense: {
-    backgroundColor: "rgba(139, 0, 0, 0.15)",
-    borderColor: Colors.error,
-  },
-
-  toggleBtnActiveIncome: {
-    backgroundColor: "rgba(46, 125, 50, 0.15)",
-    borderColor: Colors.primary,
-  },
-
-  toggleLabel: {
-    color: Colors.textSecondary,
-    fontSize: 14,
-    marginBottom: 4,
-  },
-
-  toggleAmount: {
-    color: Colors.text,
-    fontSize: 20,
-    fontWeight: "bold",
+  // Лінія-розділювач
+  divider: {
+    height: 1,
+    backgroundColor: Colors.outline, 
+    marginHorizontal: 20,
+    marginBottom: 20,
   },
 
   // =======================
@@ -123,19 +131,18 @@ categoriesContainer: {
     flexDirection: 'row', 
     flexWrap: 'wrap', 
     justifyContent: 'space-between', 
-    paddingHorizontal: 20, 
-    paddingBottom: 20 
+    paddingHorizontal: 15,
   },
   categoryCard: { 
-    backgroundColor: Colors.surface, 
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
     width: '48%', 
-    flexDirection: 'row',
+    flexDirection: 'row', 
     alignItems: 'center', 
-    padding: 8,
-    borderRadius: 16,
-    marginBottom: 12,
+    padding: 8, 
+    borderRadius: 16, 
+    marginBottom: 15,
     borderWidth: 1,
-    borderColor: Colors.outline
+    borderColor: 'rgba(255, 255, 255, 0.05)'
   },
   iconContainer: { 
     width: 44,

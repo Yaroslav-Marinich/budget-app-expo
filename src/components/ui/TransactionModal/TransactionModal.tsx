@@ -1,39 +1,69 @@
 import { Colors } from "@/src/constants/Colors";
+import { useLoader } from "@/src/context/LoaderContext";
+import { addTransaction } from "@/src/services/transactions";
 import React, { useEffect, useRef, useState } from "react";
-import { Modal, Pressable, Text, TouchableOpacity, View } from "react-native";
+import { Alert, Modal, Pressable, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Calculator } from "../Calculator/Calculator"; // Перевірте, чи правильний шлях
+import { Calculator } from "../Calculator/Calculator";
 import { styles } from "./TransactionModal.styles";
 
 interface TransactionModalProps {
   visible: boolean;
   onClose: () => void;
   type: 'income' | 'expense';
-  onSave: (amount: string, type: 'income' | 'expense') => void;
-  categoryName?: string;
+  categoryId?: string; 
+  categoryName?: string; 
+  walletId: string | null;
 }
 
 export const TransactionModal: React.FC<TransactionModalProps> = ({ 
   visible, 
   onClose, 
   type, 
-  onSave,
-  categoryName
+  categoryId,
+  categoryName,
+  walletId
 }) => {
   const insets = useSafeAreaInsets();
   const touchY = useRef(0);
+  
+  const { showLoader, hideLoader } = useLoader();
   const [amount, setAmount] = useState("0");
+  const [isSaving, setIsSaving] = useState(false);
 
-  // Очищаємо суму при кожному відкритті/закритті
   useEffect(() => {
-    if (visible) setAmount("0");
+    if (visible) {
+      setAmount("0");
+      setIsSaving(false);
+    }
   }, [visible]);
 
-  const handleSave = () => {
-    if (amount !== "0") {
-      onSave(amount, type);
+  const handleSave = async () => {
+    if (amount === "0" || !categoryId || !categoryName || !walletId) {
+      if (!walletId) Alert.alert("Помилка", "Будь ласка, оберіть рахунок");
+      return;
     }
-    onClose();
+
+    showLoader();
+    setIsSaving(true);
+    const numericAmount = parseFloat(amount);
+
+    const success = await addTransaction({
+      userId: "manual-test-id",
+      amount: numericAmount,
+      type: type,
+      categoryId: categoryId,
+      categoryName: categoryName,
+      walletId: walletId,
+    });
+
+    if (success) {
+      onClose();
+    } else {
+      Alert.alert("Помилка", "Не вдалося зберегти транзакцію. Спробуйте ще раз.");
+      setIsSaving(false);
+    }
+    hideLoader();
   };
 
   return (
@@ -55,21 +85,28 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
           <View style={styles.dragIndicator} />
 
           <Text style={[styles.modalTitle, { color: type === 'income' ? Colors.accent : Colors.error }]}>
-            Додати {type === 'income' ? 'дохід' : 'витрату'} в {categoryName}
+            {type === 'income' ? 'Дохід' : 'Витрата'} в {categoryName}
           </Text>
           
           <Calculator amount={amount} setAmount={setAmount} />
 
           <View style={styles.modalActionsRow}>
-            <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
+            <TouchableOpacity onPress={onClose} style={styles.closeBtn} disabled={isSaving}>
               <Text style={{color: '#fff', fontWeight: 'bold'}}>Скасувати</Text>
             </TouchableOpacity>
             
             <TouchableOpacity 
               onPress={handleSave}
-              style={[styles.saveBtn, {backgroundColor: type === 'income' ? Colors.primary : Colors.error}]}
+              disabled={isSaving} 
+              style={[
+                styles.saveBtn, 
+                { backgroundColor: type === 'income' ? Colors.primary : Colors.error },
+                isSaving && { opacity: 0.7 }
+              ]}
             >
-              <Text style={{color: '#fff', fontWeight: 'bold'}}>Зберегти</Text>
+              <Text style={{color: '#fff', fontWeight: 'bold'}}>
+                {isSaving ? 'Збереження...' : 'Зберегти'}
+              </Text>
             </TouchableOpacity>
           </View>
 
