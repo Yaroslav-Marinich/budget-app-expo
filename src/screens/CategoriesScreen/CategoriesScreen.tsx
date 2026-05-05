@@ -20,7 +20,6 @@ export const CategoriesScreen = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [openedRowId, setOpenedRowId] = useState<string | null>(null);
   
-  // --- НОВИЙ СТЕЙТ ДЛЯ ВКАЛДОК ---
   const [activeTab, setActiveTab] = useState<'expense' | 'income'>('expense');
   const reassignModalTouchY = useRef(0);
 
@@ -34,7 +33,6 @@ export const CategoriesScreen = () => {
     return () => unsubscribe();
   }, []);
 
-  // --- ФІЛЬТРАЦІЯ ДЛЯ ПОТОЧНОЇ ВКЛАДКИ ---
   const activeCategories = categories
     .filter(c => c.type === activeTab)
     .sort((a, b) => (a.order || 0) - (b.order || 0));
