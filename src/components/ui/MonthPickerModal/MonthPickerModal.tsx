@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Modal, Pressable, Text, TouchableOpacity, View } from "react-native";
 import { styles } from "./MonthPickerModal.styles";
 
@@ -25,6 +25,7 @@ const MONTHS = [
 ];
 
 export const MonthPickerModal: React.FC<MonthPickerProps> = ({ visible, onClose, currentDate, onSelect }) => {
+  const touchY = useRef(0);
   const [tempYear, setTempYear] = useState(currentDate.getFullYear());
 
   useEffect(() => {
@@ -39,7 +40,17 @@ export const MonthPickerModal: React.FC<MonthPickerProps> = ({ visible, onClose,
   return (
     <Modal animationType="fade" transparent visible={visible} onRequestClose={onClose}>
       <Pressable style={styles.overlay} onPress={onClose}>
-        <Pressable style={styles.content} onPress={(e) => e.stopPropagation()}>
+        <Pressable
+          style={styles.content}
+          onPress={(e) => e.stopPropagation()}
+          onTouchStart={(e) => {
+            touchY.current = e.nativeEvent.pageY;
+          }}
+          onTouchEnd={(e) => {
+            if (e.nativeEvent.pageY - touchY.current > 50) onClose();
+          }}
+        >
+          <View style={styles.dragIndicator} />
           
           <View style={styles.header}>
             {/* ... стрілочки року залишаються без змін ... */}

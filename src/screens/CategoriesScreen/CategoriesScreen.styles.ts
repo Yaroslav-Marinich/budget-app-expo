@@ -1,0 +1,162 @@
+import { Colors } from "@/src/constants/Colors";
+import { StyleSheet } from "react-native";
+
+export const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: Colors.background,
+    paddingHorizontal: 20,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  screenTitle: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: Colors.text,
+  },
+  toggleContainer: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(0,0,0,0.05)',
+    borderRadius: 20,
+    padding: 4,
+    marginBottom: 20,
+  },
+  toggleBtn: {
+    flex: 1,
+    paddingVertical: 12,
+    alignItems: 'center',
+    borderRadius: 16,
+  },
+  toggleBtnActive: {
+    backgroundColor: Colors.surface,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  toggleLabel: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: Colors.textSecondary,
+  },
+  listContent: {
+    paddingBottom: 100,
+  },
+  itemContainer: {
+    marginBottom: 12,
+  },
+  categoryRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.surface,
+    padding: 12,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: Colors.outline,
+  },
+  iconBox: {
+    width: 48,
+    height: 48,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 15,
+  },
+  infoBox: {
+    flex: 1,
+  },
+  title: {
+    color: Colors.text,
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  typeLabel: {
+    color: Colors.textSecondary,
+    fontSize: 12,
+    marginTop: 4,
+  },
+  actions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  actionBtn: {
+    padding: 10,
+    marginLeft: 5,
+  },
+  deleteAction: {
+    backgroundColor: Colors.error,
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+    paddingRight: 20,
+    borderRadius: 20,
+    width: 100,
+    height: '100%',
+    borderWidth: 1,
+    borderColor: Colors.outline,
+    borderLeftWidth: 0,
+    marginLeft: -40, 
+  },
+  // Стилі для модалки перенесення
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.8)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: Colors.surface,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    padding: 20,
+    maxHeight: '80%',
+  },
+  dragIndicator: {
+    width: 42,
+    height: 5,
+    borderRadius: 4,
+    backgroundColor: Colors.outline,
+    alignSelf: 'center',
+    marginBottom: 14,
+  },
+  modalHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+  modalHeaderSpacer: {
+    width: 30,
+  },
+  modalCloseBtn: {
+    padding: 2,
+  },
+  modalTitle: {
+    color: Colors.text,
+    fontSize: 18,
+    fontWeight: 'bold',
+    flex: 1,
+    textAlign: 'center',
+  },
+  modalSubtitle: {
+    color: Colors.textSecondary,
+    fontSize: 14,
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  reassignItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.outline,
+  },
+  cancelBtn: {
+    marginTop: 20,
+    padding: 15,
+    alignItems: 'center',
+  },
+});

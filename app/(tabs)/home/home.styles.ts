@@ -34,6 +34,32 @@ export const styles = StyleSheet.create({
     borderColor: Colors.outline,
   },
 
+walletCardArchived: {
+    opacity: 0.6,
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    borderColor: Colors.outline,
+    borderWidth: 1,
+    borderStyle: 'dashed',
+  },
+  archiveBadgeHome: {
+    position: 'absolute',
+    top: -1, 
+    right: 25, 
+    backgroundColor: Colors.textSecondary,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10,
+    zIndex: 2,
+  },
+  archiveBadgeTextHome: {
+    color: Colors.background,
+    fontSize: 9,
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+
   cardHeader: {
     flexDirection: "row",
     alignItems: "center",
@@ -166,5 +192,12 @@ categoriesContainer: {
     color: Colors.text, 
     fontSize: 14,
     fontWeight: 'bold', 
+  },
+  addCategoryCard: {
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: Colors.textSecondary,
+    borderStyle: 'dashed',
+    justifyContent: 'center',
   },
 });

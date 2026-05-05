@@ -2,6 +2,7 @@ import { Colors } from "@/src/constants/Colors";
 import { useLoader } from "@/src/context/LoaderContext";
 import { archiveWallet, permanentDeleteWallet, subscribeToWallets, updateWalletsOrder, Wallet } from "@/src/services/wallets";
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import { Alert, Text, TouchableOpacity, View } from "react-native";
 import DraggableFlatList, { RenderItemParams, ScaleDecorator } from "react-native-draggable-flatlist";
@@ -13,6 +14,7 @@ import { EditWalletModal } from "./components/EditWalletModal";
 export const WalletsScreen = () => {
   const insets = useSafeAreaInsets();
   const swipeableRefs = useRef<Map<string, Swipeable>>(new Map());
+    const router = useRouter();
 
   const { showLoader, hideLoader } = useLoader();
   const [wallets, setWallets] = useState<Wallet[]>([]);
@@ -199,7 +201,7 @@ const renderRightActions = (item: Wallet) => (
       {/* Кастомний заголовок замість системного */}
       <View style={styles.headerRow}>
         <Text style={styles.screenTitle}>Рахунки</Text>
-        <TouchableOpacity onPress={() => {/* Навігація назад за потреби */}}>
+        <TouchableOpacity onPress={() => router.back()} style={{ padding: 5 }}>
            <Ionicons name="close-circle-outline" size={32} color={Colors.textSecondary} />
         </TouchableOpacity>
       </View>

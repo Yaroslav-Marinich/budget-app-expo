@@ -46,8 +46,7 @@ export default function UserScreen() {
             })}
             
             {renderMenuItem("grid", Colors.accent, "Категорії витрат", () => {
-              console.log("Клік на категорії");
-              // Тут згодом буде router.push("/categories");
+              router.push("/categories");
             })}
           </View>
         </View>

@@ -11,7 +11,7 @@ export default function RootLayout() {
       <LoaderProvider>
       <Stack
         screenOptions={{
-          headerShown: false, // Прибираємо всі системні заголовки
+          headerShown: false, 
           contentStyle: { backgroundColor: Colors.background },
         }}
       >

@@ -1,6 +1,7 @@
 import { Colors } from "@/src/constants/Colors";
 import { useLoader } from "@/src/context/LoaderContext";
 import { addTransaction } from "@/src/services/transactions";
+import { Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useRef, useState } from "react";
 import { Alert, Modal, Pressable, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -84,10 +85,16 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
         >
           <View style={styles.dragIndicator} />
 
-          <Text style={[styles.modalTitle, { color: type === 'income' ? Colors.accent : Colors.error }]}>
-            {type === 'income' ? 'Дохід' : 'Витрата'} в {categoryName}
-          </Text>
-          
+          <View style={styles.headerRow}>
+            <View style={styles.headerSpacer} />
+            <Text style={[styles.modalTitle, { color: type === 'income' ? Colors.accent : Colors.error }]}>
+              {type === 'income' ? 'Дохід' : 'Витрата'} в {categoryName}
+            </Text>
+            <TouchableOpacity onPress={onClose} style={styles.headerCloseBtn}>
+              <Ionicons name="close" size={28} color={Colors.textSecondary} />
+            </TouchableOpacity>
+          </View>
+
           <Calculator amount={amount} setAmount={setAmount} />
 
           <View style={styles.modalActionsRow}>
@@ -100,7 +107,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
               disabled={isSaving} 
               style={[
                 styles.saveBtn, 
-                { backgroundColor: type === 'income' ? Colors.primary : Colors.error },
+                { backgroundColor: Colors.primary },
                 isSaving && { opacity: 0.7 }
               ]}
             >

@@ -1,28 +1,18 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Stack } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { CategoryModal } from "@/src/components/ui/CategoryModal/CategoryModal";
 import { MonthPickerModal } from "@/src/components/ui/MonthPickerModal/MonthPickerModal";
 import { TransactionModal } from "@/src/components/ui/TransactionModal/TransactionModal";
 import { Colors } from "@/src/constants/Colors";
+import { Category, seedDefaultCategories, subscribeToCategories } from "@/src/services/categories";
 import { addTransaction, subscribeToMonthlyTransactions } from "@/src/services/transactions";
 import { subscribeToWallets, Wallet } from "@/src/services/wallets";
 import { styles } from "./home.styles";
 
-// Тимчасові дані категорій
-const BASE_CATEGORIES = {
-  expense: [
-    { id: 'e1', name: 'Продукти', icon: 'cart', color: '#E57373' },
-    { id: 'e2', name: 'Авто', icon: 'car', color: '#81C784' },
-    { id: 'e3', name: 'Розваги', icon: 'game-controller', color: '#BA68C8' },
-  ],
-  income: [
-    { id: 'i1', name: 'Зарплата', icon: 'cash', color: '#4CAF50' },
-    { id: 'i2', name: 'Бонус', icon: 'gift', color: '#FFB74D' },
-  ]
-};
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   
@@ -35,9 +25,10 @@ export default function HomeScreen() {
   const [transactions, setTransactions] = useState<any[]>([]);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isMonthPickerVisible, setMonthPickerVisible] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [isCategoryModalVisible, setCategoryModalVisible] = useState(false);
 
   // --- МАГІЯ ПІДРАХУНКІВ ---
-  // Загальні суми витрат та доходів
   const totalExpense = transactions
     .filter(t => t.type === 'expense')
     .reduce((acc, curr) => acc + curr.amount, 0);
@@ -46,19 +37,19 @@ export default function HomeScreen() {
     .filter(t => t.type === 'income')
     .reduce((acc, curr) => acc + curr.amount, 0);
 
-  // Категорії для поточної вкладки (з підрахованою сумою)
-  const activeCategories = BASE_CATEGORIES[activeTab].map(cat => {
-    const sum = transactions
-      .filter(t => t.categoryId === cat.id)
-      .reduce((acc, curr) => acc + curr.amount, 0);
-    return { ...cat, sum };
-  });
+const activeCategories = categories
+    .filter(cat => cat.type === activeTab && !cat.isArchived)
+    .map(cat => {
+      const sum = transactions
+        .filter(t => t.categoryId === cat.id)
+        .reduce((acc, curr) => acc + curr.amount, 0);
+      return { ...cat, sum };
+    });
 
-const getFormattedDate = (date: Date) => {
+  const getFormattedDate = (date: Date) => {
     const monthName = date.toLocaleString('uk-UA', { month: 'long' }).replace(/^./, (c) => c.toUpperCase());
     const monthNum = String(date.getMonth() + 1).padStart(2, '0');
     const year = date.getFullYear();
-    // Виведе: "05 Травень 2026"
     return `${monthNum} ${monthName} ${year}`;
   };
 
@@ -68,60 +59,95 @@ const getFormattedDate = (date: Date) => {
   };
 
   const handlePrevMonth = () => {
-  setCurrentDate(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
-};
+    setCurrentDate(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
+  };
 
-const handleNextMonth = () => {
-  setCurrentDate(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
-};
+  const handleNextMonth = () => {
+    setCurrentDate(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
+  };
 
-const handleSaveTransaction = async (amount: string, type: 'income' | 'expense') => {
+  const handleSaveTransaction = async (amount: string, type: 'income' | 'expense') => {
     if (!selectedCategory) return;
 
-    // Конвертуємо рядок з калькулятора в число
     const numericAmount = parseFloat(amount);
 
     const success = await addTransaction({
-      userId: "manual-test-id", // Наш тимчасовий юзер
+      userId: "manual-test-id", 
       amount: numericAmount,
       type: type,
       categoryId: selectedCategory.id,
       categoryName: selectedCategory.name,
-      walletId: "1", // Поки що жорстко прив'язуємо до "Основної картки"
+      walletId: selectedWalletId || "1", // Використовуємо обраний рахунок
     });
 
     if (success) {
-      alert(`Успішно додано: ${numericAmount} ₴ в категорію ${selectedCategory.name}`);
       setModalVisible(false);
     } else {
       alert("Помилка збереження. Перевірте консоль.");
     }
-};
+  };
   
-    // Підключаємося до Firebase при завантаженні екрана
-useEffect(() => {
-  const year = currentDate.getFullYear();
-  const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-  const currentMonthStr = `${year}-${month}`; 
+  // --- ЛОГІКА ВІДОБРАЖЕННЯ РАХУНКІВ ---
+  const processedWallets = useMemo(() => {
+    const activeWallets = wallets
+      .filter(w => !w.isArchived)
+      .sort((a, b) => (a.order || 0) - (b.order || 0));
+      
+    const archivedWithActivity = wallets
+      .filter(w => w.isArchived)
+      .filter(w => transactions.some(t => t.walletId === w.id))
+      .map(w => {
+        const monthBalance = transactions
+          .filter(t => t.walletId === w.id)
+          .reduce((acc, t) => t.type === 'income' ? acc + t.amount : acc - t.amount, 0);
+          
+        return { ...w, balance: monthBalance };
+      });
 
-  const unsubscribe = subscribeToMonthlyTransactions("manual-test-id", currentMonthStr, (data) => {
-    setTransactions(data);
-  });
-
-  return () => unsubscribe();
-}, [currentDate]);
+    return [...activeWallets, ...archivedWithActivity];
+  }, [wallets, transactions]);
   
+  // Підписка на транзакції поточного місяця
+  useEffect(() => {
+    const year = currentDate.getFullYear();
+    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+    const currentMonthStr = `${year}-${month}`; 
+
+    const unsubscribe = subscribeToMonthlyTransactions("manual-test-id", currentMonthStr, (data) => {
+      setTransactions(data);
+    });
+
+    return () => unsubscribe();
+  }, [currentDate]);
+  
+  // Підписка на рахунки
   useEffect(() => {
     const unsubscribeWallets = subscribeToWallets("manual-test-id", (data) => {
       setWallets(data);
-      if (data.length > 0 && !selectedWalletId) {
-        setSelectedWalletId(data[0].id);
+      if (!selectedWalletId) {
+        const firstActive = data.find(w => !w.isArchived);
+        if (firstActive) setSelectedWalletId(firstActive.id);
       }
     });
 
-    return () => {
-      unsubscribeWallets();
-    };
+    return () => unsubscribeWallets();
+  }, []);
+
+  useEffect(() => {
+    seedDefaultCategories("manual-test-id");
+    
+    const unsubscribeCategories = subscribeToCategories("manual-test-id", (data) => {
+      setCategories(data);
+    });
+    
+    return () => unsubscribeCategories();
+  }, []);
+
+  useEffect(() => {
+    const unsubscribeCategories = subscribeToCategories("manual-test-id", (data) => {
+      setCategories(data);
+    });
+    return () => unsubscribeCategories();
   }, []);
 
   return (
@@ -132,42 +158,58 @@ useEffect(() => {
         
         {/* Рахунки (зверху) */}
         <Text style={styles.sectionTitle}>Рахунки</Text>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.walletList} contentContainerStyle={{ paddingRight: 20 }}>
-        {wallets.map(w => (
-          <TouchableOpacity 
-            key={w.id} 
-            style={[styles.walletCard, selectedWalletId === w.id && { borderColor: Colors.primary, borderWidth: 2 }]}
-            onPress={() => setSelectedWalletId(w.id)}
-          >
-            <View style={styles.cardHeader}>
-              <Ionicons name={w.icon as any} size={24} color={Colors.accent} />
-              <Text style={styles.walletTitle}>{w.title}</Text>
-            </View>
-            <Text style={styles.walletAmount}>
-              {w.balance.toLocaleString()} <Text style={styles.currency}>{w.currency}</Text>
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.walletList} contentContainerStyle={{ paddingRight: 20 }}>
+          {processedWallets.map(w => (
+            <TouchableOpacity 
+              key={w.id} 
+              style={[
+                styles.walletCard, 
+                w.isArchived && styles.walletCardArchived, // Додаємо стиль для архівних
+                selectedWalletId === w.id && { borderColor: Colors.primary, borderWidth: 2 }
+              ]}
+              onPress={() => setSelectedWalletId(w.id)}
+            >
+              {w.isArchived && (
+                <View style={styles.archiveBadgeHome}>
+                  <Text style={styles.archiveBadgeTextHome}>Архів</Text>
+                </View>
+              )}
+              
+              <View style={styles.cardHeader}>
+                <Ionicons 
+                  name={w.icon as any} 
+                  size={24} 
+                  color={w.isArchived ? Colors.textSecondary : Colors.accent} 
+                />
+                <View>
+                  <Text style={styles.walletTitle}>{w.title}</Text>
+                </View>
+              </View>
+              <Text style={styles.walletAmount}>
+                {w.balance.toLocaleString()} <Text style={styles.currency}>{w.currency}</Text>
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
 
         {/* Вибір місяця та року */}
-   <View style={styles.dateSelector}>
-       <TouchableOpacity onPress={handlePrevMonth} style={{ padding: 10 }}>
-         <Ionicons name="chevron-back" size={24} color={Colors.textSecondary} />
-       </TouchableOpacity>
+        <View style={styles.dateSelector}>
+          <TouchableOpacity onPress={handlePrevMonth} style={{ padding: 10 }}>
+            <Ionicons name="chevron-back" size={24} color={Colors.textSecondary} />
+          </TouchableOpacity>
 
-       <TouchableOpacity onPress={() => setMonthPickerVisible(true)}>
-         <Text style={styles.dateText}>{getFormattedDate(currentDate)}</Text>
-       </TouchableOpacity>
+          <TouchableOpacity onPress={() => setMonthPickerVisible(true)}>
+            <Text style={styles.dateText}>{getFormattedDate(currentDate)}</Text>
+          </TouchableOpacity>
 
-       <TouchableOpacity onPress={handleNextMonth} style={{ padding: 10 }}>
-         <Ionicons name="chevron-forward" size={24} color={Colors.textSecondary} />
-       </TouchableOpacity>
-     </View>
+          <TouchableOpacity onPress={handleNextMonth} style={{ padding: 10 }}>
+            <Ionicons name="chevron-forward" size={24} color={Colors.textSecondary} />
+          </TouchableOpacity>
+        </View>
 
         <View style={styles.transactionsBoard}>
-        {/* Перемикач Витрати / Доходи із загальними сумами */}
-       <View style={styles.toggleContainer}>
+          {/* Перемикач Витрати / Доходи із загальними сумами */}
+          <View style={styles.toggleContainer}>
             <TouchableOpacity 
               style={[styles.toggleBtn, activeTab === 'expense' && styles.toggleBtnActive]} 
               onPress={() => setActiveTab('expense')}
@@ -188,8 +230,8 @@ useEffect(() => {
           {/* Візуальний розділювач */}
           <View style={styles.divider} />
 
-                {/* Список категорій */}
-        <View style={styles.categoriesContainer}>
+          {/* Список категорій */}
+          <View style={styles.categoriesContainer}>
             {activeCategories.map(category => (
               <TouchableOpacity 
                 key={category.id} 
@@ -207,12 +249,25 @@ useEffect(() => {
                 </View>
               </TouchableOpacity>
             ))}
-          </View>
-          </View>
 
+            {/* 3. КНОПКА ДОДАВАННЯ КАТЕГОРІЇ (ЗАВЖДИ ОСТАННЯ) */}
+            <TouchableOpacity 
+              style={[styles.categoryCard, styles.addCategoryCard]} 
+              onPress={() => setCategoryModalVisible(true)}
+            >
+              <View style={[styles.iconContainer, { backgroundColor: 'rgba(255,255,255,0.05)' }]}>
+                <Ionicons name="add" size={24} color={Colors.textSecondary} />
+              </View>
+              <View style={styles.textContainer}>
+                <Text style={[styles.categoryName, { color: Colors.textSecondary }]}>Категорія</Text>
+                <Text style={styles.categoryAmount}>Нова</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </View>
       </ScrollView>
 
-      {/* Модалка тепер знає, яку категорію обрали */}
+      {/* Модалка */}
       <TransactionModal 
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
@@ -228,7 +283,13 @@ useEffect(() => {
         currentDate={currentDate}
         onSelect={(newDate) => setCurrentDate(newDate)}
       />
-      
+
+      <CategoryModal 
+        visible={isCategoryModalVisible}
+        onClose={() => setCategoryModalVisible(false)}
+        type={activeTab}
+        existingCategories={categories}
+      />
     </View>
   );
 }

@@ -22,10 +22,22 @@ export const styles = StyleSheet.create({
     alignSelf: 'center',
     marginBottom: 20
   },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  headerSpacer: {
+    width: 30,
+  },
+  headerCloseBtn: {
+    padding: 2,
+  },
   modalTitle: { 
     fontSize: 20, 
     fontWeight: 'bold', 
-    marginBottom: 20, 
+    flex: 1,
     textAlign: 'center' 
   },
   modalActionsRow: {

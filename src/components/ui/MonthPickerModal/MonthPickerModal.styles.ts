@@ -4,6 +4,14 @@ import { StyleSheet } from "react-native";
 export const styles = StyleSheet.create({
   overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.85)', justifyContent: 'center', alignItems: 'center' },
   content: { backgroundColor: Colors.surface, width: '90%', borderRadius: 24, padding: 20 },
+  dragIndicator: {
+    width: 42,
+    height: 5,
+    borderRadius: 4,
+    backgroundColor: Colors.outline,
+    alignSelf: 'center',
+    marginBottom: 14,
+  },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
   yearText: { color: Colors.text, fontSize: 20, fontWeight: 'bold' },
   monthsGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },

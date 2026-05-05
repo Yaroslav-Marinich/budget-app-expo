@@ -6,11 +6,11 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        headerShown: false, // Ми маємо свій Header в кожному екрані
+        headerShown: false, 
         tabBarActiveTintColor: Colors.accent,
         tabBarInactiveTintColor: Colors.textSecondary,
         tabBarStyle: {
-          backgroundColor: Colors.surface, // Темно-сірий фон панелі
+          backgroundColor: Colors.surface, 
           borderTopColor: Colors.outline,
           height: 60,
           paddingBottom: 10,
@@ -18,7 +18,7 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name="home/index" // Наш новий шлях до папки з рефакторингом
+        name="home/index" 
         options={{
           title: 'Головна',
           tabBarIcon: ({ color, size }) => (
@@ -27,7 +27,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="analytics/index" // Створимо цю папку пізніше
+        name="analytics/index" 
         options={{
           title: 'Аналітика',
           tabBarIcon: ({ color, size }) => (
@@ -38,7 +38,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="user/index"
         options={{
-          title: 'Профіль',
+          title: 'Налаштування',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons name={focused ? 'person' : 'person-outline'} size={24} color={color} />
           ),
