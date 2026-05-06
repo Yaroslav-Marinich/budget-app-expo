@@ -40,6 +40,29 @@ export const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center' 
   },
+  
+  commentContainer: {
+    paddingVertical: 20,
+    minHeight: 200, 
+  },
+  inputLabel: {
+    color: Colors.textSecondary,
+    fontSize: 14,
+    marginBottom: 10,
+    marginLeft: 5,
+  },
+  commentInput: {
+    backgroundColor: Colors.background,
+    color: Colors.text,
+    padding: 18,
+    borderRadius: 20,
+    fontSize: 16,
+    borderWidth: 1,
+    borderColor: Colors.outline,
+    minHeight: 100,
+    textAlignVertical: 'top',
+  },
+
   modalActionsRow: {
     flexDirection: 'row',
     gap: 15,

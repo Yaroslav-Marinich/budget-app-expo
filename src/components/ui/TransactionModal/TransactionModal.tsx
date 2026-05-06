@@ -3,7 +3,7 @@ import { useLoader } from "@/src/context/LoaderContext";
 import { addTransaction } from "@/src/services/transactions";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useRef, useState } from "react";
-import { Alert, Modal, Pressable, Text, TouchableOpacity, View } from "react-native";
+import { Alert, Modal, Pressable, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Calculator } from "../Calculator/Calculator";
 import { styles } from "./TransactionModal.styles";
@@ -30,21 +30,28 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
   
   const { showLoader, hideLoader } = useLoader();
   const [amount, setAmount] = useState("0");
+  const [comment, setComment] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [step, setStep] = useState<'amount' | 'comment'>('amount'); 
 
   useEffect(() => {
     if (visible) {
       setAmount("0");
+      setComment("");
+      setStep('amount');
       setIsSaving(false);
     }
   }, [visible]);
 
-  const handleSave = async () => {
+  const handleNext = () => {
     if (amount === "0" || !categoryId || !categoryName || !walletId) {
       if (!walletId) Alert.alert("Помилка", "Будь ласка, оберіть рахунок");
       return;
     }
+    setStep('comment'); 
+  };
 
+  const handleSave = async () => {
     showLoader();
     setIsSaving(true);
     const numericAmount = parseFloat(amount);
@@ -53,9 +60,10 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
       userId: "manual-test-id",
       amount: numericAmount,
       type: type,
-      categoryId: categoryId,
-      categoryName: categoryName,
-      walletId: walletId,
+      categoryId: categoryId as string,
+      categoryName: categoryName as string,
+      walletId: walletId as string,
+      comment: comment.trim() || undefined, 
     });
 
     if (success) {
@@ -95,27 +103,60 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
             </TouchableOpacity>
           </View>
 
-          <Calculator amount={amount} setAmount={setAmount} />
+          {/* --- КРОК 1: КАЛЬКУЛЯТОР --- */}
+          {step === 'amount' && (
+            <>
+              <Calculator amount={amount} setAmount={setAmount} />
+              <View style={styles.modalActionsRow}>
+                <TouchableOpacity onPress={onClose} style={styles.closeBtn} disabled={isSaving}>
+                  <Text style={{color: '#fff', fontWeight: 'bold'}}>Скасувати</Text>
+                </TouchableOpacity>
+                
+                <TouchableOpacity 
+                  onPress={handleNext}
+                  style={[styles.saveBtn, { backgroundColor: Colors.primary }]}
+                >
+                  <Text style={{color: '#fff', fontWeight: 'bold'}}>Далі</Text>
+                </TouchableOpacity>
+              </View>
+            </>
+          )}
 
-          <View style={styles.modalActionsRow}>
-            <TouchableOpacity onPress={onClose} style={styles.closeBtn} disabled={isSaving}>
-              <Text style={{color: '#fff', fontWeight: 'bold'}}>Скасувати</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              onPress={handleSave}
-              disabled={isSaving} 
-              style={[
-                styles.saveBtn, 
-                { backgroundColor: Colors.primary },
-                isSaving && { opacity: 0.7 }
-              ]}
-            >
-              <Text style={{color: '#fff', fontWeight: 'bold'}}>
-                {isSaving ? 'Збереження...' : 'Зберегти'}
-              </Text>
-            </TouchableOpacity>
-          </View>
+          {/* --- КРОК 2: КОМЕНТАР --- */}
+          {step === 'comment' && (
+            <View style={styles.commentContainer}>
+              <Text style={styles.inputLabel}>Коментар (необов&apos;язково)</Text>
+              <TextInput 
+                style={styles.commentInput}
+                placeholder="Наприклад: Обід з колегами..."
+                placeholderTextColor={Colors.textSecondary}
+                value={comment}
+                onChangeText={setComment}
+                multiline
+                autoFocus 
+              />
+              
+              <View style={[styles.modalActionsRow, { marginTop: 30 }]}>
+                <TouchableOpacity onPress={() => setStep('amount')} style={styles.closeBtn} disabled={isSaving}>
+                  <Text style={{color: '#fff', fontWeight: 'bold'}}>Назад</Text>
+                </TouchableOpacity>
+                
+                <TouchableOpacity 
+                  onPress={handleSave}
+                  disabled={isSaving} 
+                  style={[
+                    styles.saveBtn, 
+                    { backgroundColor: Colors.primary },
+                    isSaving && { opacity: 0.7 }
+                  ]}
+                >
+                  <Text style={{color: '#fff', fontWeight: 'bold'}}>
+                    {isSaving ? 'Збереження...' : 'Зберегти'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
 
         </Pressable>
       </Pressable>

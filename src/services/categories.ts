@@ -1,4 +1,4 @@
-import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, onSnapshot, query, where, writeBatch } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, onSnapshot, query, updateDoc, where, writeBatch } from "firebase/firestore";
 import { db } from "../firebase/config";
 
 const DEFAULT_CATEGORIES: Omit<Category, "id" | "userId">[] = [
@@ -123,6 +123,17 @@ export const deleteCategory = async (categoryId: string) => {
     return true;
   } catch (error) {
     console.error("Помилка простого видалення категорії:", error);
+    return false;
+  }
+};
+
+export const updateCategory = async (categoryId: string, data: Partial<Category>) => {
+  try {
+    const catRef = doc(db, "categories", categoryId);
+    await updateDoc(catRef, data);
+    return true;
+  } catch (error) {
+    console.error("Помилка оновлення категорії:", error);
     return false;
   }
 };

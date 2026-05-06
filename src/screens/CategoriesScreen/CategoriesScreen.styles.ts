@@ -6,6 +6,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background,
     paddingHorizontal: 20,
+    paddingBottom: 120,
   },
   headerRow: {
     flexDirection: 'row',
@@ -100,6 +101,22 @@ export const styles = StyleSheet.create({
     borderColor: Colors.outline,
     borderLeftWidth: 0,
     marginLeft: -40, 
+  },
+      fab: {
+    position: 'absolute',
+    bottom: 30,
+    right: 20,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: Colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4.65,
+    elevation: 8,
   },
   // Стилі для модалки перенесення
   modalOverlay: {

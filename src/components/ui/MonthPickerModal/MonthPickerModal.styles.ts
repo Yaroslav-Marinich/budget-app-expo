@@ -2,37 +2,89 @@ import { Colors } from "@/src/constants/Colors";
 import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
-  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.85)', justifyContent: 'center', alignItems: 'center' },
-  content: { backgroundColor: Colors.surface, width: '90%', borderRadius: 24, padding: 20 },
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.8)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: Colors.surface,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    padding: 20,
+    paddingBottom: 40,
+  },
   dragIndicator: {
-    width: 42,
+    width: 40,
     height: 5,
-    borderRadius: 4,
+    borderRadius: 3,
     backgroundColor: Colors.outline,
     alignSelf: 'center',
-    marginBottom: 14,
+    marginBottom: 20,
   },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
-  yearText: { color: Colors.text, fontSize: 20, fontWeight: 'bold' },
-  monthsGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
-  
-  // Змінили ширину на 48% (2 в ряд) і додали горизонтальне вирівнювання
-  monthBtn: { 
-    width: '48%', 
+  // --- Стилі вибору року ---
+  yearSelector: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 16, 
-    paddingHorizontal: 15,
-    borderRadius: 16, 
-    marginBottom: 12, 
-    backgroundColor: Colors.background,
-    borderWidth: 1,
-    borderColor: Colors.outline
+    marginBottom: 25,
+    paddingHorizontal: 10,
   },
-  monthBtnActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
-  
-  // Стилі для номера та назви
-  monthNum: { color: Colors.textSecondary, fontSize: 16, fontWeight: 'bold', marginRight: 10 },
-  monthText: { color: Colors.text, fontSize: 16, fontWeight: '500' },
-  textActive: { color: 'white' } // Спільний стиль для білого тексту при виділенні
+  arrowBtn: {
+    padding: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    borderRadius: 15,
+  },
+  yearText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: Colors.text,
+  },
+  // --- Стилі сітки місяців ---
+  monthsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    gap: 10,
+  },
+  monthBtn: {
+    width: '31%',
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    paddingVertical: 15,
+    borderRadius: 16,
+    alignItems: 'center',
+    marginBottom: 5,
+    borderWidth: 1,
+    borderColor: 'transparent',
+  },
+  monthBtnActive: {
+    backgroundColor: `${Colors.primary}15`,
+    borderColor: Colors.primary,
+  },
+  monthText: {
+    color: Colors.textSecondary,
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  monthTextActive: {
+    color: Colors.primary,
+    fontWeight: 'bold',
+  },
+
+  currentMonthBtn: {
+    flexDirection: 'row',
+    marginTop: 25,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 15,
+    backgroundColor: `${Colors.primary}15`,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: `${Colors.primary}30`,
+  },
+  currentMonthText: {
+    color: Colors.primary,
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
 });

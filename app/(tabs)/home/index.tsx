@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Stack } from "expo-router";
-import React, { useEffect, useMemo, useState } from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Dimensions, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { CategoryModal } from "@/src/components/ui/CategoryModal/CategoryModal";
@@ -11,10 +11,16 @@ import { Colors } from "@/src/constants/Colors";
 import { Category, seedDefaultCategories, subscribeToCategories } from "@/src/services/categories";
 import { addTransaction, subscribeToMonthlyTransactions } from "@/src/services/transactions";
 import { subscribeToWallets, Wallet } from "@/src/services/wallets";
+import { FlatList } from "react-native-gesture-handler";
 import { styles } from "./home.styles";
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
+  const walletsListRef = useRef<FlatList>(null);
+
+  const { width: SCREEN_WIDTH } = Dimensions.get('window');
+  const CARD_WIDTH = SCREEN_WIDTH * 0.75; 
+  const CARD_SPACING = 15; 
   
   const [activeTab, setActiveTab] = useState<'expense' | 'income'>('expense');
   
@@ -27,6 +33,16 @@ export default function HomeScreen() {
   const [isMonthPickerVisible, setMonthPickerVisible] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isCategoryModalVisible, setCategoryModalVisible] = useState(false);
+
+  const handleWalletPress = (walletId: string, index: number) => {
+    setSelectedWalletId(walletId);
+    
+    walletsListRef.current?.scrollToIndex({
+      index,
+      animated: true,
+      viewPosition: 0.5, 
+    });
+  };
 
   // --- МАГІЯ ПІДРАХУНКІВ ---
   const totalExpense = transactions
@@ -106,6 +122,11 @@ const activeCategories = categories
 
     return [...activeWallets, ...archivedWithActivity];
   }, [wallets, transactions]);
+
+  const isSelectedWalletArchived = useMemo(() => {
+  const selectedWallet = wallets.find(w => w.id === selectedWalletId);
+  return selectedWallet?.isArchived || false;
+}, [wallets, selectedWalletId]);
   
   // Підписка на транзакції поточного місяця
   useEffect(() => {
@@ -158,23 +179,42 @@ const activeCategories = categories
         
         {/* Рахунки (зверху) */}
         <Text style={styles.sectionTitle}>Рахунки</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.walletList} contentContainerStyle={{ paddingRight: 20 }}>
-          {processedWallets.map(w => (
+        <FlatList
+          ref={walletsListRef}
+          data={processedWallets}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          keyExtractor={w => w.id}
+          contentContainerStyle={{ paddingHorizontal: 20 }}
+          snapToInterval={CARD_WIDTH + CARD_SPACING}
+          decelerationRate="fast"
+          snapToAlignment="center"
+          getItemLayout={(data, index) => ({
+            length: CARD_WIDTH + CARD_SPACING,
+            offset: (CARD_WIDTH + CARD_SPACING) * index,
+            index,
+          })}
+          renderItem={({ item: w, index }) => (
             <TouchableOpacity 
-              key={w.id} 
+              activeOpacity={0.9}
               style={[
                 styles.walletCard, 
-                w.isArchived && styles.walletCardArchived, // Додаємо стиль для архівних
+                { 
+                  width: CARD_WIDTH, 
+                  marginRight: index === processedWallets.length - 1 ? 0 : CARD_SPACING 
+                },
+                w.isArchived && styles.walletCardArchived,
                 selectedWalletId === w.id && { borderColor: Colors.primary, borderWidth: 2 }
               ]}
-              onPress={() => setSelectedWalletId(w.id)}
+              onPress={() => handleWalletPress(w.id, index)}
             >
+              {/* ПЛАШКА АРХІВУ */}
               {w.isArchived && (
                 <View style={styles.archiveBadgeHome}>
                   <Text style={styles.archiveBadgeTextHome}>Архів</Text>
                 </View>
               )}
-              
+
               <View style={styles.cardHeader}>
                 <Ionicons 
                   name={w.icon as any} 
@@ -189,8 +229,8 @@ const activeCategories = categories
                 {w.balance.toLocaleString()} <Text style={styles.currency}>{w.currency}</Text>
               </Text>
             </TouchableOpacity>
-          ))}
-        </ScrollView>
+          )}
+        />
 
         {/* Вибір місяця та року */}
         <View style={styles.dateSelector}>
@@ -227,28 +267,49 @@ const activeCategories = categories
             </TouchableOpacity>
           </View>
 
-          {/* Візуальний розділювач */}
-          <View style={styles.divider} />
+          {/* Візуальний розділювач із замком (якщо архівний рахунок) */}
+          <View style={styles.dividerContainer}>
+            <View style={styles.dividerLine} />
+            {isSelectedWalletArchived && (
+              <View style={styles.lockBadge}>
+                <Ionicons name="lock-closed" size={24} color={Colors.error} />
+              </View>
+            )}
+          </View>
 
           {/* Список категорій */}
           <View style={styles.categoriesContainer}>
-            {activeCategories.map(category => (
-              <TouchableOpacity 
-                key={category.id} 
-                style={styles.categoryCard} 
-                onPress={() => handleCategoryPress(category)}
-              >
-                <View style={[styles.iconContainer, { backgroundColor: `${category.color}15` }]}>
-                  <Ionicons name={category.icon as any} size={22} color={category.color} />
-                </View>
-                <View style={styles.textContainer}>
-                  <Text style={styles.categoryName} numberOfLines={1}>{category.name}</Text>
-                  <Text style={[styles.categoryAmount, category.sum === 0 && { color: Colors.textSecondary }]} numberOfLines={1}>
-                    {category.sum.toLocaleString()} ₴
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            ))}
+            {activeCategories.map(category => {
+              const isDisabled = isSelectedWalletArchived;
+
+              return (
+                <TouchableOpacity
+                  key={category.id}
+                  style={[styles.categoryCard,
+                    isDisabled && styles.categoryCardDisabled]
+                  }
+                  onPress={() => {
+          if (!isDisabled) {
+            handleCategoryPress(category);
+          }
+                  }}
+                  onLongPress={() => {
+          console.log("Тут буде статистика для категорії:", category.name);
+        }}
+        delayLongPress={300}
+                >
+                  <View style={[styles.iconContainer, { backgroundColor: `${category.color}15` }]}>
+                    <Ionicons name={category.icon as any} size={22} color={category.color} />
+                  </View>
+                  <View style={styles.textContainer}>
+                    <Text style={styles.categoryName} numberOfLines={1}>{category.name}</Text>
+                    <Text style={[styles.categoryAmount, category.sum === 0 && { color: Colors.textSecondary }]} numberOfLines={1}>
+                      {category.sum.toLocaleString()} ₴
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              )
+            })}
 
             {/* 3. КНОПКА ДОДАВАННЯ КАТЕГОРІЇ (ЗАВЖДИ ОСТАННЯ) */}
             <TouchableOpacity 

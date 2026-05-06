@@ -26,10 +26,10 @@ export const styles = StyleSheet.create({
 
   walletCard: {
     backgroundColor: Colors.surface,
-    width: 240,
+    // width: 240,
     padding: 20,
     borderRadius: 24,
-    marginRight: 16,
+    // marginRight: 16,
     borderWidth: 1,
     borderColor: Colors.outline,
   },
@@ -118,7 +118,7 @@ toggleContainer: {
     flexDirection: 'row', 
     paddingHorizontal: 15,
     gap: 15, 
-    marginBottom: 20 
+    // marginBottom: 20 
   },
 
 toggleBtn: { 
@@ -143,11 +143,29 @@ toggleBtnActive: {
   toggleAmount: { color: Colors.text, fontSize: 20, fontWeight: 'bold' },
 
   // Лінія-розділювач
-  divider: {
+  // divider: {
+  //   height: 1,
+  //   backgroundColor: Colors.outline, 
+  //   marginHorizontal: 20,
+  //   marginBottom: 20,
+  // },
+  // --- РОЗДІЛЮВАЧ ІЗ ЗАМКОМ ---
+dividerContainer: {
+    position: 'relative',
+    height: 24, 
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginVertical: 15,
+  },
+  dividerLine: {
+    position: 'absolute',
+    width: '100%',
     height: 1,
-    backgroundColor: Colors.outline, 
-    marginHorizontal: 20,
-    marginBottom: 20,
+    backgroundColor: Colors.outline,
+  },
+  lockBadge: {
+    backgroundColor: Colors.surface, 
+    paddingHorizontal: 10, 
   },
 
   // =======================
@@ -199,5 +217,8 @@ categoriesContainer: {
     borderColor: Colors.textSecondary,
     borderStyle: 'dashed',
     justifyContent: 'center',
+  },
+  categoryCardDisabled: {
+    // opacity: 0.6, 
   },
 });

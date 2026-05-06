@@ -10,18 +10,22 @@ import { Colors } from "@/src/constants/Colors";
 import { useLoader } from "@/src/context/LoaderContext";
 import { Category, checkCategoryHasTransactions, deleteAndReassignCategory, deleteCategory, subscribeToCategories, updateCategoriesOrder } from "@/src/services/categories";
 import { styles } from "./CategoriesScreen.styles";
+import { EditCategoryModal } from "./components/EditCategoryModal";
 
 export const CategoriesScreen = () => {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { showLoader, hideLoader } = useLoader();
+  const reassignModalTouchY = useRef(0);
   const swipeableRefs = useRef<Map<string, Swipeable>>(new Map());
+
+  const { showLoader, hideLoader } = useLoader();
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [openedRowId, setOpenedRowId] = useState<string | null>(null);
-  
   const [activeTab, setActiveTab] = useState<'expense' | 'income'>('expense');
-  const reassignModalTouchY = useRef(0);
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  
 
   const [reassignModalVisible, setReassignModalVisible] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
@@ -132,6 +136,16 @@ const handleDeletePress = async (cat: Category) => {
     }
   };
 
+  const openEdit = (cat: Category) => {
+  setSelectedCategory(cat);
+  setEditModalVisible(true);
+};
+
+const openCreate = () => {
+  setSelectedCategory(null);
+  setEditModalVisible(true);
+};
+
   const renderRightActions = (item: Category) => (
     <TouchableOpacity 
       style={styles.deleteAction} 
@@ -169,12 +183,9 @@ const handleDeletePress = async (cat: Category) => {
             </View>
 
             <View style={styles.actions}>
-              <TouchableOpacity style={styles.actionBtn} onPress={() => {
-                  swipeableRefs.current.get(item.id)?.close();
-                  // TODO: Підключити редагування
-                }}>
-                <Ionicons name="pencil" size={20} color={Colors.textSecondary} />
-              </TouchableOpacity>
+              <TouchableOpacity style={styles.actionBtn} onPress={() => openEdit(item)}>
+  <Ionicons name="pencil" size={20} color={Colors.textSecondary} />
+</TouchableOpacity>
               <TouchableOpacity onLongPress={drag} delayLongPress={200} style={styles.actionBtn}>
                 <Ionicons name="menu" size={24} color={Colors.textSecondary} />
               </TouchableOpacity>
@@ -266,6 +277,19 @@ const handleDeletePress = async (cat: Category) => {
           </Pressable>
         </Pressable>
       </Modal>
+
+            {/* FAB Кнопка */}
+            <TouchableOpacity style={[styles.fab, { bottom: insets.bottom + 20 }]} onPress={openCreate}>
+              <Ionicons name="add" size={32} color="white" />
+            </TouchableOpacity>
+
+      <EditCategoryModal 
+  visible={editModalVisible}
+  category={selectedCategory}
+  onClose={() => setEditModalVisible(false)}
+  type={activeTab}
+  existingCategories={categories}
+/>
 
     </View>
   );
