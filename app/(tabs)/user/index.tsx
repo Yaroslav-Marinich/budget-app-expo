@@ -5,7 +5,7 @@ import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Colors } from "@/src/constants/Colors";
-import { styles } from "./user.styles";
+import { styles } from "../../../src/styles/user.styles";
 
 export default function UserScreen() {
     const insets = useSafeAreaInsets();

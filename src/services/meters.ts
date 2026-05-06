@@ -1,0 +1,176 @@
+import { db } from "@/src/firebase/config";
+import { addDoc, collection, doc, getDocs, onSnapshot, query, updateDoc, where, writeBatch } from "firebase/firestore";
+
+// Централізований список іконок та їх кольорів
+export const METER_ICONS = [
+  { name: 'flash', label: 'Світло', color: '#FFB74D' },
+  { name: 'water', label: 'Вода', color: '#64B5F6' },
+  { name: 'flame', label: 'Газ', color: '#E57373' },
+  { name: 'thermometer', label: 'Тепло', color: '#FF8A65' },
+  { name: 'wifi', label: 'Інтернет', color: '#4DB6AC' },
+  { name: 'trash', label: 'Сміття', color: '#A1887F' },
+];
+
+// ==========================================
+// 1. ІНТЕРФЕЙС ТА ЛОГІКА САМОГО ЛІЧИЛЬНИКА
+// ==========================================
+
+export interface Meter {
+  id: string;
+  userId: string;
+  name: string;
+  icon: string;
+  calcType: 'readings' | 'consumed'; 
+  order?: number;
+}
+
+export const addMeter = async (data: Omit<Meter, "id">) => {
+  try {
+    const docRef = await addDoc(collection(db, "meters"), data);
+    return docRef.id;
+  } catch (error) {
+    console.error("Помилка додавання лічильника:", error);
+    return null;
+  }
+};
+
+export const subscribeToMeters = (userId: string, callback: (meters: Meter[]) => void) => {
+  const q = query(collection(db, "meters"), where("userId", "==", userId));
+  return onSnapshot(q, (snapshot) => {
+    const meters = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    })) as Meter[];
+    callback(meters);
+  });
+};
+
+export const updateMeter = async (meterId: string, data: Partial<Meter>) => {
+  try {
+    const docRef = doc(db, "meters", meterId);
+    await updateDoc(docRef, data);
+    return true;
+  } catch (error) {
+    console.error("Помилка оновлення лічильника:", error);
+    return false;
+  }
+};
+
+// export const deleteMeter = async (meterId: string) => {
+//   try {
+//     const docRef = doc(db, "meters", meterId);
+//     await deleteDoc(docRef);
+//     return true;
+//   } catch (error) {
+//     console.error("Помилка видалення лічильника:", error);
+//     return false;
+//   }
+// };
+
+export const deleteMeter = async (meterId: string) => {
+  try {
+    const batch = writeBatch(db);
+
+    const readingsQuery = query(
+      collection(db, "meter_readings"), 
+      where("meterId", "==", meterId)
+    );
+    const readingsSnapshot = await getDocs(readingsQuery);
+
+    readingsSnapshot.forEach((docSnap) => {
+      batch.delete(docSnap.ref);
+    });
+
+    const meterRef = doc(db, "meters", meterId);
+    batch.delete(meterRef);
+
+    await batch.commit();
+
+    console.log(`Видалено лічильник та ${readingsSnapshot.size} записів історії`);
+    return true;
+  } catch (error) {
+    console.error("Помилка каскадного видалення лічильника:", error);
+    return false;
+  }
+};
+
+// ==========================================
+// 2. ІНТЕРФЕЙС ТА ЛОГІКА ПОКАЗНИКІВ (ІСТОРІЯ)
+// ==========================================
+export interface MeterReading {
+  id?: string;
+  meterId: string;
+  userId: string;
+  date: string; 
+  prevValue?: number;
+  currentValue?: number;
+  consumedValue: number;
+  comment?: string;
+}
+
+// Додавання ОДНОГО показника
+export const addMeterReading = async (reading: Omit<MeterReading, "id">) => {
+  try {
+    await addDoc(collection(db, "meter_readings"), reading);
+    return true;
+  } catch (error) {
+    console.error("Помилка збереження показника:", error);
+    return false;
+  }
+};
+
+// Отримання попереднього показника ВІДНОСНО вказаної дати
+export const getPreviousMeterReading = async (meterId: string, targetDate: string) => {
+  try {
+    const q = query(collection(db, "meter_readings"), where("meterId", "==", meterId));
+    const snapshot = await getDocs(q);
+    
+    if (snapshot.empty) return null;
+
+    const readings = snapshot.docs.map(d => d.data() as MeterReading);
+    const pastReadings = readings.filter(r => r.date < targetDate);
+    
+    if (pastReadings.length === 0) return null;
+    
+    pastReadings.sort((a, b) => b.date.localeCompare(a.date));
+    return pastReadings[0];
+  } catch (error) {
+    console.error("Помилка отримання попереднього показника:", error);
+    return null;
+  }
+};
+
+export const saveMeterReadings = async (readings: Omit<MeterReading, "id">[]) => {
+  try {
+    const batch = writeBatch(db);
+    
+    readings.forEach((reading) => {
+      const docRef = doc(collection(db, "meter_readings"));
+      batch.set(docRef, reading);
+    });
+
+    await batch.commit();
+    return true;
+  } catch (error) {
+    console.error("Помилка збереження показників:", error);
+    return false;
+  }
+};
+
+// Отримання всіх показників (історії)
+export const subscribeToMeterReadings = (userId: string, callback: (readings: MeterReading[]) => void) => {
+  const q = query(collection(db, "meter_readings"), where("userId", "==", userId));
+  return onSnapshot(q, (snapshot) => {
+    const readings = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    })) as MeterReading[];
+    callback(readings);
+  });
+};
+
+// Функція для швидкого отримання кольору за назвою іконки
+export const getMeterColor = (iconName: string) => {
+  const found = METER_ICONS.find(i => i.name === iconName);
+  return found ? found.color : '#0a7ea4'; 
+};

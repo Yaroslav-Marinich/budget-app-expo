@@ -12,7 +12,7 @@ import { Category, seedDefaultCategories, subscribeToCategories } from "@/src/se
 import { addTransaction, subscribeToMonthlyTransactions } from "@/src/services/transactions";
 import { subscribeToWallets, Wallet } from "@/src/services/wallets";
 import { FlatList } from "react-native-gesture-handler";
-import { styles } from "./home.styles";
+import { styles } from "../../../src/styles/home.styles";
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
