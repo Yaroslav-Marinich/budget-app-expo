@@ -1,5 +1,5 @@
 import { db } from "@/src/firebase/config";
-import { addDoc, collection, doc, getDocs, onSnapshot, query, updateDoc, where, writeBatch } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getDocs, onSnapshot, query, updateDoc, where, writeBatch } from "firebase/firestore";
 
 // Централізований список іконок та їх кольорів
 export const METER_ICONS = [
@@ -173,4 +173,47 @@ export const subscribeToMeterReadings = (userId: string, callback: (readings: Me
 export const getMeterColor = (iconName: string) => {
   const found = METER_ICONS.find(i => i.name === iconName);
   return found ? found.color : '#0a7ea4'; 
+};
+
+// Отримання показників за конкретний місяць
+export const subscribeToReadingsByDate = (
+  userId: string, 
+  date: string, 
+  callback: (readings: MeterReading[]) => void
+) => {
+  const q = query(
+    collection(db, "meter_readings"), 
+    where("userId", "==", userId),
+    where("date", "==", date)
+  );
+  return onSnapshot(q, (snapshot) => {
+    const readings = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    })) as MeterReading[];
+    callback(readings);
+  });
+};
+
+// Видалення конкретного показника (якщо користувач помилився)
+export const deleteMeterReading = async (readingId: string) => {
+  try {
+    await deleteDoc(doc(db, "meter_readings", readingId));
+    return true;
+  } catch (error) {
+    console.error("Помилка видалення показника:", error);
+    return false;
+  }
+};
+
+// Оновлення існуючого показника
+export const updateMeterReading = async (readingId: string, data: Partial<MeterReading>) => {
+  try {
+    const docRef = doc(db, "meter_readings", readingId);
+    await updateDoc(docRef, data);
+    return true;
+  } catch (error) {
+    console.error("Помилка оновлення показника:", error);
+    return false;
+  }
 };

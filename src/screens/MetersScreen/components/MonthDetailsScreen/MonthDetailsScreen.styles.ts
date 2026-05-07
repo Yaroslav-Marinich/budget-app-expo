@@ -1,0 +1,125 @@
+import { Colors } from '@/src/constants/Colors';
+import { StyleSheet } from 'react-native';
+
+export const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: Colors.background,
+  },
+  header: {
+    paddingHorizontal: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: Colors.text,
+    marginLeft: 15,
+  },
+  listContent: {
+    paddingHorizontal: 20,
+    paddingBottom: 120,
+  },
+  emptyText: {
+    color: Colors.textSecondary,
+    textAlign: 'center',
+    marginTop: 40,
+    fontSize: 16,
+  },
+  detailCard: {
+    backgroundColor: Colors.surface,
+    borderRadius: 20,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: Colors.outline,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+    elevation: 2,
+  },
+  detailHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  detailMeterInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  detailMeterName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: Colors.text,
+    marginLeft: 10,
+  },
+  detailActions: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  readingsFlowBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: Colors.outline,
+    borderRadius: 16,
+    padding: 12,
+    marginBottom: 12,
+  },
+  readingCardItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  readingLabel: {
+    fontSize: 11,
+    color: Colors.textSecondary,
+    textTransform: 'uppercase',
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  readingCardValue: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: Colors.text,
+  },
+  consumedHighlightBox: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: `${Colors.primary}50`,
+    borderRadius: 16,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+  },
+  consumedHighlightLabel: {
+    color: Colors.primary,
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  consumedHighlightValue: {
+    color: Colors.primary,
+    fontSize: 24,
+    fontWeight: '900',
+  },
+  commentBubble: {
+    flexDirection: 'row',
+    backgroundColor: Colors.outline,
+    padding: 12,
+    borderRadius: 12,
+    marginTop: 12,
+    alignItems: 'center',
+    gap: 8,
+    borderLeftWidth: 3,
+    borderLeftColor: Colors.outline,
+  },
+  commentText: {
+    color: Colors.text,
+    fontSize: 14,
+    lineHeight: 20,
+    flex: 1,
+  },
+});

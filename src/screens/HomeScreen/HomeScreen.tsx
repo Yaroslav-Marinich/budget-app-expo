@@ -1,0 +1,336 @@
+import { Ionicons } from "@expo/vector-icons";
+import { Stack } from "expo-router";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Dimensions, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { FlatList } from "react-native-gesture-handler";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+import { CategoryModal } from "@/src/components/ui/CategoryModal/CategoryModal";
+import { MonthPickerModal } from "@/src/components/ui/MonthPickerModal/MonthPickerModal";
+import { TransactionModal } from "@/src/components/ui/TransactionModal/TransactionModal";
+import { Colors } from "@/src/constants/Colors";
+import { styles } from "@/src/screens/HomeScreen/home.styles";
+import { Category, seedDefaultCategories, subscribeToCategories } from "@/src/services/categories";
+import { subscribeToMonthlyTransactions } from "@/src/services/transactions";
+import { subscribeToWallets, Wallet } from "@/src/services/wallets";
+
+export const HomeScreen = () => {
+	const insets = useSafeAreaInsets();
+	const walletsListRef = useRef<FlatList>(null);
+
+	const { width: screenWidth } = Dimensions.get("window");
+	const cardWidth = screenWidth * 0.75;
+	const cardSpacing = 15;
+
+	const [activeTab, setActiveTab] = useState<"expense" | "income">("expense");
+
+	const [wallets, setWallets] = useState<Wallet[]>([]);
+	const [selectedWalletId, setSelectedWalletId] = useState<string | null>(null);
+	const [modalVisible, setModalVisible] = useState(false);
+	const [selectedCategory, setSelectedCategory] = useState<any>(null);
+	const [transactions, setTransactions] = useState<any[]>([]);
+	const [currentDate, setCurrentDate] = useState(new Date());
+	const [isMonthPickerVisible, setMonthPickerVisible] = useState(false);
+	const [categories, setCategories] = useState<Category[]>([]);
+	const [isCategoryModalVisible, setCategoryModalVisible] = useState(false);
+
+	const handleWalletPress = (walletId: string, index: number) => {
+		setSelectedWalletId(walletId);
+
+		walletsListRef.current?.scrollToIndex({
+			index,
+			animated: true,
+			viewPosition: 0.5,
+		});
+	};
+
+	const totalExpense = transactions
+		.filter((transaction) => transaction.type === "expense")
+		.reduce((sum, transaction) => sum + transaction.amount, 0);
+
+	const totalIncome = transactions
+		.filter((transaction) => transaction.type === "income")
+		.reduce((sum, transaction) => sum + transaction.amount, 0);
+
+	const activeCategories = categories
+		.filter((category) => category.type === activeTab && !category.isArchived)
+		.map((category) => {
+			const sum = transactions
+				.filter((transaction) => transaction.categoryId === category.id)
+				.reduce((accumulator, transaction) => accumulator + transaction.amount, 0);
+
+			return { ...category, sum };
+		});
+
+	const getFormattedDate = (date: Date) => {
+		const monthName = date
+			.toLocaleString("uk-UA", { month: "long" })
+			.replace(/^./, (char) => char.toUpperCase());
+		const monthNum = String(date.getMonth() + 1).padStart(2, "0");
+		const year = date.getFullYear();
+
+		return `${monthNum} ${monthName} ${year}`;
+	};
+
+	const handleCategoryPress = (category: any) => {
+		setSelectedCategory(category);
+		setModalVisible(true);
+	};
+
+	const handlePrevMonth = () => {
+		setCurrentDate((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
+	};
+
+	const handleNextMonth = () => {
+		setCurrentDate((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
+	};
+
+	const processedWallets = useMemo(() => {
+		const activeWallets = wallets
+			.filter((wallet) => !wallet.isArchived)
+			.sort((left, right) => (left.order || 0) - (right.order || 0));
+
+		const archivedWithActivity = wallets
+			.filter((wallet) => wallet.isArchived)
+			.filter((wallet) => transactions.some((transaction) => transaction.walletId === wallet.id))
+			.map((wallet) => {
+				const monthBalance = transactions
+					.filter((transaction) => transaction.walletId === wallet.id)
+					.reduce(
+						(balance, transaction) =>
+							transaction.type === "income" ? balance + transaction.amount : balance - transaction.amount,
+						0,
+					);
+
+				return { ...wallet, balance: monthBalance };
+			});
+
+		return [...activeWallets, ...archivedWithActivity];
+	}, [wallets, transactions]);
+
+	const isSelectedWalletArchived = useMemo(() => {
+		const selectedWallet = wallets.find((wallet) => wallet.id === selectedWalletId);
+		return selectedWallet?.isArchived || false;
+	}, [wallets, selectedWalletId]);
+
+	useEffect(() => {
+		const year = currentDate.getFullYear();
+		const month = String(currentDate.getMonth() + 1).padStart(2, "0");
+		const currentMonthStr = `${year}-${month}`;
+
+		const unsubscribe = subscribeToMonthlyTransactions("manual-test-id", currentMonthStr, (data) => {
+			setTransactions(data);
+		});
+
+		return () => unsubscribe();
+	}, [currentDate]);
+
+	useEffect(() => {
+		const unsubscribeWallets = subscribeToWallets("manual-test-id", (data) => {
+			setWallets(data);
+			if (!selectedWalletId) {
+				const firstActive = data.find((wallet) => !wallet.isArchived);
+				if (firstActive) {
+					setSelectedWalletId(firstActive.id);
+				}
+			}
+		});
+
+		return () => unsubscribeWallets();
+	}, [selectedWalletId]);
+
+	useEffect(() => {
+		seedDefaultCategories("manual-test-id");
+
+		const unsubscribeCategories = subscribeToCategories("manual-test-id", (data) => {
+			setCategories(data);
+		});
+
+		return () => unsubscribeCategories();
+	}, []);
+
+	useEffect(() => {
+		const unsubscribeCategories = subscribeToCategories("manual-test-id", (data) => {
+			setCategories(data);
+		});
+
+		return () => unsubscribeCategories();
+	}, []);
+
+	return (
+		<View style={[styles.container, { paddingTop: insets.top }]}>
+			<Stack.Screen options={{ headerShown: false }} />
+
+			<ScrollView showsVerticalScrollIndicator={false}>
+				<Text style={styles.sectionTitle}>Рахунки</Text>
+				<FlatList
+					ref={walletsListRef}
+					data={processedWallets}
+					horizontal
+					showsHorizontalScrollIndicator={false}
+					keyExtractor={(wallet) => wallet.id}
+					contentContainerStyle={{ paddingHorizontal: 20 }}
+					snapToInterval={cardWidth + cardSpacing}
+					decelerationRate="fast"
+					snapToAlignment="center"
+					getItemLayout={(_, index) => ({
+						length: cardWidth + cardSpacing,
+						offset: (cardWidth + cardSpacing) * index,
+						index,
+					})}
+					renderItem={({ item: wallet, index }) => (
+						<TouchableOpacity
+							activeOpacity={0.9}
+							style={[
+								styles.walletCard,
+								{
+									width: cardWidth,
+									marginRight: index === processedWallets.length - 1 ? 0 : cardSpacing,
+								},
+								wallet.isArchived && styles.walletCardArchived,
+								selectedWalletId === wallet.id && { borderColor: Colors.primary, borderWidth: 2 },
+							]}
+							onPress={() => handleWalletPress(wallet.id, index)}
+						>
+							{wallet.isArchived && (
+								<View style={styles.archiveBadgeHome}>
+									<Text style={styles.archiveBadgeTextHome}>Архів</Text>
+								</View>
+							)}
+
+							<View style={styles.cardHeader}>
+								<Ionicons
+									name={wallet.icon as any}
+									size={24}
+									color={wallet.isArchived ? Colors.textSecondary : Colors.accent}
+								/>
+								<View>
+									<Text style={styles.walletTitle}>{wallet.title}</Text>
+								</View>
+							</View>
+							<Text style={styles.walletAmount}>
+								{wallet.balance.toLocaleString()} <Text style={styles.currency}>{wallet.currency}</Text>
+							</Text>
+						</TouchableOpacity>
+					)}
+				/>
+
+				<View style={styles.dateSelector}>
+					<TouchableOpacity onPress={handlePrevMonth} style={{ padding: 10 }}>
+						<Ionicons name="chevron-back" size={24} color={Colors.textSecondary} />
+					</TouchableOpacity>
+
+					<TouchableOpacity onPress={() => setMonthPickerVisible(true)}>
+						<Text style={styles.dateText}>{getFormattedDate(currentDate)}</Text>
+					</TouchableOpacity>
+
+					<TouchableOpacity onPress={handleNextMonth} style={{ padding: 10 }}>
+						<Ionicons name="chevron-forward" size={24} color={Colors.textSecondary} />
+					</TouchableOpacity>
+				</View>
+
+				<View style={styles.transactionsBoard}>
+					<View style={styles.toggleContainer}>
+						<TouchableOpacity
+							style={[styles.toggleBtn, activeTab === "expense" && styles.toggleBtnActive]}
+							onPress={() => setActiveTab("expense")}
+						>
+							<Text style={[styles.toggleLabel, activeTab === "expense" && { color: Colors.error }]}>Витрати</Text>
+							<Text style={styles.toggleAmount}>{totalExpense.toLocaleString()} ₴</Text>
+						</TouchableOpacity>
+
+						<TouchableOpacity
+							style={[styles.toggleBtn, activeTab === "income" && styles.toggleBtnActive]}
+							onPress={() => setActiveTab("income")}
+						>
+							<Text style={[styles.toggleLabel, activeTab === "income" && { color: Colors.primary }]}>Доходи</Text>
+							<Text style={styles.toggleAmount}>{totalIncome.toLocaleString()} ₴</Text>
+						</TouchableOpacity>
+					</View>
+
+					<View style={styles.dividerContainer}>
+						<View style={styles.dividerLine} />
+						{isSelectedWalletArchived && (
+							<View style={styles.lockBadge}>
+								<Ionicons name="lock-closed" size={24} color={Colors.error} />
+							</View>
+						)}
+					</View>
+
+					<View style={styles.categoriesContainer}>
+						{activeCategories.map((category) => {
+							const isDisabled = isSelectedWalletArchived;
+
+							return (
+								<TouchableOpacity
+									key={category.id}
+									style={[styles.categoryCard, isDisabled && styles.categoryCardDisabled]}
+									onPress={() => {
+										if (!isDisabled) {
+											handleCategoryPress(category);
+										}
+									}}
+									onLongPress={() => {
+										console.log("Тут буде статистика для категорії:", category.name);
+									}}
+									delayLongPress={300}
+								>
+									<View style={[styles.iconContainer, { backgroundColor: `${category.color}15` }]}>
+										<Ionicons name={category.icon as any} size={22} color={category.color} />
+									</View>
+									<View style={styles.textContainer}>
+										<Text style={styles.categoryName} numberOfLines={1}>
+											{category.name}
+										</Text>
+										<Text
+											style={[styles.categoryAmount, category.sum === 0 && { color: Colors.textSecondary }]}
+											numberOfLines={1}
+										>
+											{category.sum.toLocaleString()} ₴
+										</Text>
+									</View>
+								</TouchableOpacity>
+							);
+						})}
+
+						<TouchableOpacity
+							style={[styles.categoryCard, styles.addCategoryCard]}
+							onPress={() => setCategoryModalVisible(true)}
+						>
+							<View style={[styles.iconContainer, { backgroundColor: "rgba(255,255,255,0.05)" }]}>
+								<Ionicons name="add" size={24} color={Colors.textSecondary} />
+							</View>
+							<View style={styles.textContainer}>
+								<Text style={[styles.categoryName, { color: Colors.textSecondary }]}>Категорія</Text>
+								<Text style={styles.categoryAmount}>Нова</Text>
+							</View>
+						</TouchableOpacity>
+					</View>
+				</View>
+			</ScrollView>
+
+			<TransactionModal
+				visible={modalVisible}
+				onClose={() => setModalVisible(false)}
+				type={activeTab}
+				categoryName={selectedCategory?.name}
+				categoryId={selectedCategory?.id}
+				walletId={selectedWalletId}
+			/>
+
+			<MonthPickerModal
+				visible={isMonthPickerVisible}
+				onClose={() => setMonthPickerVisible(false)}
+				currentDate={currentDate}
+				onSelect={(newDate) => setCurrentDate(newDate)}
+			/>
+
+			<CategoryModal
+				visible={isCategoryModalVisible}
+				onClose={() => setCategoryModalVisible(false)}
+				type={activeTab}
+				existingCategories={categories}
+			/>
+		</View>
+	);
+};
