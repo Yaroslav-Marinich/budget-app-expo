@@ -31,7 +31,7 @@ export const CategoriesScreen = () => {
   const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
 
   useEffect(() => {
-    const unsubscribe = subscribeToCategories("manual-test-id", (data) => {
+    const unsubscribe = subscribeToCategories((data) => {
       setCategories(data);
     });
     return () => unsubscribe();

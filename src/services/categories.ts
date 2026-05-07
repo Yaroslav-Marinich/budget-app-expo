@@ -1,7 +1,7 @@
-import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, onSnapshot, query, updateDoc, where, writeBatch } from "firebase/firestore";
-import { db } from "../firebase/config";
+import { addDoc, collection, deleteDoc, doc, getDocs, onSnapshot, query, updateDoc, where, writeBatch } from "firebase/firestore";
+import { auth, db } from "../config/firebase";
 
-const DEFAULT_CATEGORIES: Omit<Category, "id" | "userId">[] = [
+export const DEFAULT_CATEGORIES: Omit<Category, "id" | "userId">[] = [
   // Витрати
   { name: 'Продукти', icon: 'cart', color: '#E57373', type: 'expense', order: 1 },
   { name: 'Розваги', icon: 'game-controller', color: '#BA68C8', type: 'expense', order: 2 },
@@ -23,35 +23,50 @@ export interface Category {
   isArchived?: boolean;
 }
 
-export const seedDefaultCategories = async (userId: string) => {
-  try {
-    const settingsRef = doc(db, "userSettings", userId);
-    const settingsSnap = await getDoc(settingsRef);
+// export const seedDefaultCategories = async () => {
+//   try {
+//     const user = auth.currentUser;
+//     if (!user) {
+//       // console.error("Користувач не авторизований");
+//       return;
+//     }
 
-    if (settingsSnap.exists() && settingsSnap.data().isInitialCategoriesCreated) {
-      return;
-    }
+//     const settingsRef = doc(db, "userSettings", user.uid);
+//     const settingsSnap = await getDoc(settingsRef);
 
-    const batch = writeBatch(db);
+//     if (settingsSnap.exists() && settingsSnap.data().isInitialCategoriesCreated) {
+//       return;
+//     }
+
+//     const batch = writeBatch(db);
     
-    DEFAULT_CATEGORIES.forEach((cat) => {
-      const newCatRef = doc(collection(db, "categories"));
-      batch.set(newCatRef, { ...cat, userId });
-    });
+//     DEFAULT_CATEGORIES.forEach((cat) => {
+//       const newCatRef = doc(collection(db, "categories"));
+//       batch.set(newCatRef, { ...cat, userId: user.uid });
+//     });
 
-    batch.set(settingsRef, { isInitialCategoriesCreated: true }, { merge: true });
+//     batch.set(settingsRef, { isInitialCategoriesCreated: true }, { merge: true });
 
-    await batch.commit();
-    console.log("Дефолтні категорії успішно створені");
-  } catch (error) {
-    console.error("Помилка при створенні дефолтних категорій:", error);
-  }
-};
+//     await batch.commit();
+//     console.log("Дефолтні категорії успішно створені");
+//   } catch (error) {
+//     console.error("Помилка при створенні дефолтних категорій:", error);
+//   }
+// };
 
 // Функція створення нової категорії
-export const addCategory = async (data: Omit<Category, "id">) => {
+export const addCategory = async (data: Omit<Category, "id" | "userId">) => {
   try {
-    const docRef = await addDoc(collection(db, "categories"), data);
+    const user = auth.currentUser;
+    if (!user) {
+      // console.error("Користувач не авторизований");
+      return null;
+    }
+
+    const docRef = await addDoc(collection(db, "categories"), {
+      ...data,
+      userId: user.uid,
+    });
     return docRef.id;
   } catch (error) {
     console.error("Помилка додавання категорії:", error);
@@ -60,10 +75,16 @@ export const addCategory = async (data: Omit<Category, "id">) => {
 };
 
 // Підписка на всі категорії користувача у реальному часі
-export const subscribeToCategories = (userId: string, callback: (categories: Category[]) => void) => {
+export const subscribeToCategories = (callback: (categories: Category[]) => void) => {
+  const user = auth.currentUser;
+  if (!user) {
+    callback([]);
+    return () => {};
+  }
+
   const q = query(
     collection(db, "categories"),
-    where("userId", "==", userId)
+    where("userId", "==", user.uid)
   );
 
   return onSnapshot(q, (snapshot) => {
@@ -77,12 +98,19 @@ export const subscribeToCategories = (userId: string, callback: (categories: Cat
 
 // Оновлення порядку категорій
 export const updateCategoriesOrder = async (categories: Category[]) => {
+  const user = auth.currentUser;
+  if (!user) {
+    // console.error("Користувач не авторизований");
+    return false;
+  }
+
   const batch = writeBatch(db);
   categories.forEach((cat, index) => {
     const catRef = doc(db, "categories", cat.id);
     batch.update(catRef, { order: index });
   });
   await batch.commit();
+  return true;
 };
 
 // Видалення з перенесенням транзакцій
@@ -90,9 +118,19 @@ export const deleteAndReassignCategory = async (
   deletedCategoryId: string, 
   newCategory: Category
 ) => {
+  const user = auth.currentUser;
+  if (!user) {
+    // console.error("Користувач не авторизований");
+    return null;
+  }
+
   const batch = writeBatch(db);
 
-  const q = query(collection(db, "transactions"), where("categoryId", "==", deletedCategoryId));
+  const q = query(
+    collection(db, "transactions"),
+    where("userId", "==", user.uid),
+    where("categoryId", "==", deletedCategoryId)
+  );
   const snapshot = await getDocs(q);
 
   snapshot.forEach((txDoc) => {
@@ -111,7 +149,17 @@ export const deleteAndReassignCategory = async (
 
 // Перевірка, чи є транзакції у категорії
 export const checkCategoryHasTransactions = async (categoryId: string) => {
-  const q = query(collection(db, "transactions"), where("categoryId", "==", categoryId));
+  const user = auth.currentUser;
+  if (!user) {
+    // console.error("Користувач не авторизований");
+    return false;
+  }
+
+  const q = query(
+    collection(db, "transactions"),
+    where("userId", "==", user.uid),
+    where("categoryId", "==", categoryId)
+  );
   const snapshot = await getDocs(q);
   return !snapshot.empty; // Поверне true, якщо є хоча б одна транзакція
 };
@@ -119,6 +167,12 @@ export const checkCategoryHasTransactions = async (categoryId: string) => {
 // Просте видалення категорії (коли операцій немає)
 export const deleteCategory = async (categoryId: string) => {
   try {
+    const user = auth.currentUser;
+    if (!user) {
+      // console.error("Користувач не авторизований");
+      return false;
+    }
+
     await deleteDoc(doc(db, "categories", categoryId));
     return true;
   } catch (error) {
@@ -127,8 +181,14 @@ export const deleteCategory = async (categoryId: string) => {
   }
 };
 
-export const updateCategory = async (categoryId: string, data: Partial<Category>) => {
+export const updateCategory = async (categoryId: string, data: Partial<Omit<Category, "id" | "userId">>) => {
   try {
+    const user = auth.currentUser;
+    if (!user) {
+      // console.error("Користувач не авторизований");
+      return false;
+    }
+
     const catRef = doc(db, "categories", categoryId);
     await updateDoc(catRef, data);
     return true;

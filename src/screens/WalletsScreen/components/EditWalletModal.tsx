@@ -42,7 +42,7 @@ export const EditWalletModal = ({ visible, wallet, onClose }: any) => {
   const handleSave = async () => {
     if (!title.trim()) return;
 
-    const data = { title, icon, currency, userId: "manual-test-id" };
+    const data = { title, icon, currency };
 
     showLoader(); 
     try {

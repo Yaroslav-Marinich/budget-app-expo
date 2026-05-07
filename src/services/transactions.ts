@@ -1,5 +1,5 @@
 import { addDoc, collection, onSnapshot, query, serverTimestamp, where } from "firebase/firestore";
-import { db } from "../firebase/config";
+import { auth, db } from "../config/firebase";
 import { updateWalletBalance } from "./wallets";
 
 export interface TransactionData {
@@ -11,10 +11,19 @@ export interface TransactionData {
   walletId: string; 
 }
 
-export const addTransaction = async (data: any) => {
+export type CreateTransactionInput = Omit<TransactionData, 'userId'>;
+
+export const addTransaction = async (data: CreateTransactionInput) => {
   try {
-    const docRef = await addDoc(collection(db, "transactions"), {
+    const user = auth.currentUser;
+    if (!user) {
+      // console.error("Користувач не авторизований");
+      return false;
+    }
+
+    await addDoc(collection(db, "transactions"), {
       ...data,
+      userId: user.uid, 
       date: serverTimestamp(),
       monthYear: new Date().toISOString().slice(0, 7),
     });
@@ -24,18 +33,26 @@ export const addTransaction = async (data: any) => {
 
     return true;
   } catch (error) {
+    console.error("Помилка додавання транзакції:", error);
     return false;
   }
 };
 
 export const subscribeToMonthlyTransactions = (
-  userId: string,
   monthYear: string,
   onUpdate: (transactions: any[]) => void
 ) => {
+  const user = auth.currentUser;
+  
+  if (!user) {
+    console.warn("Користувач ще не авторизований, очікуємо...");
+    onUpdate([]); 
+    return () => {}; 
+  }
+
   const q = query(
     collection(db, "transactions"),
-    where("userId", "==", userId),
+    where("userId", "==", user.uid), 
     where("monthYear", "==", monthYear)
   );
 

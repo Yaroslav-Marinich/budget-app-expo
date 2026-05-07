@@ -57,7 +57,6 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
     const numericAmount = parseFloat(amount);
 
     const success = await addTransaction({
-      userId: "manual-test-id",
       amount: numericAmount,
       type: type,
       categoryId: categoryId as string,

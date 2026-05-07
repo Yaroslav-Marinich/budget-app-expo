@@ -23,8 +23,8 @@ export const MetersScreen = () => {
   const [readings, setReadings] = useState<MeterReading[]>([]);
 
   useEffect(() => {
-    const unsubMeters = subscribeToMeters('manual-test-id', setMeters);
-    const unsubReadings = subscribeToMeterReadings('manual-test-id', setReadings);
+    const unsubMeters = subscribeToMeters(setMeters);
+    const unsubReadings = subscribeToMeterReadings(setReadings);
 
     return () => {
       unsubMeters();

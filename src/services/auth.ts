@@ -7,7 +7,7 @@ import {
 } from "firebase/auth";
 import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 import { useEffect } from "react";
-import { auth, db } from "../firebase/config";
+import { auth, db } from "../config/firebase";
 
 WebBrowser.maybeCompleteAuthSession();
 

@@ -61,7 +61,6 @@ export const EditCategoryModal = ({ visible, category, onClose, type, existingCa
       icon,
       color,
       type,
-      userId: "manual-test-id",
     };
 
     showLoader();

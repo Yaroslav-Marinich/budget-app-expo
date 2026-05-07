@@ -49,7 +49,6 @@ export const AddMeterModal: React.FC<AddMeterModalProps> = ({ visible, onClose, 
         });
       } else {
         await addMeter({
-          userId: "manual-test-id",
           name: name.trim(),
           icon,
           calcType,

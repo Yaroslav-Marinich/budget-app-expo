@@ -42,7 +42,7 @@ export const SubmitReadingsScreen = () => {
   const dateKey = `${year}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
 
   useEffect(() => {
-    const unsubscribe = subscribeToMeters('manual-test-id', (data) => {
+    const unsubscribe = subscribeToMeters((data) => {
       setMeters(data.sort((left, right) => (left.order || 0) - (right.order || 0)));
     });
 
@@ -126,9 +126,8 @@ export const SubmitReadingsScreen = () => {
       consumedValue = parseFloat(consumed);
     }
 
-    const readingData: Omit<MeterReading, 'id'> = {
+    const readingData: Omit<MeterReading, 'id' | 'userId'> = {
       meterId: selectedMeter.id,
-      userId: 'manual-test-id',
       date: dateKey,
       consumedValue,
     };

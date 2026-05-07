@@ -99,7 +99,7 @@ const confirmArchive = (wallet: Wallet) => {
   };
     
       useEffect(() => {
-    const unsubscribe = subscribeToWallets("manual-test-id", (data) => {
+    const unsubscribe = subscribeToWallets((data) => {
       setWallets(data.sort((a, b) => (a.order || 0) - (b.order || 0)));
     });
     return () => unsubscribe();

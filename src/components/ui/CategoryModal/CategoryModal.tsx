@@ -51,7 +51,6 @@ const handleSave = async () => {
       const randomColor = availableColors[Math.floor(Math.random() * availableColors.length)];
 
       await addCategory({
-        userId: "manual-test-id", 
         name: name.trim(),
         icon,
         color: randomColor,

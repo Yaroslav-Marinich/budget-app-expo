@@ -10,7 +10,7 @@ import { MonthPickerModal } from "@/src/components/ui/MonthPickerModal/MonthPick
 import { TransactionModal } from "@/src/components/ui/TransactionModal/TransactionModal";
 import { Colors } from "@/src/constants/Colors";
 import { styles } from "@/src/screens/HomeScreen/home.styles";
-import { Category, seedDefaultCategories, subscribeToCategories } from "@/src/services/categories";
+import { Category, subscribeToCategories } from "@/src/services/categories";
 import { subscribeToMonthlyTransactions } from "@/src/services/transactions";
 import { subscribeToWallets, Wallet } from "@/src/services/wallets";
 
@@ -113,12 +113,22 @@ export const HomeScreen = () => {
 		return selectedWallet?.isArchived || false;
 	}, [wallets, selectedWalletId]);
 
+	// useEffect(() => {
+    //     const unsubscribe = onAuthStateChanged(auth, (user) => {
+    //         if (user) {
+    //             console.log("🟢 Firebase готовий! Юзер:", user.uid);
+    //             setIsAuthReady(true); 
+    //         }
+    //     });
+    //     return () => unsubscribe();
+    // }, []);
+
 	useEffect(() => {
 		const year = currentDate.getFullYear();
 		const month = String(currentDate.getMonth() + 1).padStart(2, "0");
 		const currentMonthStr = `${year}-${month}`;
 
-		const unsubscribe = subscribeToMonthlyTransactions("manual-test-id", currentMonthStr, (data) => {
+		const unsubscribe = subscribeToMonthlyTransactions(currentMonthStr, (data) => {
 			setTransactions(data);
 		});
 
@@ -126,7 +136,7 @@ export const HomeScreen = () => {
 	}, [currentDate]);
 
 	useEffect(() => {
-		const unsubscribeWallets = subscribeToWallets("manual-test-id", (data) => {
+		const unsubscribeWallets = subscribeToWallets((data) => {
 			setWallets(data);
 			if (!selectedWalletId) {
 				const firstActive = data.find((wallet) => !wallet.isArchived);
@@ -140,17 +150,7 @@ export const HomeScreen = () => {
 	}, [selectedWalletId]);
 
 	useEffect(() => {
-		seedDefaultCategories("manual-test-id");
-
-		const unsubscribeCategories = subscribeToCategories("manual-test-id", (data) => {
-			setCategories(data);
-		});
-
-		return () => unsubscribeCategories();
-	}, []);
-
-	useEffect(() => {
-		const unsubscribeCategories = subscribeToCategories("manual-test-id", (data) => {
+		const unsubscribeCategories = subscribeToCategories((data) => {
 			setCategories(data);
 		});
 

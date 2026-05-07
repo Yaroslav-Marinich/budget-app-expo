@@ -1,4 +1,4 @@
-import { db } from "@/src/firebase/config";
+import { auth, db } from "@/src/config/firebase";
 import { addDoc, collection, deleteDoc, doc, getDocs, onSnapshot, query, updateDoc, where, writeBatch } from "firebase/firestore";
 
 // Централізований список іконок та їх кольорів
@@ -24,9 +24,18 @@ export interface Meter {
   order?: number;
 }
 
-export const addMeter = async (data: Omit<Meter, "id">) => {
+export const addMeter = async (data: Omit<Meter, "id" | "userId">) => {
   try {
-    const docRef = await addDoc(collection(db, "meters"), data);
+    const user = auth.currentUser;
+    if (!user) {
+      // console.error("Користувач не авторизований");
+      return null;
+    }
+
+    const docRef = await addDoc(collection(db, "meters"), {
+      ...data,
+      userId: user.uid,
+    });
     return docRef.id;
   } catch (error) {
     console.error("Помилка додавання лічильника:", error);
@@ -34,8 +43,14 @@ export const addMeter = async (data: Omit<Meter, "id">) => {
   }
 };
 
-export const subscribeToMeters = (userId: string, callback: (meters: Meter[]) => void) => {
-  const q = query(collection(db, "meters"), where("userId", "==", userId));
+export const subscribeToMeters = (callback: (meters: Meter[]) => void) => {
+  const user = auth.currentUser;
+  if (!user) {
+    callback([]);
+    return () => {};
+  }
+
+  const q = query(collection(db, "meters"), where("userId", "==", user.uid));
   return onSnapshot(q, (snapshot) => {
     const meters = snapshot.docs.map(doc => ({
       id: doc.id,
@@ -45,8 +60,14 @@ export const subscribeToMeters = (userId: string, callback: (meters: Meter[]) =>
   });
 };
 
-export const updateMeter = async (meterId: string, data: Partial<Meter>) => {
+export const updateMeter = async (meterId: string, data: Partial<Omit<Meter, "id" | "userId">>) => {
   try {
+    const user = auth.currentUser;
+    if (!user) {
+      // console.error("Користувач не авторизований");
+      return false;
+    }
+
     const docRef = doc(db, "meters", meterId);
     await updateDoc(docRef, data);
     return true;
@@ -69,10 +90,17 @@ export const updateMeter = async (meterId: string, data: Partial<Meter>) => {
 
 export const deleteMeter = async (meterId: string) => {
   try {
+    const user = auth.currentUser;
+    if (!user) {
+      // console.error("Користувач не авторизований");
+      return false;
+    }
+
     const batch = writeBatch(db);
 
     const readingsQuery = query(
       collection(db, "meter_readings"), 
+      where("userId", "==", user.uid),
       where("meterId", "==", meterId)
     );
     const readingsSnapshot = await getDocs(readingsQuery);
@@ -109,9 +137,18 @@ export interface MeterReading {
 }
 
 // Додавання ОДНОГО показника
-export const addMeterReading = async (reading: Omit<MeterReading, "id">) => {
+export const addMeterReading = async (reading: Omit<MeterReading, "id" | "userId">) => {
   try {
-    await addDoc(collection(db, "meter_readings"), reading);
+    const user = auth.currentUser;
+    if (!user) {
+      // console.error("Користувач не авторизований");
+      return false;
+    }
+
+    await addDoc(collection(db, "meter_readings"), {
+      ...reading,
+      userId: user.uid,
+    });
     return true;
   } catch (error) {
     console.error("Помилка збереження показника:", error);
@@ -122,7 +159,17 @@ export const addMeterReading = async (reading: Omit<MeterReading, "id">) => {
 // Отримання попереднього показника ВІДНОСНО вказаної дати
 export const getPreviousMeterReading = async (meterId: string, targetDate: string) => {
   try {
-    const q = query(collection(db, "meter_readings"), where("meterId", "==", meterId));
+    const user = auth.currentUser;
+    if (!user) {
+      // console.error("Користувач не авторизований");
+      return null;
+    }
+
+    const q = query(
+      collection(db, "meter_readings"),
+      where("userId", "==", user.uid),
+      where("meterId", "==", meterId)
+    );
     const snapshot = await getDocs(q);
     
     if (snapshot.empty) return null;
@@ -140,13 +187,22 @@ export const getPreviousMeterReading = async (meterId: string, targetDate: strin
   }
 };
 
-export const saveMeterReadings = async (readings: Omit<MeterReading, "id">[]) => {
+export const saveMeterReadings = async (readings: Omit<MeterReading, "id" | "userId">[]) => {
   try {
+    const user = auth.currentUser;
+    if (!user) {
+      // console.error("Користувач не авторизований");
+      return false;
+    }
+
     const batch = writeBatch(db);
     
     readings.forEach((reading) => {
       const docRef = doc(collection(db, "meter_readings"));
-      batch.set(docRef, reading);
+      batch.set(docRef, {
+        ...reading,
+        userId: user.uid,
+      });
     });
 
     await batch.commit();
@@ -158,8 +214,14 @@ export const saveMeterReadings = async (readings: Omit<MeterReading, "id">[]) =>
 };
 
 // Отримання всіх показників (історії)
-export const subscribeToMeterReadings = (userId: string, callback: (readings: MeterReading[]) => void) => {
-  const q = query(collection(db, "meter_readings"), where("userId", "==", userId));
+export const subscribeToMeterReadings = (callback: (readings: MeterReading[]) => void) => {
+  const user = auth.currentUser;
+  if (!user) {
+    callback([]);
+    return () => {};
+  }
+
+  const q = query(collection(db, "meter_readings"), where("userId", "==", user.uid));
   return onSnapshot(q, (snapshot) => {
     const readings = snapshot.docs.map(doc => ({
       id: doc.id,
@@ -177,13 +239,18 @@ export const getMeterColor = (iconName: string) => {
 
 // Отримання показників за конкретний місяць
 export const subscribeToReadingsByDate = (
-  userId: string, 
   date: string, 
   callback: (readings: MeterReading[]) => void
 ) => {
+  const user = auth.currentUser;
+  if (!user) {
+    callback([]);
+    return () => {};
+  }
+
   const q = query(
     collection(db, "meter_readings"), 
-    where("userId", "==", userId),
+    where("userId", "==", user.uid),
     where("date", "==", date)
   );
   return onSnapshot(q, (snapshot) => {
@@ -198,6 +265,12 @@ export const subscribeToReadingsByDate = (
 // Видалення конкретного показника (якщо користувач помилився)
 export const deleteMeterReading = async (readingId: string) => {
   try {
+    const user = auth.currentUser;
+    if (!user) {
+      // console.error("Користувач не авторизований");
+      return false;
+    }
+
     await deleteDoc(doc(db, "meter_readings", readingId));
     return true;
   } catch (error) {
@@ -207,8 +280,14 @@ export const deleteMeterReading = async (readingId: string) => {
 };
 
 // Оновлення існуючого показника
-export const updateMeterReading = async (readingId: string, data: Partial<MeterReading>) => {
+export const updateMeterReading = async (readingId: string, data: Partial<Omit<MeterReading, "id" | "userId">>) => {
   try {
+    const user = auth.currentUser;
+    if (!user) {
+      // console.error("Користувач не авторизований");
+      return false;
+    }
+
     const docRef = doc(db, "meter_readings", readingId);
     await updateDoc(docRef, data);
     return true;

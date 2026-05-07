@@ -20,7 +20,7 @@ export const ManageMetersScreen = () => {
   const [selectedMeter, setSelectedMeter] = useState<Meter | null>(null);
 
   useEffect(() => {
-    const unsubscribe = subscribeToMeters('manual-test-id', (data) => {
+    const unsubscribe = subscribeToMeters((data) => {
       setMeters(data.sort((left, right) => (left.order || 0) - (right.order || 0)));
     });
 

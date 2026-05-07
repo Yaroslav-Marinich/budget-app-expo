@@ -30,8 +30,8 @@ const { id } = useLocalSearchParams<{ id: string }>();
   const [isEditModalVisible, setEditModalVisible] = useState(false);
 
   useEffect(() => {
-    const unsubMeters = subscribeToMeters("manual-test-id", setMeters);
-    const unsubReadings = subscribeToReadingsByDate("manual-test-id", id as string, setReadings);
+    const unsubMeters = subscribeToMeters(setMeters);
+    const unsubReadings = subscribeToReadingsByDate(id as string, setReadings);
 
     return () => {
       unsubMeters();
