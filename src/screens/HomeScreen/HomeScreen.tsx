@@ -11,7 +11,6 @@ import { TransactionModal } from "@/src/components/ui/TransactionModal/Transacti
 import { Colors } from "@/src/constants/Colors";
 import { styles } from "@/src/screens/HomeScreen/home.styles";
 import { Category, subscribeToCategories } from "@/src/services/categories";
-import { getSyncQueue, subscribeToSyncQueueChanges } from "@/src/services/syncManager";
 import { subscribeToMonthlyTransactions } from "@/src/services/transactions";
 import { subscribeToWallets, Wallet } from "@/src/services/wallets";
 
@@ -34,7 +33,6 @@ export const HomeScreen = () => {
 	const [isMonthPickerVisible, setMonthPickerVisible] = useState(false);
 	const [categories, setCategories] = useState<Category[]>([]);
 	const [isCategoryModalVisible, setCategoryModalVisible] = useState(false);
-	const [syncPendingCount, setSyncPendingCount] = useState(0);
 
 	const handleWalletPress = (walletId: string, index: number) => {
 		setSelectedWalletId(walletId);
@@ -182,34 +180,11 @@ export const HomeScreen = () => {
 		return () => unsubscribeCategories();
 	}, []);
 
-	useEffect(() => {
-		const refreshSyncState = async () => {
-			const queue = await getSyncQueue();
-			const activeCount = queue.filter((task) => task.status === "PENDING" || task.status === "SYNCING").length;
-			setSyncPendingCount(activeCount);
-		};
-
-		refreshSyncState();
-
-		const unsubscribeQueue = subscribeToSyncQueueChanges(() => {
-			refreshSyncState();
-		});
-
-		return () => unsubscribeQueue();
-	}, []);
-
 	return (
 		<View style={[styles.container, { paddingTop: insets.top }]}>
 			<Stack.Screen options={{ headerShown: false }} />
 
 			<ScrollView showsVerticalScrollIndicator={false}>
-				{syncPendingCount > 0 && (
-					<View style={styles.syncBanner}>
-						<Ionicons name="sync-outline" size={16} color={Colors.background} />
-						<Text style={styles.syncBannerText}>На синхронізацію: {syncPendingCount} даних</Text>
-					</View>
-				)}
-
 				<Text style={styles.sectionTitle}>Рахунки</Text>
 				<FlatList
 					ref={walletsListRef}

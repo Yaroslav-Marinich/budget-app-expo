@@ -6,24 +6,6 @@ export const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background,
   },
-  syncBanner: {
-    marginHorizontal: 20,
-    marginTop: 10,
-    marginBottom: 8,
-    backgroundColor: '#FF9500',
-    borderRadius: 12,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-  },
-  syncBannerText: {
-    color: Colors.background,
-    fontSize: 13,
-    fontWeight: '700',
-  },
 
   // =======================
   // Рахунки
