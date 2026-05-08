@@ -3,6 +3,7 @@ export const Colors = {
   surface: "#1A1A1A",    // Темно-сірий для карток
   text: "#FFFFFF",
   textSecondary: "#A0A0A0",
+  card: '#1C1C1E',
   
   primary: "#1B5E20",    // Темно-зелений
   accent: "#2E7D32",     // Світліший зелений для кнопок

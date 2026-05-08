@@ -1,6 +1,6 @@
 import { auth, db } from "@/src/config/firebase";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { collection, deleteDoc, doc, getDocs, onSnapshot, query, updateDoc, where, writeBatch } from "firebase/firestore";
+import { collection, deleteDoc, doc, getDocs, onSnapshot, orderBy, query, updateDoc, where, writeBatch } from "firebase/firestore";
 
 import { startSync } from './syncEngine';
 import { addToSyncQueue, getSyncQueue, subscribeToSyncQueueChanges } from './syncManager';
@@ -346,4 +346,25 @@ export const updateMeterReading = async (readingId: string, data: Partial<Omit<M
     console.error("Помилка оновлення показника:", error);
     return false;
   }
+};
+
+/**
+ * Отримує всі показники для конкретного лічильника для побудови графіка
+ */
+export const getMeterReadingsForAnalytics = async (meterId: string): Promise<MeterReading[]> => {
+  const userId = auth.currentUser?.uid;
+  if (!userId) return [];
+
+  const q = query(
+    collection(db, 'meter_readings'),
+    where('userId', '==', userId),
+    where('meterId', '==', meterId),
+    orderBy('date', 'asc') 
+  );
+
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+  })) as MeterReading[];
 };
