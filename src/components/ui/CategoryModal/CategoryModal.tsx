@@ -1,5 +1,6 @@
 import { Colors } from "@/src/constants/Colors";
 import { useLoader } from "@/src/context/LoaderContext";
+import { appAlert } from "@/src/services/alert";
 import { addCategory, Category } from "@/src/services/categories";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useRef, useState } from "react";
@@ -50,7 +51,7 @@ const handleSave = async () => {
 
       const randomColor = availableColors[Math.floor(Math.random() * availableColors.length)];
 
-      await addCategory({
+      const createdId = await addCategory({
         name: name.trim(),
         icon,
         color: randomColor,
@@ -58,12 +59,21 @@ const handleSave = async () => {
         order: Date.now() 
       });
 
+      if (!createdId) {
+        appAlert(
+          'Помилка',
+          'Неможливо створити категорію без інтернету. Спробуйте ще раз, коли зʼявиться зʼєднання.',
+          [{ text: 'OK', onPress: onClose }]
+        );
+        return;
+      }
+
       setName("");
       setIcon(CATEGORY_ICONS[0]);
       onClose();
     } catch (error) {
       console.error(error);
-      alert("Помилка при створенні категорії");
+      appAlert('Помилка', 'Не вдалося створити категорію.');
     } finally {
       hideLoader();
     }

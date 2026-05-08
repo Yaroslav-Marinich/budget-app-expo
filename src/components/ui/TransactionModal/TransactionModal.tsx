@@ -1,9 +1,10 @@
 import { Colors } from "@/src/constants/Colors";
 import { useLoader } from "@/src/context/LoaderContext";
+import { appAlert } from "@/src/services/alert";
 import { addTransaction } from "@/src/services/transactions";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useRef, useState } from "react";
-import { Alert, Modal, Pressable, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Modal, Pressable, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Calculator } from "../Calculator/Calculator";
 import { styles } from "./TransactionModal.styles";
@@ -45,7 +46,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
 
   const handleNext = () => {
     if (amount === "0" || !categoryId || !categoryName || !walletId) {
-      if (!walletId) Alert.alert("Помилка", "Будь ласка, оберіть рахунок");
+      if (!walletId) appAlert("Помилка", "Будь ласка, оберіть рахунок");
       return;
     }
     setStep('comment'); 
@@ -68,7 +69,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
     if (success) {
       onClose();
     } else {
-      Alert.alert("Помилка", "Не вдалося зберегти транзакцію. Спробуйте ще раз.");
+      appAlert("Помилка", "Не вдалося зберегти транзакцію. Спробуйте ще раз.");
       setIsSaving(false);
     }
     hideLoader();

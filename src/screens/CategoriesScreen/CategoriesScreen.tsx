@@ -1,13 +1,14 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
-import { Alert, FlatList, Modal, Pressable, Text, TouchableOpacity, View } from "react-native";
+import { FlatList, Modal, Pressable, Text, TouchableOpacity, View } from "react-native";
 import DraggableFlatList, { RenderItemParams, ScaleDecorator } from "react-native-draggable-flatlist";
 import Swipeable from "react-native-gesture-handler/Swipeable";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Colors } from "@/src/constants/Colors";
 import { useLoader } from "@/src/context/LoaderContext";
+import { appAlert } from "@/src/services/alert";
 import { Category, checkCategoryHasTransactions, deleteAndReassignCategory, deleteCategory, subscribeToCategories, updateCategoriesOrder } from "@/src/services/categories";
 import { styles } from "./CategoriesScreen.styles";
 import { EditCategoryModal } from "./components/EditCategoryModal";
@@ -74,7 +75,7 @@ const handleDeletePress = async (cat: Category) => {
 
       if (!hasTransactions) {
         hideLoader();
-        Alert.alert(
+        appAlert(
           "Видалення категорії",
           `Ви впевнені, що хочете видалити категорію "${cat.name}"?`,
           [
@@ -88,8 +89,14 @@ const handleDeletePress = async (cat: Category) => {
               style: "destructive",
               onPress: async () => {
                 showLoader();
-                await deleteCategory(cat.id);
+                const deleted = await deleteCategory(cat.id);
                 hideLoader();
+                if (!deleted) {
+                  appAlert(
+                    "Помилка",
+                    "Неможливо видалити категорію без інтернету."
+                  );
+                }
               }
             }
           ]
@@ -101,7 +108,7 @@ const handleDeletePress = async (cat: Category) => {
 
       if (availableToReassign.length === 0) {
         hideLoader();
-        Alert.alert(
+        appAlert(
           "Помилка", 
           "Ця категорія має операції, але немає інших категорій для їх перенесення. Спочатку створіть нову категорію."
         );
@@ -116,7 +123,7 @@ const handleDeletePress = async (cat: Category) => {
     } catch (error) {
       hideLoader();
       console.error(error);
-      Alert.alert("Помилка", "Щось пішло не так при перевірці категорії.");
+      appAlert("Помилка", "Щось пішло не так при перевірці категорії.");
     }
   };
 
@@ -127,10 +134,14 @@ const handleDeletePress = async (cat: Category) => {
     showLoader();
     try {
       const count = await deleteAndReassignCategory(categoryToDelete.id, newCategory);
-      Alert.alert("Успішно", `Категорію видалено. Перенесено ${count} транзакцій до "${newCategory.name}".`);
+      if (count === null) {
+        appAlert("Помилка", "Неможливо видалити категорію без інтернету.");
+        return;
+      }
+      appAlert("Успішно", `Категорію видалено. Перенесено ${count} транзакцій до "${newCategory.name}".`);
     } catch (e) {
       console.error(e);
-      Alert.alert("Помилка", "Не вдалося видалити категорію.");
+      appAlert("Помилка", "Не вдалося видалити категорію.");
     } finally {
       hideLoader();
     }

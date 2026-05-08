@@ -1,12 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Href, useRouter } from 'expo-router';
-import React, { useEffect, useMemo, useState } from 'react';
+import { Href, useFocusEffect, useRouter } from 'expo-router';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { FlatList, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Colors } from '@/src/constants/Colors';
 import { styles } from '@/src/screens/MetersScreen/MetersScreen.styles';
 import { getMeterColor, Meter, MeterReading, subscribeToMeterReadings, subscribeToMeters } from '@/src/services/meters';
+import { getSyncQueue } from '@/src/services/syncManager';
 
 const formatMonthYear = (dateStr: string) => {
   const [year, month] = dateStr.split('-');
@@ -15,12 +16,15 @@ const formatMonthYear = (dateStr: string) => {
   return `${monthName.charAt(0).toUpperCase() + monthName.slice(1)} ${year}`;
 };
 
+type UIMeterReading = MeterReading & { isPending?: boolean };
+
 export const MetersScreen = () => {
   const insets = useSafeAreaInsets();
   const router = useRouter();
 
   const [meters, setMeters] = useState<Meter[]>([]);
-  const [readings, setReadings] = useState<MeterReading[]>([]);
+  const [readings, setReadings] = useState<UIMeterReading[]>([]);
+  const [pendingReadings, setPendingReadings] = useState<UIMeterReading[]>([]);
 
   useEffect(() => {
     const unsubMeters = subscribeToMeters(setMeters);
@@ -32,26 +36,70 @@ export const MetersScreen = () => {
     };
   }, []);
 
-  const groupedMonths = useMemo(() => {
-    const groups: { [date: string]: MeterReading[] } = {};
+  const fetchPendingQueue = async () => {
+    const queue = await getSyncQueue();
+    const pendingMeters = queue
+      .filter((task) => task.type === 'METER_READING')
+      .map((task) => ({
+        ...task.payload,
+        id: task.id, 
+        isPending: true, 
+      }));
+    setPendingReadings(pendingMeters);
+  };
 
+  useFocusEffect(
+    useCallback(() => {
+      fetchPendingQueue();
+    }, [])
+  );
+
+  useEffect(() => {
+    fetchPendingQueue();
+  }, [readings]);
+
+ const groupedMonths = useMemo(() => {
+    const groups: { [date: string]: UIMeterReading[] } = {};
+
+    // Крок 1: Додаємо всі "офіційні" дані з Firebase
     readings.forEach((reading) => {
       if (!groups[reading.date]) {
         groups[reading.date] = [];
       }
-
       groups[reading.date].push(reading);
+    });
+
+    // Крок 2: Додаємо "офлайн" дані ТІЛЬКИ якщо їх ще немає в базі
+    pendingReadings.forEach((pendingReading) => {
+      if (!groups[pendingReading.date]) {
+        groups[pendingReading.date] = [];
+      }
+
+      // Перевіряємо, чи є вже такий офіційний запис (по meterId)
+      const isAlreadyInFirebase = groups[pendingReading.date].some(
+        (r) => r.meterId === pendingReading.meterId && !r.isPending
+      );
+
+      // Якщо Firebase ще не знає про нього - показуємо напівпрозорим
+      if (!isAlreadyInFirebase) {
+        groups[pendingReading.date].push(pendingReading);
+      }
     });
 
     return Object.keys(groups)
       .sort((left, right) => right.localeCompare(left))
-      .map((date) => ({
-        id: date,
-        date,
-        title: formatMonthYear(date),
-        items: groups[date],
-      }));
-  }, [readings]);
+      .map((date) => {
+        const hasPending = groups[date].some((r) => r.isPending);
+
+        return {
+          id: date,
+          date,
+          title: formatMonthYear(date),
+          items: groups[date],
+          hasPending,
+        };
+      });
+  }, [readings, pendingReadings]);
 
   const renderMonthCard = ({ item }: { item: (typeof groupedMonths)[0] }) => (
     <TouchableOpacity
@@ -60,7 +108,13 @@ export const MetersScreen = () => {
       onPress={() => router.push(`/meters/${item.date}` as Href)}
     >
       <View style={styles.monthHeader}>
-        <Text style={styles.monthTitle}>{item.title}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+          <Text style={styles.monthTitle}>{item.title}</Text>
+          {/* 🕒 Показуємо іконку годинника, якщо дані ще не в хмарі */}
+          {item.hasPending && (
+            <Ionicons name="time-outline" size={18} color={'#FF9500'} />
+          )}
+        </View>
         <Ionicons name="chevron-forward" size={20} color={Colors.textSecondary} />
       </View>
 
@@ -72,7 +126,11 @@ export const MetersScreen = () => {
           }
 
           return (
-            <View key={index} style={styles.readingItem}>
+            <View 
+              key={index} 
+              // Робимо офлайн-показники трохи прозорими
+              style={[styles.readingItem, reading.isPending && { opacity: 0.6, borderColor: '#FF9500', borderWidth: 1 }]}
+            >
               <Ionicons name={meter.icon as any} size={16} color={getMeterColor(meter.icon)} />
               <Text style={styles.readingValue}>{reading.consumedValue}</Text>
             </View>

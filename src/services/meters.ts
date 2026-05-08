@@ -1,5 +1,12 @@
 import { auth, db } from "@/src/config/firebase";
-import { addDoc, collection, deleteDoc, doc, getDocs, onSnapshot, query, updateDoc, where, writeBatch } from "firebase/firestore";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { collection, deleteDoc, doc, getDocs, onSnapshot, query, updateDoc, where, writeBatch } from "firebase/firestore";
+
+import { startSync } from './syncEngine';
+import { addToSyncQueue, getSyncQueue, subscribeToSyncQueueChanges } from './syncManager';
+
+const METERS_CACHE_KEY = '@cached_meters';
+const READINGS_CACHE_KEY = '@cached_readings';
 
 // Централізований список іконок та їх кольорів
 export const METER_ICONS = [
@@ -22,25 +29,50 @@ export interface Meter {
   icon: string;
   calcType: 'readings' | 'consumed'; 
   order?: number;
+  isPending?: boolean; 
+}
+
+export interface MeterReading {
+  id?: string;
+  meterId: string;
+  userId: string;
+  date: string; 
+  prevValue?: number;
+  currentValue?: number;
+  consumedValue: number;
+  comment?: string;
+  photoUrl?: string;
 }
 
 export const addMeter = async (data: Omit<Meter, "id" | "userId">) => {
   try {
     const user = auth.currentUser;
-    if (!user) {
-      // console.error("Користувач не авторизований");
-      return null;
-    }
+    if (!user) return null;
 
-    const docRef = await addDoc(collection(db, "meters"), {
+    const meterData = {
       ...data,
       userId: user.uid,
-    });
-    return docRef.id;
+      createdAt: new Date().toISOString()
+    };
+
+    const taskId = await addToSyncQueue('METER_CREATE', meterData);
+    
+    startSync();
+    
+    return taskId; 
   } catch (error) {
     console.error("Помилка додавання лічильника:", error);
     return null;
   }
+};
+
+const getMergedMeters = async (baseMeters: Meter[]): Promise<Meter[]> => {
+  const queue = await getSyncQueue();
+  const pendingMeters = queue
+    .filter(t => t.type === 'METER_CREATE' && t.status !== 'DONE')
+    .map(t => ({ ...t.payload, id: t.id, isPending: true } as Meter));
+
+  return [...baseMeters, ...pendingMeters];
 };
 
 export const subscribeToMeters = (callback: (meters: Meter[]) => void) => {
@@ -50,21 +82,62 @@ export const subscribeToMeters = (callback: (meters: Meter[]) => void) => {
     return () => {};
   }
 
+  let baseMeters: Meter[] = [];
+
+  const emitMergedMeters = async () => {
+    const merged = await getMergedMeters(baseMeters);
+    callback(merged);
+  };
+
+  const loadInitialData = async () => {
+    try {
+      const cachedData = await AsyncStorage.getItem(METERS_CACHE_KEY);
+      baseMeters = cachedData ? JSON.parse(cachedData) : [];
+      await emitMergedMeters();
+    } catch (e) {
+      console.error("Помилка читання кешу лічильників", e);
+    }
+  };
+
+  loadInitialData();
+
   const q = query(collection(db, "meters"), where("userId", "==", user.uid));
-  return onSnapshot(q, (snapshot) => {
-    const meters = snapshot.docs.map(doc => ({
+  const unsubscribeQueue = subscribeToSyncQueueChanges(() => {
+    emitMergedMeters();
+  });
+  
+  const unsubscribeSnapshot = onSnapshot(q, async (snapshot) => {
+    let currentMeters = snapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
     })) as Meter[];
-    callback(meters);
+
+    if (currentMeters.length === 0 && snapshot.metadata.fromCache) {
+      const cachedData = await AsyncStorage.getItem(METERS_CACHE_KEY);
+      if (cachedData) {
+        currentMeters = JSON.parse(cachedData);
+      }
+    } else {
+      await AsyncStorage.setItem(METERS_CACHE_KEY, JSON.stringify(currentMeters));
+    }
+
+    baseMeters = currentMeters;
+    await emitMergedMeters();
   });
+
+  return () => {
+    unsubscribeQueue();
+    unsubscribeSnapshot();
+  };
 };
 
 export const updateMeter = async (meterId: string, data: Partial<Omit<Meter, "id" | "userId">>) => {
   try {
     const user = auth.currentUser;
-    if (!user) {
-      // console.error("Користувач не авторизований");
+    if (!user) return false;
+
+    if (meterId.startsWith('task_')) {
+      console.log("Оновлення офлайн-лічильників поки що не підтримується");
       return false;
     }
 
@@ -77,22 +150,13 @@ export const updateMeter = async (meterId: string, data: Partial<Omit<Meter, "id
   }
 };
 
-// export const deleteMeter = async (meterId: string) => {
-//   try {
-//     const docRef = doc(db, "meters", meterId);
-//     await deleteDoc(docRef);
-//     return true;
-//   } catch (error) {
-//     console.error("Помилка видалення лічильника:", error);
-//     return false;
-//   }
-// };
-
 export const deleteMeter = async (meterId: string) => {
   try {
     const user = auth.currentUser;
-    if (!user) {
-      // console.error("Користувач не авторизований");
+    if (!user) return false;
+
+    if (meterId.startsWith('task_')) {
+      console.log("Видалення офлайн-лічильників потребує окремої логіки черги");
       return false;
     }
 
@@ -113,8 +177,6 @@ export const deleteMeter = async (meterId: string) => {
     batch.delete(meterRef);
 
     await batch.commit();
-
-    console.log(`Видалено лічильник та ${readingsSnapshot.size} записів історії`);
     return true;
   } catch (error) {
     console.error("Помилка каскадного видалення лічильника:", error);
@@ -125,31 +187,15 @@ export const deleteMeter = async (meterId: string) => {
 // ==========================================
 // 2. ІНТЕРФЕЙС ТА ЛОГІКА ПОКАЗНИКІВ (ІСТОРІЯ)
 // ==========================================
-export interface MeterReading {
-  id?: string;
-  meterId: string;
-  userId: string;
-  date: string; 
-  prevValue?: number;
-  currentValue?: number;
-  consumedValue: number;
-  comment?: string;
-  photoUrl?: string;
-}
 
-// Додавання ОДНОГО показника
+
 export const addMeterReading = async (reading: Omit<MeterReading, "id" | "userId">) => {
   try {
     const user = auth.currentUser;
-    if (!user) {
-      // console.error("Користувач не авторизований");
-      return false;
-    }
+    if (!user) return false;
 
-    await addDoc(collection(db, "meter_readings"), {
-      ...reading,
-      userId: user.uid,
-    });
+    await addToSyncQueue('METER_READING', { ...reading, userId: user.uid });
+    startSync();
     return true;
   } catch (error) {
     console.error("Помилка збереження показника:", error);
@@ -157,14 +203,10 @@ export const addMeterReading = async (reading: Omit<MeterReading, "id" | "userId
   }
 };
 
-// Отримання попереднього показника ВІДНОСНО вказаної дати
 export const getPreviousMeterReading = async (meterId: string, targetDate: string) => {
   try {
     const user = auth.currentUser;
-    if (!user) {
-      // console.error("Користувач не авторизований");
-      return null;
-    }
+    if (!user) return null;
 
     const q = query(
       collection(db, "meter_readings"),
@@ -172,11 +214,14 @@ export const getPreviousMeterReading = async (meterId: string, targetDate: strin
       where("meterId", "==", meterId)
     );
     const snapshot = await getDocs(q);
-    
-    if (snapshot.empty) return null;
 
-    const readings = snapshot.docs.map(d => d.data() as MeterReading);
-    const pastReadings = readings.filter(r => r.date < targetDate);
+    const firestoreReadings = snapshot.docs.map(d => d.data() as MeterReading);
+    const queue = await getSyncQueue();
+    const queuedReadings = queue
+      .filter((task) => task.type === 'METER_READING' && task.status !== 'FAILED' && task.payload?.meterId === meterId)
+      .map((task) => task.payload as MeterReading);
+
+    const pastReadings = [...firestoreReadings, ...queuedReadings].filter(r => r.date < targetDate);
     
     if (pastReadings.length === 0) return null;
     
@@ -191,10 +236,7 @@ export const getPreviousMeterReading = async (meterId: string, targetDate: strin
 export const saveMeterReadings = async (readings: Omit<MeterReading, "id" | "userId">[]) => {
   try {
     const user = auth.currentUser;
-    if (!user) {
-      // console.error("Користувач не авторизований");
-      return false;
-    }
+    if (!user) return false;
 
     const batch = writeBatch(db);
     
@@ -214,7 +256,6 @@ export const saveMeterReadings = async (readings: Omit<MeterReading, "id" | "use
   }
 };
 
-// Отримання всіх показників (історії)
 export const subscribeToMeterReadings = (callback: (readings: MeterReading[]) => void) => {
   const user = auth.currentUser;
   if (!user) {
@@ -222,23 +263,36 @@ export const subscribeToMeterReadings = (callback: (readings: MeterReading[]) =>
     return () => {};
   }
 
+  const loadInitialData = async () => {
+    try {
+      const cachedData = await AsyncStorage.getItem(READINGS_CACHE_KEY);
+      if (cachedData) {
+        callback(JSON.parse(cachedData));
+      }
+    } catch (e) {
+      console.error("Помилка читання кешу показників", e);
+    }
+  };
+
+  loadInitialData();
+
   const q = query(collection(db, "meter_readings"), where("userId", "==", user.uid));
-  return onSnapshot(q, (snapshot) => {
+  return onSnapshot(q, async (snapshot) => {
     const readings = snapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
     })) as MeterReading[];
+    
+    await AsyncStorage.setItem(READINGS_CACHE_KEY, JSON.stringify(readings));
     callback(readings);
   });
 };
 
-// Функція для швидкого отримання кольору за назвою іконки
 export const getMeterColor = (iconName: string) => {
   const found = METER_ICONS.find(i => i.name === iconName);
   return found ? found.color : '#0a7ea4'; 
 };
 
-// Отримання показників за конкретний місяць
 export const subscribeToReadingsByDate = (
   date: string, 
   callback: (readings: MeterReading[]) => void
@@ -263,14 +317,12 @@ export const subscribeToReadingsByDate = (
   });
 };
 
-// Видалення конкретного показника (якщо користувач помилився)
 export const deleteMeterReading = async (readingId: string) => {
   try {
     const user = auth.currentUser;
-    if (!user) {
-      // console.error("Користувач не авторизований");
-      return false;
-    }
+    if (!user) return false;
+
+    if (readingId.startsWith('task_')) return false;
 
     await deleteDoc(doc(db, "meter_readings", readingId));
     return true;
@@ -280,14 +332,12 @@ export const deleteMeterReading = async (readingId: string) => {
   }
 };
 
-// Оновлення існуючого показника
 export const updateMeterReading = async (readingId: string, data: Partial<Omit<MeterReading, "id" | "userId">>) => {
   try {
     const user = auth.currentUser;
-    if (!user) {
-      // console.error("Користувач не авторизований");
-      return false;
-    }
+    if (!user) return false;
+
+    if (readingId.startsWith('task_')) return false;
 
     const docRef = doc(db, "meter_readings", readingId);
     await updateDoc(docRef, data);

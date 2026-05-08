@@ -1,12 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Alert, FlatList, Image, Modal, Text, TouchableOpacity, View } from 'react-native'; // 👈 Додали Image та Modal
+import { FlatList, Image, Modal, Text, TouchableOpacity, View } from 'react-native'; // 👈 Додали Image та Modal
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Colors } from '@/src/constants/Colors';
 import { useLoader } from '@/src/context/LoaderContext';
 import { styles } from '@/src/screens/MetersScreen/components/MonthDetailsScreen/MonthDetailsScreen.styles';
+import { appAlert } from '@/src/services/alert';
 import { deleteMeterReading, getMeterColor, Meter, MeterReading, subscribeToMeters, subscribeToReadingsByDate } from '@/src/services/meters';
 import { EditReadingModal } from '../EditReadingModal/EditReadingModal';
 
@@ -42,7 +43,7 @@ export const MonthDetailsScreen = () => {
   }, [id]);
 
   const handleDelete = (readingId: string, meterName: string) => {
-    Alert.alert(
+    appAlert(
       "Видалення показника",
       `Видалити показники для "${meterName}" за цей місяць?`,
       [
@@ -67,7 +68,6 @@ export const MonthDetailsScreen = () => {
 
   const renderReadingCard = ({ item }: { item: MeterReading }) => {
     const meter = meters.find(m => m.id === item.meterId);
-    console.log('meter', meter);
     if (!meter) return null;
 
     return (

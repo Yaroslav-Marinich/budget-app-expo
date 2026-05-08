@@ -1,9 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   FlatList,
   Image,
   KeyboardAvoidingView,
@@ -17,11 +17,15 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { MonthPickerModal } from '@/src/components/ui/MonthPickerModal/MonthPickerModal';
+import { auth } from '@/src/config/firebase';
 import { Colors } from '@/src/constants/Colors';
 import { useLoader } from '@/src/context/LoaderContext';
 import { styles } from '@/src/screens/MetersScreen/components/SubmitScreen/SubmitReadingsScreen.styles';
-import { addMeterReading, getMeterColor, getPreviousMeterReading, Meter, MeterReading, subscribeToMeters } from '@/src/services/meters';
-import { takeAndUploadMeterPhoto } from '@/src/services/storage'; // 👈 Імпортуємо нашу нову функцію
+import { appAlert } from '@/src/services/alert';
+import { deleteLocalFile, savePhotoLocally } from '@/src/services/fileManager';
+import { getMeterColor, getPreviousMeterReading, Meter, subscribeToMeters } from '@/src/services/meters';
+import { startSync } from '@/src/services/syncEngine';
+import { addToSyncQueue } from '@/src/services/syncManager';
 
 export const SubmitReadingsScreen = () => {
   const insets = useSafeAreaInsets();
@@ -51,7 +55,6 @@ export const SubmitReadingsScreen = () => {
     const unsubscribe = subscribeToMeters((data) => {
       setMeters(data.sort((left, right) => (left.order || 0) - (right.order || 0)));
     });
-
     return () => unsubscribe();
   }, []);
 
@@ -69,7 +72,6 @@ export const SubmitReadingsScreen = () => {
         }
       }
     };
-
     fetchPreviousReading();
   }, [currentDate, dateKey, hideLoader, selectedMeter, showLoader, step]);
     
@@ -82,7 +84,7 @@ export const SubmitReadingsScreen = () => {
       setCurrValue("");
       setConsumed("");
       setComment("");
-      setPhotoUrl(null); 
+      setPhotoUrl(null);
     }, [])
   );
 
@@ -103,17 +105,32 @@ export const SubmitReadingsScreen = () => {
 
   const handleTakePhoto = async () => {
     setIsUploadingPhoto(true);
-    const url = await takeAndUploadMeterPhoto();
-    if (url) {
-      setPhotoUrl(url);
+    
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 0.3,
+    });
+
+    if (!result.canceled && result.assets[0]) {
+      const permanentUri = await savePhotoLocally(result.assets[0].uri);
+      if (permanentUri) {
+        setPhotoUrl(permanentUri);
+      }
     }
     setIsUploadingPhoto(false);
   };
 
-  const handleSave = async () => {
-    if (!selectedMeter) {
-      return;
+  const handleDeletePhoto = async () => {
+    if (photoUrl) {
+      await deleteLocalFile(photoUrl);
+      setPhotoUrl(null);
     }
+  };
+
+  const handleSave = async () => {
+    if (!selectedMeter) return;
 
     let consumedValue = 0;
     let finalPrev: number | undefined;
@@ -121,56 +138,46 @@ export const SubmitReadingsScreen = () => {
 
     if (selectedMeter.calcType === 'readings') {
       if (!prevValue || !currValue) {
-        Alert.alert('Помилка', 'Заповніть обидва поля показників.');
+        appAlert('Помилка', 'Заповніть обидва поля показників.');
         return;
       }
-
       finalPrev = parseFloat(prevValue);
       finalCurr = parseFloat(currValue);
       consumedValue = finalCurr - finalPrev;
 
       if (consumedValue < 0) {
-        Alert.alert('Помилка', 'Теперішній показник не може бути меншим за попередній.');
+        appAlert('Помилка', 'Теперішній показник не може бути меншим за попередній.');
         return;
       }
     } else {
       if (!consumed) {
-        Alert.alert('Помилка', "Заповніть об'єм споживання.");
+        appAlert('Помилка', "Заповніть об'єм споживання.");
         return;
       }
-
       consumedValue = parseFloat(consumed);
     }
 
-    const readingData: Omit<MeterReading, 'id' | 'userId'> = {
+    const readingData: any = {
       meterId: selectedMeter.id,
+      userId: auth.currentUser?.uid,
       date: dateKey,
       consumedValue,
+      createdAt: new Date().toISOString(),
     };
 
-    if (finalPrev !== undefined) {
-      readingData.prevValue = finalPrev;
-    }
-    if (finalCurr !== undefined) {
-      readingData.currentValue = finalCurr;
-    }
-    if (comment.trim()) {
-      readingData.comment = comment.trim();
-    }
-    
-    if (photoUrl) {
-      readingData.photoUrl = photoUrl;
-    }
+    if (finalPrev !== undefined) readingData.prevValue = finalPrev;
+    if (finalCurr !== undefined) readingData.currentValue = finalCurr;
+    if (comment.trim()) readingData.comment = comment.trim();
 
     showLoader();
-    const success = await addMeterReading(readingData);
+    
+    await addToSyncQueue('METER_READING', readingData, photoUrl);
+    
+    startSync(); 
+    
     hideLoader();
-
-    if (success) {
-      router.back();
-    } else {
-      Alert.alert('Помилка', 'Не вдалося зберегти показники.');
-    }
+    
+    router.back();
   };
 
   const sanitizeNumber = (value: string) => value.replace(/[^0-9.]/g, '');
@@ -186,6 +193,7 @@ export const SubmitReadingsScreen = () => {
           <TouchableOpacity 
             onPress={() => {
               if (step === 'form') {
+                if (photoUrl) handleDeletePhoto();
                 setStep('select');
                 setSelectedMeter(null);
                 setCurrentDate(new Date());
@@ -228,17 +236,16 @@ export const SubmitReadingsScreen = () => {
             keyboardShouldPersistTaps="handled"
             keyboardDismissMode="on-drag"
           >
+            {/* БЛОКИ ДАТИ І ПОКАЗНИКІВ */}
             <View style={styles.dateSelectorContainer}>
               <TouchableOpacity style={styles.dateSelectorBtn} onPress={() => changeMonth(-1)}>
                 <Ionicons name="chevron-back" size={24} color={Colors.textSecondary} />
               </TouchableOpacity>
-
               <TouchableOpacity style={styles.dateSelectorTextContainer} onPress={() => setMonthPickerVisible(true)}>
                 <Text style={styles.dateSelectorText}>
                   {monthName.charAt(0).toUpperCase() + monthName.slice(1)} {year}
                 </Text>
               </TouchableOpacity>
-
               <TouchableOpacity style={styles.dateSelectorBtn} onPress={() => changeMonth(1)}>
                 <Ionicons name="chevron-forward" size={24} color={Colors.textSecondary} />
               </TouchableOpacity>
@@ -304,12 +311,12 @@ export const SubmitReadingsScreen = () => {
               />
             </View>
 
-{/* 📸 БЛОК ДЛЯ ФОТОГРАФІЇ */}
+            {/* 📸 БЛОК ДЛЯ ФОТОГРАФІЇ */}
             <View style={styles.photoSectionContainer}>
               {isUploadingPhoto ? (
                 <View style={styles.photoUploadingContainer}>
                   <ActivityIndicator size="large" color={Colors.primary} />
-                  <Text style={styles.photoUploadingText}>Завантаження фото...</Text>
+                  <Text style={styles.photoUploadingText}>Обробка фото...</Text>
                 </View>
               ) : photoUrl ? (
                 <View style={styles.photoPreviewContainer}>
@@ -320,7 +327,7 @@ export const SubmitReadingsScreen = () => {
                   />
                   <TouchableOpacity 
                     style={styles.photoDeleteBtn}
-                    onPress={() => setPhotoUrl(null)}
+                    onPress={handleDeletePhoto}
                   >
                     <Ionicons name="trash-outline" size={20} color="#FF3B30" />
                     <Text style={styles.photoDeleteText}>Видалити фото</Text>

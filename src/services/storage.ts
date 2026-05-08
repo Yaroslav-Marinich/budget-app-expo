@@ -1,6 +1,7 @@
 import * as ImagePicker from 'expo-image-picker';
 import { deleteObject, getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { auth, storage } from '../config/firebase';
+import { appAlert } from './alert';
 
 export const takeAndUploadMeterPhoto = async (): Promise<string | null> => {
   try {
@@ -13,7 +14,7 @@ export const takeAndUploadMeterPhoto = async (): Promise<string | null> => {
     // 1. Запитуємо дозвіл на використання камери
     const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
     if (!permissionResult.granted) {
-      alert("Нам потрібен дозвіл на доступ до камери, щоб сфотографувати лічильник!");
+      appAlert("Увага", "Нам потрібен дозвіл на доступ до камери, щоб сфотографувати лічильник!");
       return null;
     }
 

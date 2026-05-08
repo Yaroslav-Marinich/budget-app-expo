@@ -119,6 +119,29 @@ export const styles = StyleSheet.create({
     fontWeight: 'bold',
     textTransform: 'uppercase',
   },
+  pendingBadge: {
+    position: 'absolute',
+    top: 0,
+    right: 120,
+    backgroundColor: '#FF9500',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 8,
+    zIndex: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+  },
+  pendingBadgeText: {
+    color: Colors.background,
+    fontSize: 9,
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
+  },
+  pendingRow: {
+    borderColor: '#FF9500',
+    borderStyle: 'dashed',
+  },
 
   // Модалка
   modalContent: {

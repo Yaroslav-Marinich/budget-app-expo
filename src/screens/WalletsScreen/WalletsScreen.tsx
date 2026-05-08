@@ -1,10 +1,11 @@
 import { Colors } from "@/src/constants/Colors";
 import { useLoader } from "@/src/context/LoaderContext";
+import { appAlert } from "@/src/services/alert";
 import { archiveWallet, permanentDeleteWallet, subscribeToWallets, updateWalletsOrder, Wallet } from "@/src/services/wallets";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
-import { Alert, Text, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import DraggableFlatList, { RenderItemParams, ScaleDecorator } from "react-native-draggable-flatlist";
 import Swipeable from "react-native-gesture-handler/Swipeable";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -45,7 +46,8 @@ export const WalletsScreen = () => {
   };
 
 const confirmArchive = (wallet: Wallet) => {
-    Alert.alert(
+  if (wallet.isPending) return;
+    appAlert(
       "Архівування рахунку",
       `Рахунок "${wallet.title}" буде перенесено в архів. Ви не зможете додавати нові операції на нього, але історія та статистика збережуться.`,
       [
@@ -64,7 +66,8 @@ const confirmArchive = (wallet: Wallet) => {
   };
 
   const confirmPermanentDelete = async (wallet: Wallet) => {
-    Alert.alert(
+    if (wallet.isPending) return;
+    appAlert(
       "Остаточне видалення",
       `Ви видаляєте рахунок "${wallet.title}" з архіву. Це призведе до видалення ВСІХ пов'язаних транзакцій без можливості відновлення. Продовжити?`,
       [
@@ -100,7 +103,7 @@ const confirmArchive = (wallet: Wallet) => {
     
       useEffect(() => {
     const unsubscribe = subscribeToWallets((data) => {
-      setWallets(data.sort((a, b) => (a.order || 0) - (b.order || 0)));
+      setWallets(data.sort((a, b) => (a.order ?? Number.MAX_SAFE_INTEGER) - (b.order ?? Number.MAX_SAFE_INTEGER)));
     });
     return () => unsubscribe();
       }, []);
@@ -119,6 +122,7 @@ const renderRightActions = (item: Wallet) => (
   const renderItem = ({ item, drag, isActive }: RenderItemParams<Wallet>) => {
     const isPrimary = item.id === wallets[0]?.id;
     const isArchived = item.isArchived;
+    const isPending = item.isPending;
     
     return (
       <ScaleDecorator>
@@ -137,6 +141,13 @@ const renderRightActions = (item: Wallet) => (
             </View>
           )}
 
+          {isPending && (
+            <View style={styles.pendingBadge}>
+              <Ionicons name="time-outline" size={12} color={Colors.background} />
+              <Text style={styles.pendingBadgeText}>Черга</Text>
+            </View>
+          )}
+
           {/* Додаємо Swipeable компонент */}
           <Swipeable 
             ref={(ref) => {
@@ -144,7 +155,7 @@ const renderRightActions = (item: Wallet) => (
               else swipeableRefs.current.delete(item.id);
             }}
             renderRightActions={() => isArchived ? null : renderRightActions(item)}
-            enabled={!isArchived}
+            enabled={!isArchived && !isPending}
             onSwipeableWillOpen={() => onSwipeableWillOpen(item.id)}
             overshootRight={false}
             friction={1.5}
@@ -154,6 +165,7 @@ const renderRightActions = (item: Wallet) => (
               styles.walletRow, 
               isPrimary && !isArchived && styles.primaryBorder,
               isArchived && styles.archivedRow,
+              isPending && styles.pendingRow,
               isActive && { borderColor: Colors.primary, backgroundColor: Colors.outline }
             ]}>
 
@@ -170,12 +182,13 @@ const renderRightActions = (item: Wallet) => (
                 {!isArchived ? (
                   <>
                     <TouchableOpacity style={styles.actionBtn} onPress={() => {
+                        if (isPending) return;
                         swipeableRefs.current.get(item.id)?.close();
                         openEdit(item);
-                      }}>
+                      }} disabled={isPending}>
                       <Ionicons name="pencil" size={20} color={Colors.textSecondary} />
                     </TouchableOpacity>
-                    <TouchableOpacity onLongPress={drag} delayLongPress={200} style={styles.actionBtn}>
+                    <TouchableOpacity onLongPress={drag} delayLongPress={200} style={styles.actionBtn} disabled={isPending}>
                       <Ionicons name="menu" size={24} color={Colors.textSecondary} />
                     </TouchableOpacity>
                   </>

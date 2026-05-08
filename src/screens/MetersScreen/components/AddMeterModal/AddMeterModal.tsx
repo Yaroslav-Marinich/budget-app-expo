@@ -4,7 +4,7 @@ import { Modal, Pressable, Text, TextInput, TouchableOpacity, View } from "react
 
 import { Colors } from "@/src/constants/Colors";
 import { useLoader } from "@/src/context/LoaderContext";
-import { addMeter, Meter, METER_ICONS, updateMeter } from "@/src/services/meters"; // ДОДАЛИ updateMeter та Meter
+import { addMeter, Meter, METER_ICONS, updateMeter } from "@/src/services/meters";
 import { styles } from "./AddMeterModal.styles";
 
 interface AddMeterModalProps {
@@ -34,7 +34,7 @@ export const AddMeterModal: React.FC<AddMeterModalProps> = ({ visible, onClose, 
         setCalcType('readings');
       }
     }
-  }, [visible, meterToEdit]);
+  }, [visible, meterToEdit, isEdit]);
 
   const handleSave = async () => {
     if (!name.trim()) return;
@@ -77,7 +77,6 @@ export const AddMeterModal: React.FC<AddMeterModalProps> = ({ visible, onClose, 
           <View style={styles.dragIndicator} />
           
           <View style={styles.headerRow}>
-            {/* ДИНАМІЧНИЙ ЗАГОЛОВОК */}
             <Text style={styles.modalTitle}>{isEdit ? "Редагувати лічильник" : "Новий лічильник"}</Text>
             <TouchableOpacity onPress={onClose} style={{ padding: 5 }}>
               <Ionicons name="close" size={28} color={Colors.textSecondary} />
@@ -129,7 +128,6 @@ export const AddMeterModal: React.FC<AddMeterModalProps> = ({ visible, onClose, 
           </View>
 
           <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
-             {/* ДИНАМІЧНА КНОПКА */}
             <Text style={styles.saveBtnText}>{isEdit ? "Зберегти зміни" : "Створити лічильник"}</Text>
           </TouchableOpacity>
         </Pressable>
@@ -137,4 +135,3 @@ export const AddMeterModal: React.FC<AddMeterModalProps> = ({ visible, onClose, 
     </Modal>
   );
 };
-

@@ -1,4 +1,6 @@
+import NetInfo from '@react-native-community/netinfo';
 import { addDoc, collection, deleteDoc, doc, getDocs, onSnapshot, query, updateDoc, where, writeBatch } from "firebase/firestore";
+
 import { auth, db } from "../config/firebase";
 
 export const DEFAULT_CATEGORIES: Omit<Category, "id" | "userId">[] = [
@@ -22,6 +24,11 @@ export interface Category {
   order?: number;
   isArchived?: boolean;
 }
+
+const isNetworkAvailable = async () => {
+  const netState = await NetInfo.fetch();
+  return !!netState.isConnected && netState.isInternetReachable !== false;
+};
 
 // export const seedDefaultCategories = async () => {
 //   try {
@@ -60,6 +67,11 @@ export const addCategory = async (data: Omit<Category, "id" | "userId">) => {
     const user = auth.currentUser;
     if (!user) {
       // console.error("Користувач не авторизований");
+      return null;
+    }
+
+    const isOnline = await isNetworkAvailable();
+    if (!isOnline) {
       return null;
     }
 
@@ -104,6 +116,10 @@ export const updateCategoriesOrder = async (categories: Category[]) => {
     return false;
   }
 
+  if (!(await isNetworkAvailable())) {
+    return false;
+  }
+
   const batch = writeBatch(db);
   categories.forEach((cat, index) => {
     const catRef = doc(db, "categories", cat.id);
@@ -121,6 +137,10 @@ export const deleteAndReassignCategory = async (
   const user = auth.currentUser;
   if (!user) {
     // console.error("Користувач не авторизований");
+    return null;
+  }
+
+  if (!(await isNetworkAvailable())) {
     return null;
   }
 
@@ -173,6 +193,10 @@ export const deleteCategory = async (categoryId: string) => {
       return false;
     }
 
+    if (!(await isNetworkAvailable())) {
+      return false;
+    }
+
     await deleteDoc(doc(db, "categories", categoryId));
     return true;
   } catch (error) {
@@ -186,6 +210,10 @@ export const updateCategory = async (categoryId: string, data: Partial<Omit<Cate
     const user = auth.currentUser;
     if (!user) {
       // console.error("Користувач не авторизований");
+      return false;
+    }
+
+    if (!(await isNetworkAvailable())) {
       return false;
     }
 

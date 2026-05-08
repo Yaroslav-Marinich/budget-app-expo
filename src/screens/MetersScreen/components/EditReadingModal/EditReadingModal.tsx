@@ -2,7 +2,6 @@ import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Image,
   KeyboardAvoidingView,
   Modal,
@@ -17,6 +16,7 @@ import {
 
 import { Colors } from '@/src/constants/Colors';
 import { useLoader } from '@/src/context/LoaderContext';
+import { appAlert } from '@/src/services/alert';
 import { getMeterColor, Meter, MeterReading, updateMeterReading } from '@/src/services/meters';
 import { deleteMeterPhoto, takeAndUploadMeterPhoto } from '@/src/services/storage';
 import { styles } from './EditReadingModal.styles';
@@ -70,7 +70,7 @@ const handleChangePhoto = async () => {
 
     if (meter.calcType === 'readings') {
       if (!prevValue || !currValue) {
-        Alert.alert("Помилка", "Заповніть обидва поля показників.");
+        appAlert("Помилка", "Заповніть обидва поля показників.");
         return;
       }
       finalPrev = parseFloat(prevValue);
@@ -78,12 +78,12 @@ const handleChangePhoto = async () => {
       consumedValue = finalCurr - finalPrev;
       
       if (consumedValue < 0) {
-        Alert.alert("Помилка", "Теперішній показник не може бути меншим за попередній.");
+        appAlert("Помилка", "Теперішній показник не може бути меншим за попередній.");
         return;
       }
     } else {
       if (!consumed) {
-        Alert.alert("Помилка", "Заповніть об'єм споживання.");
+        appAlert("Помилка", "Заповніть об'єм споживання.");
         return;
       }
       consumedValue = parseFloat(consumed);
@@ -111,7 +111,7 @@ const handleChangePhoto = async () => {
     if (success) {
       onClose();
     } else {
-      Alert.alert("Помилка", "Не вдалося оновити показники.");
+      appAlert("Помилка", "Не вдалося оновити показники.");
     }
   };
 

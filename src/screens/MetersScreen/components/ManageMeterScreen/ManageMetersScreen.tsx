@@ -1,13 +1,14 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
-import { Alert, FlatList, Text, TouchableOpacity, View } from 'react-native';
+import { useFocusEffect, useRouter } from 'expo-router';
+import React, { useCallback, useState } from 'react';
+import { FlatList, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Colors } from '@/src/constants/Colors';
 import { useLoader } from '@/src/context/LoaderContext';
+import { AddMeterModal } from '@/src/screens/MetersScreen/components/AddMeterModal/AddMeterModal';
 import { styles } from '@/src/screens/MetersScreen/components/ManageMeterScreen/ManageMetersScreen.styles';
-import { AddMeterModal } from '@/src/screens/ServicesScreen/components/AddMeterModal';
+import { appAlert } from '@/src/services/alert';
 import { deleteMeter, getMeterColor, Meter, subscribeToMeters } from '@/src/services/meters';
 
 export const ManageMetersScreen = () => {
@@ -19,16 +20,27 @@ export const ManageMetersScreen = () => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [selectedMeter, setSelectedMeter] = useState<Meter | null>(null);
 
-  useEffect(() => {
+  // useEffect(() => {
+  //   const unsubscribe = subscribeToMeters((data) => {
+  //     setMeters(data.sort((left, right) => (left.order || 0) - (right.order || 0)));
+  //   });
+
+  //   return () => unsubscribe();
+  // }, []);
+useFocusEffect(
+  useCallback(() => {
     const unsubscribe = subscribeToMeters((data) => {
-      setMeters(data.sort((left, right) => (left.order || 0) - (right.order || 0)));
+      // Сортуємо лічильники: спочатку ті, що вже в базі, потім нові (або за order)
+      const sorted = data.sort((left, right) => (left.order || 0) - (right.order || 0));
+      setMeters(sorted);
     });
 
     return () => unsubscribe();
-  }, []);
-
+  }, [])
+  );
+  
   const handleDelete = (meter: Meter) => {
-    Alert.alert(
+    appAlert(
       'Видалення лічильника',
       `Ви впевнені, що хочете видалити лічильник "${meter.name}"? \n\nУВАГА: Це назавжди видалить всю історію його показників без можливості відновлення!`,
       [
@@ -42,7 +54,7 @@ export const ManageMetersScreen = () => {
               await deleteMeter(meter.id);
             } catch (error) {
               console.error(error);
-              Alert.alert('Помилка', 'Не вдалося видалити лічильник.');
+              appAlert('Помилка', 'Не вдалося видалити лічильник.');
             } finally {
               hideLoader();
             }
@@ -52,20 +64,26 @@ export const ManageMetersScreen = () => {
     );
   };
 
-  const renderItem = ({ item }: { item: Meter }) => (
-    <View style={styles.manageCard}>
+  const renderItem = ({ item }: { item: Meter & { isPending?: boolean } }) => (
+    <View style={[styles.manageCard, item.isPending && { opacity: 0.6 }]}>
       <View style={[styles.manageIconBox, { backgroundColor: `${getMeterColor(item.icon)}15` }]}>
         <Ionicons name={item.icon as any} size={24} color={getMeterColor(item.icon)} />
       </View>
 
       <View style={styles.manageInfoBox}>
-        <Text style={styles.manageName}>{item.name}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+          <Text style={styles.manageName}>{item.name}</Text>
+          {item.isPending && (
+            <Ionicons name="time-outline" size={16} color={'#FF9500'} />
+          )}
+        </View>
         <Text style={styles.manageType}>{item.calcType === 'readings' ? 'За показами' : "За об'ємом"}</Text>
       </View>
 
       <View style={styles.manageActions}>
         <TouchableOpacity
-          style={styles.actionBtn}
+          style={[styles.actionBtn, item.isPending && { opacity: 0.3 }]}
+          disabled={item.isPending} 
           onPress={() => {
             setSelectedMeter(item);
             setModalVisible(true);
@@ -73,7 +91,11 @@ export const ManageMetersScreen = () => {
         >
           <Ionicons name="pencil" size={20} color={Colors.textSecondary} />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.actionBtn} onPress={() => handleDelete(item)}>
+        <TouchableOpacity 
+          style={[styles.actionBtn, item.isPending && { opacity: 0.3 }]} 
+          disabled={item.isPending} 
+          onPress={() => handleDelete(item)}
+        >
           <Ionicons name="trash-outline" size={22} color={Colors.error} />
         </TouchableOpacity>
       </View>

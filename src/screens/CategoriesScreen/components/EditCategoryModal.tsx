@@ -4,6 +4,7 @@ import { Modal, Pressable, ScrollView, Text, TextInput, TouchableOpacity, View }
 
 import { Colors } from "@/src/constants/Colors";
 import { useLoader } from "@/src/context/LoaderContext";
+import { appAlert } from "@/src/services/alert";
 import { addCategory, Category, updateCategory } from "@/src/services/categories";
 import { styles } from "./EditCategoryModal.styles"; // Можна використати стилі від Wallet з мінімальними правками
 
@@ -51,7 +52,7 @@ export const EditCategoryModal = ({ visible, category, onClose, type, existingCa
       const availableColor = CATEGORY_COLORS.find(c => !usedColors.includes(c)) || CATEGORY_COLORS[0];
       setColor(availableColor);
     }
-  }, [category, visible]);
+  }, [category, visible, existingCategories, type]);
 
   const handleSave = async () => {
     if (!name.trim()) return;
@@ -66,13 +67,30 @@ export const EditCategoryModal = ({ visible, category, onClose, type, existingCa
     showLoader();
     try {
       if (isEdit && category) {
-        await updateCategory(category.id, data);
+        const updated = await updateCategory(category.id, data);
+        if (!updated) {
+          appAlert(
+            'Помилка',
+            'Неможливо редагувати категорію без інтернету. Спробуйте пізніше.',
+            [{ text: 'OK', onPress: onClose }]
+          );
+          return;
+        }
       } else {
-        await addCategory({ ...data, order: Date.now() });
+        const createdId = await addCategory({ ...data, order: Date.now() });
+        if (!createdId) {
+          appAlert(
+            'Помилка',
+            'Неможливо створити категорію без інтернету. Спробуйте пізніше.',
+            [{ text: 'OK', onPress: onClose }]
+          );
+          return;
+        }
       }
       onClose();
     } catch (error) {
       console.error(error);
+      appAlert('Помилка', 'Не вдалося зберегти категорію.');
     } finally {
       hideLoader();
     }

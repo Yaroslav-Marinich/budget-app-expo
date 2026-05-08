@@ -6,6 +6,24 @@ export const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background,
   },
+  syncBanner: {
+    marginHorizontal: 20,
+    marginTop: 10,
+    marginBottom: 8,
+    backgroundColor: '#FF9500',
+    borderRadius: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  syncBannerText: {
+    color: Colors.background,
+    fontSize: 13,
+    fontWeight: '700',
+  },
 
   // =======================
   // Рахунки
@@ -34,6 +52,11 @@ export const styles = StyleSheet.create({
     borderColor: Colors.outline,
   },
 
+  walletCardPending: {
+    borderColor: '#FF9500',
+    borderStyle: 'dashed',
+  },
+
 walletCardArchived: {
     opacity: 0.6,
     backgroundColor: 'rgba(255, 255, 255, 0.03)',
@@ -53,6 +76,27 @@ walletCardArchived: {
     zIndex: 2,
   },
   archiveBadgeTextHome: {
+    color: Colors.background,
+    fontSize: 9,
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  pendingBadgeHome: {
+    position: 'absolute',
+    top: -1,
+    left: 25,
+    backgroundColor: '#FF9500',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10,
+    zIndex: 2,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  pendingBadgeTextHome: {
     color: Colors.background,
     fontSize: 9,
     fontWeight: 'bold',
@@ -189,12 +233,24 @@ categoriesContainer: {
     borderColor: 'rgba(255, 255, 255, 0.05)'
   },
   iconContainer: { 
+    position: 'relative',
     width: 44,
     height: 44, 
     borderRadius: 12, 
     alignItems: 'center', 
     justifyContent: 'center', 
     marginRight: 10 
+  },
+  pendingCategoryDot: {
+    position: 'absolute',
+    right: -4,
+    top: -4,
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: '#FF9500',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   textContainer: {
     flex: 1, 

@@ -11,6 +11,7 @@ import { TransactionModal } from "@/src/components/ui/TransactionModal/Transacti
 import { Colors } from "@/src/constants/Colors";
 import { styles } from "@/src/screens/HomeScreen/home.styles";
 import { Category, subscribeToCategories } from "@/src/services/categories";
+import { getSyncQueue, subscribeToSyncQueueChanges } from "@/src/services/syncManager";
 import { subscribeToMonthlyTransactions } from "@/src/services/transactions";
 import { subscribeToWallets, Wallet } from "@/src/services/wallets";
 
@@ -33,6 +34,7 @@ export const HomeScreen = () => {
 	const [isMonthPickerVisible, setMonthPickerVisible] = useState(false);
 	const [categories, setCategories] = useState<Category[]>([]);
 	const [isCategoryModalVisible, setCategoryModalVisible] = useState(false);
+	const [syncPendingCount, setSyncPendingCount] = useState(0);
 
 	const handleWalletPress = (walletId: string, index: number) => {
 		setSelectedWalletId(walletId);
@@ -44,22 +46,31 @@ export const HomeScreen = () => {
 		});
 	};
 
-	const totalExpense = transactions
+	const selectedWalletTransactions = useMemo(() => {
+		if (!selectedWalletId) return [];
+		return transactions.filter((transaction) => transaction.walletId === selectedWalletId);
+	}, [transactions, selectedWalletId]);
+
+	const totalExpense = selectedWalletTransactions
 		.filter((transaction) => transaction.type === "expense")
 		.reduce((sum, transaction) => sum + transaction.amount, 0);
 
-	const totalIncome = transactions
+	const totalIncome = selectedWalletTransactions
 		.filter((transaction) => transaction.type === "income")
 		.reduce((sum, transaction) => sum + transaction.amount, 0);
 
 	const activeCategories = categories
 		.filter((category) => category.type === activeTab && !category.isArchived)
 		.map((category) => {
-			const sum = transactions
+			const sum = selectedWalletTransactions
 				.filter((transaction) => transaction.categoryId === category.id)
 				.reduce((accumulator, transaction) => accumulator + transaction.amount, 0);
 
-			return { ...category, sum };
+			const hasPending = selectedWalletTransactions.some(
+				(transaction) => transaction.categoryId === category.id && transaction.isPending,
+			);
+
+			return { ...category, sum, hasPending };
 		});
 
 	const getFormattedDate = (date: Date) => {
@@ -88,7 +99,7 @@ export const HomeScreen = () => {
 	const processedWallets = useMemo(() => {
 		const activeWallets = wallets
 			.filter((wallet) => !wallet.isArchived)
-			.sort((left, right) => (left.order || 0) - (right.order || 0));
+			.sort((left, right) => (left.order ?? Number.MAX_SAFE_INTEGER) - (right.order ?? Number.MAX_SAFE_INTEGER));
 
 		const archivedWithActivity = wallets
 			.filter((wallet) => wallet.isArchived)
@@ -138,16 +149,30 @@ export const HomeScreen = () => {
 	useEffect(() => {
 		const unsubscribeWallets = subscribeToWallets((data) => {
 			setWallets(data);
-			if (!selectedWalletId) {
-				const firstActive = data.find((wallet) => !wallet.isArchived);
-				if (firstActive) {
-					setSelectedWalletId(firstActive.id);
+
+			const sortedActive = data
+				.filter((wallet) => !wallet.isArchived)
+				.sort(
+					(left, right) =>
+						(left.order ?? Number.MAX_SAFE_INTEGER) - (right.order ?? Number.MAX_SAFE_INTEGER),
+				);
+
+			setSelectedWalletId((currentSelectedId) => {
+				if (sortedActive.length === 0) {
+					return null;
 				}
-			}
+
+				const selectedStillActive = sortedActive.some((wallet) => wallet.id === currentSelectedId);
+				if (!currentSelectedId || !selectedStillActive) {
+					return sortedActive[0].id;
+				}
+
+				return currentSelectedId;
+			});
 		});
 
 		return () => unsubscribeWallets();
-	}, [selectedWalletId]);
+	}, []);
 
 	useEffect(() => {
 		const unsubscribeCategories = subscribeToCategories((data) => {
@@ -157,11 +182,34 @@ export const HomeScreen = () => {
 		return () => unsubscribeCategories();
 	}, []);
 
+	useEffect(() => {
+		const refreshSyncState = async () => {
+			const queue = await getSyncQueue();
+			const activeCount = queue.filter((task) => task.status === "PENDING" || task.status === "SYNCING").length;
+			setSyncPendingCount(activeCount);
+		};
+
+		refreshSyncState();
+
+		const unsubscribeQueue = subscribeToSyncQueueChanges(() => {
+			refreshSyncState();
+		});
+
+		return () => unsubscribeQueue();
+	}, []);
+
 	return (
 		<View style={[styles.container, { paddingTop: insets.top }]}>
 			<Stack.Screen options={{ headerShown: false }} />
 
 			<ScrollView showsVerticalScrollIndicator={false}>
+				{syncPendingCount > 0 && (
+					<View style={styles.syncBanner}>
+						<Ionicons name="sync-outline" size={16} color={Colors.background} />
+						<Text style={styles.syncBannerText}>На синхронізацію: {syncPendingCount} даних</Text>
+					</View>
+				)}
+
 				<Text style={styles.sectionTitle}>Рахунки</Text>
 				<FlatList
 					ref={walletsListRef}
@@ -188,6 +236,7 @@ export const HomeScreen = () => {
 									marginRight: index === processedWallets.length - 1 ? 0 : cardSpacing,
 								},
 								wallet.isArchived && styles.walletCardArchived,
+								wallet.isPending && styles.walletCardPending,
 								selectedWalletId === wallet.id && { borderColor: Colors.primary, borderWidth: 2 },
 							]}
 							onPress={() => handleWalletPress(wallet.id, index)}
@@ -195,6 +244,13 @@ export const HomeScreen = () => {
 							{wallet.isArchived && (
 								<View style={styles.archiveBadgeHome}>
 									<Text style={styles.archiveBadgeTextHome}>Архів</Text>
+								</View>
+							)}
+
+							{wallet.isPending && (
+								<View style={styles.pendingBadgeHome}>
+									<Ionicons name="time-outline" size={12} color={Colors.background} />
+									<Text style={styles.pendingBadgeTextHome}>Черга</Text>
 								</View>
 							)}
 
@@ -277,6 +333,11 @@ export const HomeScreen = () => {
 								>
 									<View style={[styles.iconContainer, { backgroundColor: `${category.color}15` }]}>
 										<Ionicons name={category.icon as any} size={22} color={category.color} />
+										{category.hasPending && (
+											<View style={styles.pendingCategoryDot}>
+												<Ionicons name="time-outline" size={10} color={Colors.background} />
+											</View>
+										)}
 									</View>
 									<View style={styles.textContainer}>
 										<Text style={styles.categoryName} numberOfLines={1}>
