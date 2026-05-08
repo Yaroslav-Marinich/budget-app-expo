@@ -21,8 +21,12 @@ export const addTransaction = async (data: CreateTransactionInput) => {
       return false;
     }
 
+    const cleanData = Object.fromEntries(
+      Object.entries(data).filter(([_, v]) => v !== undefined)
+    );
+
     await addDoc(collection(db, "transactions"), {
-      ...data,
+      ...cleanData,
       userId: user.uid, 
       date: serverTimestamp(),
       monthYear: new Date().toISOString().slice(0, 7),
