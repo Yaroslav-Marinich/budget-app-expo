@@ -90,4 +90,58 @@ export const styles = StyleSheet.create({
     fontSize: 16,
     marginLeft: 8,
   },
+  /* --- СТИЛІ БЛОКУ ФОТОГРАФІЇ --- */
+  photoSectionContainer: {
+    marginBottom: 20,
+    marginTop: 10,
+  },
+  photoUploadingContainer: {
+    padding: 20,
+    alignItems: 'center',
+  },
+  photoUploadingText: {
+    color: Colors.textSecondary,
+    marginTop: 10,
+  },
+  photoPreviewContainer: {
+    alignItems: 'center',
+  },
+  photoPreviewImage: {
+    width: '100%',
+    height: 200,
+    borderRadius: 12,
+    marginBottom: 10,
+  },
+  photoDeleteBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FF3B3015',
+    padding: 10,
+    borderRadius: 12,
+  },
+  photoDeleteText: {
+    color: '#FF3B30',
+    marginLeft: 5,
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  photoAddBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: `${Colors.primary}15`,
+    padding: 15,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: `${Colors.primary}30`,
+    borderStyle: 'dashed',
+  },
+  photoAddText: {
+    color: Colors.primary,
+    marginLeft: 10,
+    fontWeight: '600',
+    fontSize: 16,
+  },
 });

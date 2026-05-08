@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Alert, FlatList, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, FlatList, Image, Modal, Text, TouchableOpacity, View } from 'react-native'; // 👈 Додали Image та Modal
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Colors } from '@/src/constants/Colors';
@@ -19,15 +19,17 @@ const formatMonthYear = (dateStr: string) => {
 };
 
 export const MonthDetailsScreen = () => {
-const { id } = useLocalSearchParams<{ id: string }>(); 
+  const { id } = useLocalSearchParams<{ id: string }>(); 
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { showLoader, hideLoader } = useLoader();
 
   const [meters, setMeters] = useState<Meter[]>([]);
-    const [readings, setReadings] = useState<MeterReading[]>([]);
-    const [editingReading, setEditingReading] = useState<MeterReading | null>(null);
+  const [readings, setReadings] = useState<MeterReading[]>([]);
+  const [editingReading, setEditingReading] = useState<MeterReading | null>(null);
   const [isEditModalVisible, setEditModalVisible] = useState(false);
+  
+  const [fullScreenPhoto, setFullScreenPhoto] = useState<string | null>(null);
 
   useEffect(() => {
     const unsubMeters = subscribeToMeters(setMeters);
@@ -58,13 +60,14 @@ const { id } = useLocalSearchParams<{ id: string }>();
     );
   };
 
-const handleEdit = (reading: MeterReading) => {
+  const handleEdit = (reading: MeterReading) => {
     setEditingReading(reading);
     setEditModalVisible(true);
   };
 
   const renderReadingCard = ({ item }: { item: MeterReading }) => {
     const meter = meters.find(m => m.id === item.meterId);
+    console.log('meter', meter);
     if (!meter) return null;
 
     return (
@@ -85,7 +88,7 @@ const handleEdit = (reading: MeterReading) => {
           </View>
         </View>
 
-        {/* ПОКАЗНИКИ (якщо тип "за показами") */}
+        {/* ПОКАЗНИКИ */}
         {meter.calcType === 'readings' && (
           <View style={styles.readingsFlowBox}>
             <View style={styles.readingCardItem}>
@@ -115,6 +118,20 @@ const handleEdit = (reading: MeterReading) => {
             <Text style={styles.commentText}>{item.comment}</Text>
           </View>
         )}
+
+        {/* 📸 ПРЕВ'Ю ФОТОГРАФІЇ */}
+        {item.photoUrl && (
+          <TouchableOpacity 
+            style={styles.thumbnailContainer}
+            activeOpacity={0.9}
+            onPress={() => setFullScreenPhoto(item.photoUrl!)}
+          >
+            <Image source={{ uri: item.photoUrl }} style={styles.thumbnailImage} />
+            <View style={styles.thumbnailOverlay}>
+              <Ionicons name="expand-outline" size={20} color="white" />
+            </View>
+          </TouchableOpacity>
+        )}
       </View>
     );
   };
@@ -136,9 +153,9 @@ const handleEdit = (reading: MeterReading) => {
         ListEmptyComponent={
           <Text style={styles.emptyText}>У цьому місяці ще немає показників.</Text>
         }
-          />
+      />
           
-          {/* МОДАЛКА РЕДАГУВАННЯ */}
+      {/* МОДАЛКА РЕДАГУВАННЯ */}
       <EditReadingModal 
         visible={isEditModalVisible}
         onClose={() => {
@@ -148,6 +165,30 @@ const handleEdit = (reading: MeterReading) => {
         reading={editingReading}
         meter={meters.find(m => m.id === editingReading?.meterId) || null}
       />
+
+      {/* 📸 МОДАЛКА ПОВНОЕКРАННОГО ФОТО */}
+      <Modal
+        visible={!!fullScreenPhoto}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setFullScreenPhoto(null)}
+      >
+        <View style={styles.fullScreenModalBg}>
+          <TouchableOpacity 
+            style={[styles.fullScreenCloseBtn, { top: insets.top + 10 }]} 
+            onPress={() => setFullScreenPhoto(null)}
+          >
+            <Ionicons name="close-circle" size={36} color="white" />
+          </TouchableOpacity>
+          {fullScreenPhoto && (
+            <Image 
+              source={{ uri: fullScreenPhoto }} 
+              style={styles.fullScreenImage} 
+              resizeMode="contain" 
+            />
+          )}
+        </View>
+      </Modal>
     </View>
   );
 }

@@ -1,10 +1,24 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
-import { Alert, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  Image,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 import { Colors } from '@/src/constants/Colors';
 import { useLoader } from '@/src/context/LoaderContext';
 import { getMeterColor, Meter, MeterReading, updateMeterReading } from '@/src/services/meters';
+import { deleteMeterPhoto, takeAndUploadMeterPhoto } from '@/src/services/storage';
 import { styles } from './EditReadingModal.styles';
 
 interface EditReadingModalProps {
@@ -21,6 +35,9 @@ export const EditReadingModal: React.FC<EditReadingModalProps> = ({ visible, onC
   const [currValue, setCurrValue] = useState("");
   const [consumed, setConsumed] = useState("");
   const [comment, setComment] = useState("");
+  
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
 
   useEffect(() => {
     if (visible && reading) {
@@ -28,8 +45,21 @@ export const EditReadingModal: React.FC<EditReadingModalProps> = ({ visible, onC
       setCurrValue(reading.currentValue !== undefined ? reading.currentValue.toString() : "");
       setConsumed(reading.consumedValue !== undefined ? reading.consumedValue.toString() : "");
       setComment(reading.comment || "");
+      setPhotoUrl(reading.photoUrl || null);
     }
   }, [visible, reading]);
+
+const handleChangePhoto = async () => {
+    setIsUploadingPhoto(true);
+    const url = await takeAndUploadMeterPhoto();
+    if (url) {
+      if (photoUrl && photoUrl !== reading?.photoUrl) {
+        deleteMeterPhoto(photoUrl);
+      }
+      setPhotoUrl(url);
+    }
+    setIsUploadingPhoto(false);
+  };
 
   const handleSave = async () => {
     if (!reading || !meter) return;
@@ -65,6 +95,14 @@ export const EditReadingModal: React.FC<EditReadingModalProps> = ({ visible, onC
       updateData.currentValue = finalCurr;
     }
     updateData.comment = comment.trim() ? comment.trim() : undefined;
+    
+    if (photoUrl !== reading.photoUrl) {
+      updateData.photoUrl = photoUrl || ""; 
+      
+      if (reading.photoUrl) {
+        deleteMeterPhoto(reading.photoUrl);
+      }
+    }
 
     showLoader();
     const success = await updateMeterReading(reading.id!, updateData);
@@ -82,7 +120,7 @@ export const EditReadingModal: React.FC<EditReadingModalProps> = ({ visible, onC
   if (!meter || !reading) return null;
 
   return (
-<Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
+    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <Pressable style={styles.overlay} onPress={onClose}>
           <Pressable style={styles.modalContent} onPress={e => e.stopPropagation()}>
@@ -151,6 +189,54 @@ export const EditReadingModal: React.FC<EditReadingModalProps> = ({ visible, onC
                   multiline
                 />
               </View>
+              
+              {/* 📸 БЛОК КЕРУВАННЯ ФОТОГРАФІЄЮ (використовуємо спільні стилі) */}
+              <View style={styles.photoSectionContainer}>
+                {isUploadingPhoto ? (
+                  <View style={styles.photoUploadingContainer}>
+                    <ActivityIndicator size="large" color={Colors.primary} />
+                    <Text style={styles.photoUploadingText}>Завантаження фото...</Text>
+                  </View>
+                ) : photoUrl ? (
+                  <View style={styles.photoPreviewContainer}>
+                    <Image 
+                      source={{ uri: photoUrl }} 
+                      style={styles.photoPreviewImage} 
+                      resizeMode="cover"
+                    />
+                    <View style={{ flexDirection: 'row', gap: 10, marginTop: 5 }}>
+                      {/* Кнопка зміни фото */}
+                      <TouchableOpacity 
+                        style={[styles.photoAddBtn, { flex: 1, borderStyle: 'solid', padding: 10 }]} 
+                        onPress={handleChangePhoto}
+                      >
+                        <Ionicons name="camera-outline" size={20} color={Colors.primary} />
+                        <Text style={[styles.photoAddText, { fontSize: 14 }]}>Змінити</Text>
+                      </TouchableOpacity>
+                      
+                      {/* Кнопка видалення фото */}
+                      <TouchableOpacity 
+                        style={styles.photoDeleteBtn}
+                        onPress={() => setPhotoUrl(null)}
+                      >
+                        <Ionicons name="trash-outline" size={20} color="#FF3B30" />
+                        <Text style={styles.photoDeleteText}>Видалити</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                ) : (
+                  <TouchableOpacity 
+                    style={styles.photoAddBtn} 
+                    onPress={handleChangePhoto}
+                  >
+                    <Ionicons name="camera-outline" size={24} color={Colors.primary} />
+                    <Text style={styles.photoAddText}>
+                      Додати фото лічильника
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+              {/* 📸 КІНЕЦЬ БЛОКУ ФОТО */}
 
               <TouchableOpacity style={styles.formSubmitBtn} onPress={handleSave}>
                 <Ionicons name="checkmark-circle-outline" size={24} color="white" />

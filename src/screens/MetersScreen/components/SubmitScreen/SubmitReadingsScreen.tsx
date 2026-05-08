@@ -2,15 +2,17 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
-    Alert,
-    FlatList,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -19,6 +21,7 @@ import { Colors } from '@/src/constants/Colors';
 import { useLoader } from '@/src/context/LoaderContext';
 import { styles } from '@/src/screens/MetersScreen/components/SubmitScreen/SubmitReadingsScreen.styles';
 import { addMeterReading, getMeterColor, getPreviousMeterReading, Meter, MeterReading, subscribeToMeters } from '@/src/services/meters';
+import { takeAndUploadMeterPhoto } from '@/src/services/storage'; // 👈 Імпортуємо нашу нову функцію
 
 export const SubmitReadingsScreen = () => {
   const insets = useSafeAreaInsets();
@@ -36,6 +39,9 @@ export const SubmitReadingsScreen = () => {
   const [currValue, setCurrValue] = useState('');
   const [consumed, setConsumed] = useState('');
   const [comment, setComment] = useState('');
+  
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
 
   const monthName = currentDate.toLocaleString('uk-UA', { month: 'long' });
   const year = currentDate.getFullYear();
@@ -67,7 +73,6 @@ export const SubmitReadingsScreen = () => {
     fetchPreviousReading();
   }, [currentDate, dateKey, hideLoader, selectedMeter, showLoader, step]);
     
-    // Скидаємо дату та крок при кожному вході на екран (або поверненні на нього)
   useFocusEffect(
     useCallback(() => {
       setCurrentDate(new Date());
@@ -77,6 +82,7 @@ export const SubmitReadingsScreen = () => {
       setCurrValue("");
       setConsumed("");
       setComment("");
+      setPhotoUrl(null); 
     }, [])
   );
 
@@ -91,7 +97,17 @@ export const SubmitReadingsScreen = () => {
     setCurrValue('');
     setConsumed('');
     setComment('');
+    setPhotoUrl(null);
     setStep('form');
+  };
+
+  const handleTakePhoto = async () => {
+    setIsUploadingPhoto(true);
+    const url = await takeAndUploadMeterPhoto();
+    if (url) {
+      setPhotoUrl(url);
+    }
+    setIsUploadingPhoto(false);
   };
 
   const handleSave = async () => {
@@ -141,6 +157,10 @@ export const SubmitReadingsScreen = () => {
     if (comment.trim()) {
       readingData.comment = comment.trim();
     }
+    
+    if (photoUrl) {
+      readingData.photoUrl = photoUrl;
+    }
 
     showLoader();
     const success = await addMeterReading(readingData);
@@ -164,17 +184,17 @@ export const SubmitReadingsScreen = () => {
       <View style={[styles.container, { paddingTop: insets.top + 10 }]}>
         <View style={styles.header}>
           <TouchableOpacity 
-      onPress={() => {
-        if (step === 'form') {
-          setStep('select');
-          setSelectedMeter(null);
-          setCurrentDate(new Date());
-        } else {
-          router.back();
-        }
-      }} 
-      style={{ padding: 5 }}
-    >
+            onPress={() => {
+              if (step === 'form') {
+                setStep('select');
+                setSelectedMeter(null);
+                setCurrentDate(new Date());
+              } else {
+                router.back();
+              }
+            }} 
+            style={{ padding: 5 }}
+          >
             <Ionicons name="arrow-back" size={28} color={Colors.textSecondary} />
           </TouchableOpacity>
           <Text style={styles.title}>{step === 'select' ? 'Виберіть лічильник' : 'Внесення даних'}</Text>
@@ -283,6 +303,42 @@ export const SubmitReadingsScreen = () => {
                 multiline
               />
             </View>
+
+{/* 📸 БЛОК ДЛЯ ФОТОГРАФІЇ */}
+            <View style={styles.photoSectionContainer}>
+              {isUploadingPhoto ? (
+                <View style={styles.photoUploadingContainer}>
+                  <ActivityIndicator size="large" color={Colors.primary} />
+                  <Text style={styles.photoUploadingText}>Завантаження фото...</Text>
+                </View>
+              ) : photoUrl ? (
+                <View style={styles.photoPreviewContainer}>
+                  <Image 
+                    source={{ uri: photoUrl }} 
+                    style={styles.photoPreviewImage} 
+                    resizeMode="cover"
+                  />
+                  <TouchableOpacity 
+                    style={styles.photoDeleteBtn}
+                    onPress={() => setPhotoUrl(null)}
+                  >
+                    <Ionicons name="trash-outline" size={20} color="#FF3B30" />
+                    <Text style={styles.photoDeleteText}>Видалити фото</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <TouchableOpacity 
+                  style={styles.photoAddBtn} 
+                  onPress={handleTakePhoto}
+                >
+                  <Ionicons name="camera-outline" size={24} color={Colors.primary} />
+                  <Text style={styles.photoAddText}>
+                    Додати фото лічильника
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
+            {/* 📸 КІНЕЦЬ БЛОКУ ДЛЯ ФОТО */}
 
             <TouchableOpacity style={styles.formSubmitBtn} onPress={handleSave}>
               <Ionicons name="checkmark-circle-outline" size={24} color="white" />

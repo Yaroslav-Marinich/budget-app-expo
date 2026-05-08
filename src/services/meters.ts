@@ -134,6 +134,7 @@ export interface MeterReading {
   currentValue?: number;
   consumedValue: number;
   comment?: string;
+  photoUrl?: string;
 }
 
 // Додавання ОДНОГО показника

@@ -122,4 +122,41 @@ export const styles = StyleSheet.create({
     lineHeight: 20,
     flex: 1,
   },
+  /* --- ФОТО МІНІАТЮРА --- */
+  thumbnailContainer: {
+    marginTop: 15,
+    height: 100,
+    width: '100%',
+    borderRadius: 12,
+    overflow: 'hidden',
+    backgroundColor: '#000',
+  },
+  thumbnailImage: {
+    width: '100%',
+    height: '100%',
+    opacity: 0.8, // Трохи затемнюємо, щоб іконка виглядала контрастно
+  },
+  thumbnailOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  /* --- ПОВНОЕКРАННЕ ФОТО --- */
+  fullScreenModalBg: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  fullScreenCloseBtn: {
+    position: 'absolute',
+    right: 20,
+    zIndex: 10,
+    padding: 5,
+  },
+  fullScreenImage: {
+    width: '100%',
+    height: '80%',
+  },
 });
