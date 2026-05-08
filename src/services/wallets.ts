@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { collection, doc, getDocs, increment, onSnapshot, query, updateDoc, where, writeBatch } from "firebase/firestore";
 import { auth, db } from "../config/firebase";
+import { sanitizeFirestoreUpdate } from '../utils/sanitizeFirestoreData';
 
 import { startSync } from './syncEngine';
 import { addToSyncQueue, getSyncQueue, subscribeToSyncQueueChanges } from './syncManager';
@@ -142,7 +143,7 @@ export const updateWallet = async (walletId: string, updates: UpdateWalletInput)
   }
 
   const walletRef = doc(db, "wallets", walletId);
-  await updateDoc(walletRef, updates);
+  await updateDoc(walletRef, sanitizeFirestoreUpdate(updates));
   return true;
 };
 

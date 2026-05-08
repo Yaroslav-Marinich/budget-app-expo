@@ -4,6 +4,7 @@ import { collection, deleteDoc, doc, getDocs, onSnapshot, orderBy, query, update
 
 import { startSync } from './syncEngine';
 import { addToSyncQueue, getSyncQueue, subscribeToSyncQueueChanges } from './syncManager';
+import { sanitizeFirestoreData, sanitizeFirestoreUpdate } from '../utils/sanitizeFirestoreData';
 
 const METERS_CACHE_KEY = '@cached_meters';
 const READINGS_CACHE_KEY = '@cached_readings';
@@ -142,7 +143,7 @@ export const updateMeter = async (meterId: string, data: Partial<Omit<Meter, "id
     }
 
     const docRef = doc(db, "meters", meterId);
-    await updateDoc(docRef, data);
+    await updateDoc(docRef, sanitizeFirestoreUpdate(data));
     return true;
   } catch (error) {
     console.error("Помилка оновлення лічильника:", error);
@@ -242,10 +243,10 @@ export const saveMeterReadings = async (readings: Omit<MeterReading, "id" | "use
     
     readings.forEach((reading) => {
       const docRef = doc(collection(db, "meter_readings"));
-      batch.set(docRef, {
+      batch.set(docRef, sanitizeFirestoreData({
         ...reading,
         userId: user.uid,
-      });
+      }));
     });
 
     await batch.commit();
@@ -340,7 +341,7 @@ export const updateMeterReading = async (readingId: string, data: Partial<Omit<M
     if (readingId.startsWith('task_')) return false;
 
     const docRef = doc(db, "meter_readings", readingId);
-    await updateDoc(docRef, data);
+    await updateDoc(docRef, sanitizeFirestoreUpdate(data));
     return true;
   } catch (error) {
     console.error("Помилка оновлення показника:", error);

@@ -9,6 +9,7 @@ import { useLoader } from '@/src/context/LoaderContext';
 import { styles } from '@/src/screens/MetersScreen/components/MonthDetailsScreen/MonthDetailsScreen.styles';
 import { appAlert } from '@/src/services/alert';
 import { deleteMeterReading, getMeterColor, Meter, MeterReading, subscribeToMeters, subscribeToReadingsByDate } from '@/src/services/meters';
+import { shareReadingsAsPDF } from '@/src/utils/exportReadings';
 import { EditReadingModal } from '../EditReadingModal/EditReadingModal';
 
 const formatMonthYear = (dateStr: string) => {
@@ -55,6 +56,9 @@ export const MonthDetailsScreen = () => {
             showLoader();
             await deleteMeterReading(readingId);
             hideLoader();
+            if (readings.length <= 1) {
+              router.back();
+            }
           }
         }
       ]
@@ -66,6 +70,12 @@ export const MonthDetailsScreen = () => {
     setEditModalVisible(true);
   };
 
+  const shareOne = (reading: MeterReading) => {
+  const meter = meters.find(m => m.id === reading.meterId);
+  const title = `${meter?.name} - ${reading.date}`;
+  shareReadingsAsPDF(title, [reading], meters); // Передаємо масив з одним елементом
+};
+
   const renderReadingCard = ({ item }: { item: MeterReading }) => {
     const meter = meters.find(m => m.id === item.meterId);
     if (!meter) return null;
@@ -73,15 +83,21 @@ export const MonthDetailsScreen = () => {
     return (
       <View style={styles.detailCard}>
         {/* ХЕДЕР */}
-        <View style={styles.detailHeader}>
+<View style={styles.detailHeader}>
           <View style={styles.detailMeterInfo}>
             <Ionicons name={meter.icon as any} size={28} color={getMeterColor(meter.icon)} />
             <Text style={styles.detailMeterName}>{meter.name}</Text>
           </View>
-          <View style={styles.detailActions}>
+          
+          <View style={[styles.detailActions, { flexDirection: 'row', alignItems: 'center', gap: 4 }]}>
+            <TouchableOpacity onPress={() => shareOne(item)} style={{ padding: 6 }}>
+              <Ionicons name="share-outline" size={22} color={Colors.primary} />
+            </TouchableOpacity>
+            
             <TouchableOpacity onPress={() => handleEdit(item)} style={{ padding: 6 }}>
               <Ionicons name="pencil" size={22} color={Colors.textSecondary} />
             </TouchableOpacity>
+            
             <TouchableOpacity onPress={() => handleDelete(item.id!, meter.name)} style={{ padding: 6 }}>
               <Ionicons name="trash-outline" size={22} color={Colors.error} />
             </TouchableOpacity>

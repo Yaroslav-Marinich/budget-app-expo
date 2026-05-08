@@ -3,6 +3,7 @@ import { addDoc, collection, doc, increment, updateDoc } from 'firebase/firestor
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 
 import { db, storage } from '../config/firebase';
+import { sanitizeFirestoreData } from '../utils/sanitizeFirestoreData';
 import { deleteLocalFile } from './fileManager';
 import {
   getSyncQueue,
@@ -66,13 +67,13 @@ export const startSync = async () => {
 
 const processTask = async (task: SyncTask) => {
   if (task.type === 'METER_CREATE') {
-    const meterDoc = await addDoc(collection(db, 'meters'), task.payload);
+    const meterDoc = await addDoc(collection(db, 'meters'), sanitizeFirestoreData(task.payload));
     await remapQueuedMeterReferences(task.id, meterDoc.id);
     return;
   }
 
   if (task.type === 'WALLET_CREATE') {
-    const walletDoc = await addDoc(collection(db, 'wallets'), task.payload);
+    const walletDoc = await addDoc(collection(db, 'wallets'), sanitizeFirestoreData(task.payload));
     await remapQueuedWalletReferences(task.id, walletDoc.id);
     return;
   }
@@ -133,21 +134,22 @@ const processTask = async (task: SyncTask) => {
     ...(finalPhotoUrl ? { photoUrl: finalPhotoUrl } : {}),
     syncedAt: new Date().toISOString() 
   };
+  const sanitizedDataToSave = sanitizeFirestoreData(dataToSave);
 
 if (task.type === 'METER_READING') {
-  await addDoc(collection(db, 'meter_readings'), dataToSave);
+  await addDoc(collection(db, 'meter_readings'), sanitizedDataToSave);
 } else if (task.type === 'TRANSACTION') {
-  await addDoc(collection(db, 'transactions'), dataToSave);
+  await addDoc(collection(db, 'transactions'), sanitizedDataToSave);
 
-  const balanceChange = dataToSave.type === 'expense'
-    ? -Number(dataToSave.amount || 0)
-    : Number(dataToSave.amount || 0);
+  const balanceChange = sanitizedDataToSave.type === 'expense'
+    ? -Number(sanitizedDataToSave.amount || 0)
+    : Number(sanitizedDataToSave.amount || 0);
 
-  if (!dataToSave.walletId || dataToSave.walletId.startsWith('task_')) {
+  if (!sanitizedDataToSave.walletId || sanitizedDataToSave.walletId.startsWith('task_')) {
     throw new Error('Transaction wallet reference is not resolved');
   }
 
-  await updateDoc(doc(db, 'wallets', dataToSave.walletId), {
+  await updateDoc(doc(db, 'wallets', sanitizedDataToSave.walletId), {
     balance: increment(balanceChange),
   });
 }

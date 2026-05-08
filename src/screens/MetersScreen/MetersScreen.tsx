@@ -8,6 +8,7 @@ import { Colors } from '@/src/constants/Colors';
 import { styles } from '@/src/screens/MetersScreen/MetersScreen.styles';
 import { getMeterColor, Meter, MeterReading, subscribeToMeterReadings, subscribeToMeters } from '@/src/services/meters';
 import { getSyncQueue } from '@/src/services/syncManager';
+import { shareReadingsAsPDF } from '@/src/utils/exportReadings';
 
 const formatMonthYear = (dateStr: string) => {
   const [year, month] = dateStr.split('-');
@@ -39,12 +40,13 @@ export const MetersScreen = () => {
   const fetchPendingQueue = async () => {
     const queue = await getSyncQueue();
     const pendingMeters = queue
-      .filter((task) => task.type === 'METER_READING')
+      .filter((task) => task.type === 'METER_READING' && (task.status === 'PENDING' || task.status === 'SYNCING'))
       .map((task) => ({
         ...task.payload,
         id: task.id, 
         isPending: true, 
-      }));
+      }))
+      .filter((reading) => !!reading?.date && !!reading?.meterId);
     setPendingReadings(pendingMeters);
   };
 
@@ -60,6 +62,7 @@ export const MetersScreen = () => {
 
  const groupedMonths = useMemo(() => {
     const groups: { [date: string]: UIMeterReading[] } = {};
+   const existingMeterIds = new Set(meters.map((meter) => meter.id));
 
     // Крок 1: Додаємо всі "офіційні" дані з Firebase
     readings.forEach((reading) => {
@@ -87,19 +90,29 @@ export const MetersScreen = () => {
     });
 
     return Object.keys(groups)
-      .sort((left, right) => right.localeCompare(left))
-      .map((date) => {
-        const hasPending = groups[date].some((r) => r.isPending);
+    .map((date) => {
+      const visibleItems = groups[date].filter((reading) => existingMeterIds.has(reading.meterId));
+      return { date, visibleItems };
+    })
+    .filter(({ visibleItems }) => visibleItems.length > 0)
+      .sort((left, right) => right.date.localeCompare(left.date))
+      .map(({ date, visibleItems }) => {
+        const hasPending = visibleItems.some((r) => r.isPending);
 
         return {
           id: date,
           date,
           title: formatMonthYear(date),
-          items: groups[date],
+          items: visibleItems,
           hasPending,
         };
       });
-  }, [readings, pendingReadings]);
+ }, [readings, pendingReadings, meters]);
+  
+  const handleShareAll = (e: any, item: any) => {
+  e.stopPropagation(); 
+  shareReadingsAsPDF(item.title, item.items, meters);
+};
 
   const renderMonthCard = ({ item }: { item: (typeof groupedMonths)[0] }) => (
     <TouchableOpacity
@@ -137,6 +150,19 @@ export const MetersScreen = () => {
           );
         })}
       </View>
+      <TouchableOpacity 
+      onPress={(e) => handleShareAll(e, item)}
+      style={{
+        position: 'absolute',
+        right: 15,
+        bottom: 15,
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        padding: 8,
+        borderRadius: 10,
+      }}
+    >
+      <Ionicons name="share-outline" size={22} color={Colors.textSecondary} />
+    </TouchableOpacity>
     </TouchableOpacity>
   );
 

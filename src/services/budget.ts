@@ -1,5 +1,6 @@
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "../config/firebase";
+import { sanitizeFirestoreData } from '../utils/sanitizeFirestoreData';
 
 export const addTransaction = async (data: {
   amount: number,
@@ -14,12 +15,12 @@ export const addTransaction = async (data: {
     return false;
   }
 
-  await addDoc(collection(db, "transactions"), {
+  await addDoc(collection(db, "transactions"), sanitizeFirestoreData({
     ...data,
     userId: user.uid,
     date: serverTimestamp(),
     monthYear: new Date().toISOString().slice(0, 7), // Для легкої фільтрації аналітики (напр. "2024-05")
-  });
+  }));
 
   return true;
 };

@@ -2,6 +2,7 @@ import NetInfo from '@react-native-community/netinfo';
 import { addDoc, collection, deleteDoc, doc, getDocs, onSnapshot, query, updateDoc, where, writeBatch } from "firebase/firestore";
 
 import { auth, db } from "../config/firebase";
+import { sanitizeFirestoreData, sanitizeFirestoreUpdate } from '../utils/sanitizeFirestoreData';
 
 export const DEFAULT_CATEGORIES: Omit<Category, "id" | "userId">[] = [
   // Витрати
@@ -75,10 +76,10 @@ export const addCategory = async (data: Omit<Category, "id" | "userId">) => {
       return null;
     }
 
-    const docRef = await addDoc(collection(db, "categories"), {
+    const docRef = await addDoc(collection(db, "categories"), sanitizeFirestoreData({
       ...data,
       userId: user.uid,
-    });
+    }));
     return docRef.id;
   } catch (error) {
     console.error("Помилка додавання категорії:", error);
@@ -218,7 +219,7 @@ export const updateCategory = async (categoryId: string, data: Partial<Omit<Cate
     }
 
     const catRef = doc(db, "categories", categoryId);
-    await updateDoc(catRef, data);
+    await updateDoc(catRef, sanitizeFirestoreUpdate(data));
     return true;
   } catch (error) {
     console.error("Помилка оновлення категорії:", error);

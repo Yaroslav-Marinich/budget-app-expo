@@ -8,6 +8,7 @@ import {
 import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 import { useEffect } from "react";
 import { auth, db } from "../config/firebase";
+import { sanitizeFirestoreData } from '../utils/sanitizeFirestoreData';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -35,7 +36,7 @@ export const useGoogleAuth = () => {
       const userSnap = await getDoc(userRef);
 
       if (!userSnap.exists()) {
-        await setDoc(userRef, {
+        await setDoc(userRef, sanitizeFirestoreData({
           uid: user.uid,
           email: user.email,
           displayName: user.displayName,
@@ -43,7 +44,7 @@ export const useGoogleAuth = () => {
           familyId: null,
           createdAt: serverTimestamp(),
           lastLogin: serverTimestamp(),
-        });
+        }));
         console.log("✅ New user created in Firestore");
       } else {
         await setDoc(userRef, { lastLogin: serverTimestamp() }, { merge: true });
