@@ -15,11 +15,8 @@ import { collection, getDocs, query, where } from 'firebase/firestore';
 
 const screenWidth = Dimensions.get('window').width;
 
-const CATEGORY_COLORS = [
-  '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', 
-  '#FF9F40', '#F778A1', '#7FFFD4', '#8A2BE2', '#00CED1'
-];
-const CARD_BG_COLOR = 'rgba(255,255,255,0.03)';
+const CATEGORY_COLORS = Colors.analyticsColors;
+const CARD_BG_COLOR = Colors.surfaceMuted;
 
 export const FinancesAnalytics = () => {
   const walletsScrollViewRef = useRef<ScrollView>(null);
@@ -211,12 +208,12 @@ export const FinancesAnalytics = () => {
               paddingHorizontal: 16,
               paddingVertical: 10,
               borderRadius: 20,
-              backgroundColor: selectedWalletId === null ? Colors.primary : 'rgba(255,255,255,0.05)',
+              backgroundColor: selectedWalletId === null ? Colors.primary : Colors.surfaceSoft,
               flexDirection: 'row',
               alignItems: 'center',
             }}
           >
-            <Text style={{ color: selectedWalletId === null ? 'white' : Colors.text, fontWeight: selectedWalletId === null ? 'bold' : 'normal' }}>
+            <Text style={{ color: selectedWalletId === null ? Colors.white : Colors.text, fontWeight: selectedWalletId === null ? 'bold' : 'normal' }}>
               Всі рахунки
             </Text>
           </TouchableOpacity>
@@ -233,7 +230,7 @@ export const FinancesAnalytics = () => {
                   paddingHorizontal: 16,
                   paddingVertical: 10,
                   borderRadius: 20,
-                  backgroundColor: isSelected ? Colors.primary : 'rgba(255,255,255,0.05)',
+                  backgroundColor: isSelected ? Colors.primary : Colors.surfaceSoft,
                   flexDirection: 'row',
                   alignItems: 'center',
                   gap: 8,
@@ -243,8 +240,8 @@ export const FinancesAnalytics = () => {
                   borderStyle: wallet.isArchived ? 'dashed' : 'solid',
                 }}
               >
-                <Ionicons name={wallet.icon as any} size={16} color={isSelected ? 'white' : Colors.textSecondary} />
-                <Text style={{ color: isSelected ? 'white' : Colors.text, fontWeight: isSelected ? 'bold' : 'normal' }}>
+                <Ionicons name={wallet.icon as any} size={16} color={isSelected ? Colors.white : Colors.textSecondary} />
+                <Text style={{ color: isSelected ? Colors.white : Colors.text, fontWeight: isSelected ? 'bold' : 'normal' }}>
                   {wallet.title} {walletCurrencySymbol} {wallet.isArchived ? '(Архів)' : ''}
                 </Text>
               </TouchableOpacity>
@@ -269,7 +266,7 @@ export const FinancesAnalytics = () => {
                     paddingHorizontal: 12,
                     paddingVertical: 6,
                     borderRadius: 12,
-                    backgroundColor: isActive ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.03)',
+                    backgroundColor: isActive ? Colors.surfacePressed : Colors.surfaceMuted,
                     borderWidth: 1,
                     borderColor: isActive ? Colors.textSecondary : 'transparent'
                   }}
@@ -286,7 +283,7 @@ export const FinancesAnalytics = () => {
 
       {/* Селектор місяця */}
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, marginBottom: 20, marginTop: selectedWalletId === null && uniqueCurrencies.length > 1 ? 5 : 15 }}>
-        <TouchableOpacity onPress={() => changeMonth(-1)} style={{ padding: 10, backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 12 }}>
+        <TouchableOpacity onPress={() => changeMonth(-1)} style={{ padding: 10, backgroundColor: Colors.surfaceSoft, borderRadius: 12 }}>
           <Ionicons name="chevron-back" size={24} color={Colors.text} />
         </TouchableOpacity>
         
@@ -296,20 +293,20 @@ export const FinancesAnalytics = () => {
           </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => changeMonth(1)} style={{ padding: 10, backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 12 }}>
+        <TouchableOpacity onPress={() => changeMonth(1)} style={{ padding: 10, backgroundColor: Colors.surfaceSoft, borderRadius: 12 }}>
           <Ionicons name="chevron-forward" size={24} color={Colors.text} />
         </TouchableOpacity>
       </View>
 
       {/* Картки Балансу */}
       <View style={{ flexDirection: 'row', paddingHorizontal: 20, gap: 15, marginBottom: 30 }}>
-        <View style={{ flex: 1, backgroundColor: 'rgba(76, 175, 80, 0.1)', padding: 15, borderRadius: 16, borderLeftWidth: 4, borderColor: '#4CAF50' }}>
+        <View style={{ flex: 1, backgroundColor: Colors.errorSoft, padding: 15, borderRadius: 16, borderLeftWidth: 4, borderColor: Colors.errorBright }}>
           <Text style={{ color: Colors.textSecondary, fontSize: 13, marginBottom: 5 }}>Доходи</Text>
-          <Text style={{ color: '#4CAF50', fontSize: 20, fontWeight: 'bold' }}>+ {formatMoney(totalIncome)} {currencySymbol}</Text>
+          <Text style={{ color: Colors.errorBright, fontSize: 20, fontWeight: 'bold' }}>+ {formatMoney(totalIncome)} {currencySymbol}</Text>
         </View>
-        <View style={{ flex: 1, backgroundColor: 'rgba(244, 67, 54, 0.1)', padding: 15, borderRadius: 16, borderLeftWidth: 4, borderColor: '#F44336' }}>
+        <View style={{ flex: 1, backgroundColor: Colors.errorSoft, padding: 15, borderRadius: 16, borderLeftWidth: 4, borderColor: Colors.errorBright }}>
           <Text style={{ color: Colors.textSecondary, fontSize: 13, marginBottom: 5 }}>Витрати</Text>
-          <Text style={{ color: '#F44336', fontSize: 20, fontWeight: 'bold' }}>- {formatMoney(totalExpense)} {currencySymbol}</Text>
+          <Text style={{ color: Colors.errorBright, fontSize: 20, fontWeight: 'bold' }}>- {formatMoney(totalExpense)} {currencySymbol}</Text>
         </View>
       </View>
 
@@ -330,7 +327,7 @@ export const FinancesAnalytics = () => {
               innerRadius={screenWidth * 0.22} 
               innerCircleColor={Colors.background} 
               innerCircleBorderWidth={1} 
-              innerCircleBorderColor={'rgba(255,255,255,0.05)'}
+              innerCircleBorderColor={Colors.outlineSoft}
               centerLabelComponent={() => {
                 return (
                   <View style={{ justifyContent: 'center', alignItems: 'center' }}>
@@ -354,7 +351,7 @@ export const FinancesAnalytics = () => {
 
       {/* Легенда */}
       {legendData.length > 0 && !loading && (
-        <View style={{ marginHorizontal: 20, marginTop: 20, backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 20, padding: 20 }}>
+        <View style={{ marginHorizontal: 20, marginTop: 20, backgroundColor: Colors.surfaceMuted, borderRadius: 20, padding: 20 }}>
           <Text style={{ color: Colors.text, fontSize: 16, fontWeight: 'bold', marginBottom: 15 }}>
             Топ категорій
           </Text>

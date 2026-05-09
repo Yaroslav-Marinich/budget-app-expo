@@ -45,7 +45,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.05)',
+    borderBottomColor: Colors.outlineSoft,
   },
   menuIcon: {
     width: 36,
@@ -63,7 +63,7 @@ export const styles = StyleSheet.create({
     marginHorizontal: 20,
     padding: 18,
     borderRadius: 20,
-    backgroundColor: 'rgba(255, 59, 48, 0.1)',
+    backgroundColor: Colors.errorSoft,
     alignItems: 'center',
     marginBottom: 40
   },

@@ -50,9 +50,9 @@ export const UserScreen = () => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Налаштування</Text>
           <View style={styles.menuBlock}>
-            {renderMenuItem("notifications", "#FF9500", "Сповіщення", () => {})}
+            {renderMenuItem("notifications", Colors.warning, "Сповіщення", () => {})}
             {renderMenuItem("color-palette", "#AF52DE", "Тема застосунку", () => {})}
-            {renderMenuItem("shield-checkmark", "#34C759", "Безпека", () => {})}
+            {renderMenuItem("shield-checkmark", Colors.success, "Безпека", () => {})}
           </View>
         </View>
 

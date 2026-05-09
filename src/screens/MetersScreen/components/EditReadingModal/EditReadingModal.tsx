@@ -1,17 +1,17 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
-  Image,
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
-  Pressable,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Image,
+    KeyboardAvoidingView,
+    Modal,
+    Platform,
+    Pressable,
+    ScrollView,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 
 import { Colors } from '@/src/constants/Colors';
@@ -219,7 +219,7 @@ const handleChangePhoto = async () => {
                         style={styles.photoDeleteBtn}
                         onPress={() => setPhotoUrl(null)}
                       >
-                        <Ionicons name="trash-outline" size={20} color="#FF3B30" />
+                        <Ionicons name="trash-outline" size={20} color={Colors.danger} />
                         <Text style={styles.photoDeleteText}>Видалити</Text>
                       </TouchableOpacity>
                     </View>
@@ -239,7 +239,7 @@ const handleChangePhoto = async () => {
               {/* 📸 КІНЕЦЬ БЛОКУ ФОТО */}
 
               <TouchableOpacity style={styles.formSubmitBtn} onPress={handleSave}>
-                <Ionicons name="checkmark-circle-outline" size={24} color="white" />
+                <Ionicons name="checkmark-circle-outline" size={24} color={Colors.white} />
                 <Text style={styles.formSubmitBtnText}>Зберегти зміни</Text>
               </TouchableOpacity>
             </ScrollView>

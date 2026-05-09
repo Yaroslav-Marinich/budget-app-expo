@@ -2,17 +2,18 @@ import NetInfo from '@react-native-community/netinfo';
 import { addDoc, collection, deleteDoc, doc, getDocs, onSnapshot, query, updateDoc, where, writeBatch } from "firebase/firestore";
 
 import { auth, db } from "../config/firebase";
+import { Colors } from "../constants/Colors";
 import { sanitizeFirestoreData, sanitizeFirestoreUpdate } from '../utils/sanitizeFirestoreData';
 
 export const DEFAULT_CATEGORIES: Omit<Category, "id" | "userId">[] = [
   // Витрати
-  { name: 'Продукти', icon: 'cart', color: '#E57373', type: 'expense', order: 1 },
-  { name: 'Розваги', icon: 'game-controller', color: '#BA68C8', type: 'expense', order: 2 },
-  { name: 'Кафе', icon: 'cafe', color: '#FFB74D', type: 'expense', order: 3 },
-  { name: 'Комуналка', icon: 'home', color: '#4CAF50', type: 'expense', order: 4 },
+  { name: 'Продукти', icon: 'cart', color: Colors.categoryColors[0], type: 'expense', order: 1 },
+  { name: 'Розваги', icon: 'game-controller', color: Colors.categoryColors[2], type: 'expense', order: 2 },
+  { name: 'Кафе', icon: 'cafe', color: Colors.categoryColors[4], type: 'expense', order: 3 },
+  { name: 'Комуналка', icon: 'home', color: Colors.categoryColors[3], type: 'expense', order: 4 },
   // Доходи
-  { name: 'Зарплата', icon: 'cash', color: '#81C784', type: 'income', order: 1 },
-  { name: 'Кешбек', icon: 'gift', color: '#64B5F6', type: 'income', order: 2 },
+  { name: 'Зарплата', icon: 'cash', color: Colors.categoryColors[1], type: 'income', order: 1 },
+  { name: 'Кешбек', icon: 'gift', color: Colors.categoryColors[5], type: 'income', order: 2 },
 ];
 
 export interface Category {
@@ -24,43 +25,13 @@ export interface Category {
   type: 'expense' | 'income';
   order?: number;
   isArchived?: boolean;
+  isCrypto?: boolean;
 }
 
 const isNetworkAvailable = async () => {
   const netState = await NetInfo.fetch();
   return !!netState.isConnected && netState.isInternetReachable !== false;
 };
-
-// export const seedDefaultCategories = async () => {
-//   try {
-//     const user = auth.currentUser;
-//     if (!user) {
-//       // console.error("Користувач не авторизований");
-//       return;
-//     }
-
-//     const settingsRef = doc(db, "userSettings", user.uid);
-//     const settingsSnap = await getDoc(settingsRef);
-
-//     if (settingsSnap.exists() && settingsSnap.data().isInitialCategoriesCreated) {
-//       return;
-//     }
-
-//     const batch = writeBatch(db);
-    
-//     DEFAULT_CATEGORIES.forEach((cat) => {
-//       const newCatRef = doc(collection(db, "categories"));
-//       batch.set(newCatRef, { ...cat, userId: user.uid });
-//     });
-
-//     batch.set(settingsRef, { isInitialCategoriesCreated: true }, { merge: true });
-
-//     await batch.commit();
-//     console.log("Дефолтні категорії успішно створені");
-//   } catch (error) {
-//     console.error("Помилка при створенні дефолтних категорій:", error);
-//   }
-// };
 
 // Функція створення нової категорії
 export const addCategory = async (data: Omit<Category, "id" | "userId">) => {

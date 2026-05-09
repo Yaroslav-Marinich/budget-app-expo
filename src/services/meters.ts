@@ -1,22 +1,23 @@
 import { auth, db } from "@/src/config/firebase";
+import { Colors } from "@/src/constants/Colors";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { collection, deleteDoc, doc, getDocs, onSnapshot, orderBy, query, updateDoc, where, writeBatch } from "firebase/firestore";
 
+import { sanitizeFirestoreData, sanitizeFirestoreUpdate } from '../utils/sanitizeFirestoreData';
 import { startSync } from './syncEngine';
 import { addToSyncQueue, getSyncQueue, subscribeToSyncQueueChanges } from './syncManager';
-import { sanitizeFirestoreData, sanitizeFirestoreUpdate } from '../utils/sanitizeFirestoreData';
 
 const METERS_CACHE_KEY = '@cached_meters';
 const READINGS_CACHE_KEY = '@cached_readings';
 
 // Централізований список іконок та їх кольорів
 export const METER_ICONS = [
-  { name: 'flash', label: 'Світло', color: '#FFB74D' },
-  { name: 'water', label: 'Вода', color: '#64B5F6' },
-  { name: 'flame', label: 'Газ', color: '#E57373' },
-  { name: 'thermometer', label: 'Тепло', color: '#FF8A65' },
-  { name: 'wifi', label: 'Інтернет', color: '#4DB6AC' },
-  { name: 'trash', label: 'Сміття', color: '#A1887F' },
+  { name: 'flash', label: 'Світло', color: Colors.meterColors[0] },
+  { name: 'water', label: 'Вода', color: Colors.meterColors[1] },
+  { name: 'flame', label: 'Газ', color: Colors.meterColors[2] },
+  { name: 'thermometer', label: 'Тепло', color: Colors.meterColors[3] },
+  { name: 'wifi', label: 'Інтернет', color: Colors.meterColors[4] },
+  { name: 'trash', label: 'Сміття', color: Colors.meterColors[5] },
 ];
 
 // ==========================================
@@ -291,7 +292,7 @@ export const subscribeToMeterReadings = (callback: (readings: MeterReading[]) =>
 
 export const getMeterColor = (iconName: string) => {
   const found = METER_ICONS.find(i => i.name === iconName);
-  return found ? found.color : '#0a7ea4'; 
+  return found ? found.color : Colors.info; 
 };
 
 export const subscribeToReadingsByDate = (

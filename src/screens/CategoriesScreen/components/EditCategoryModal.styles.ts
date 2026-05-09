@@ -4,7 +4,7 @@ import { StyleSheet } from "react-native";
 export const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.8)',
+    backgroundColor: Colors.overlayHeavy,
     justifyContent: 'flex-end',
   },
   dragIndicator: {
@@ -32,6 +32,25 @@ export const styles = StyleSheet.create({
     color: Colors.text,
     fontSize: 20,
     fontWeight: 'bold',
+  },
+
+  // Перемикач
+  switchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: Colors.surfaceMuted,
+    padding: 15,
+    borderRadius: 15,
+    marginTop: 15,
+    marginBottom: 5,
+    borderWidth: 1,
+    borderColor: Colors.outline,
+  },
+  switchLabel: {
+    color: Colors.text,
+    fontSize: 14,
+    fontWeight: '600',
   },
   
   // --- Поля вводу ---
@@ -107,7 +126,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   saveBtnText: {
-    color: 'white',
+    color: Colors.white,
     fontWeight: 'bold',
     fontSize: 16,
   },

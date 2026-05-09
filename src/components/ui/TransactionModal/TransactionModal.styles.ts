@@ -4,7 +4,7 @@ import { StyleSheet } from "react-native";
 export const styles = StyleSheet.create({
   modalOverlay: { 
     flex: 1, 
-    backgroundColor: 'rgba(0,0,0,0.85)', 
+      backgroundColor: Colors.overlayMax, 
     justifyContent: 'flex-end' 
   },
   modalContent: { 

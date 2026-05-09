@@ -54,7 +54,7 @@ export const MetersAnalytics = () => {
     // 🎨 Функція для створення маленького контейнера над точкою
     const renderLabel = (value: number) => (
       <View style={{
-        backgroundColor: '#1C1C1E', 
+        backgroundColor: Colors.surface, 
         borderWidth: 1,
         borderColor: currentMeterColor, 
         borderRadius: 6,
@@ -149,14 +149,14 @@ export const MetersAnalytics = () => {
                   paddingHorizontal: 16,
                   paddingVertical: 10,
                   borderRadius: 20,
-                  backgroundColor: isSelected ? meterColor : 'rgba(255,255,255,0.05)',
+                  backgroundColor: isSelected ? meterColor : Colors.surfaceSoft,
                   flexDirection: 'row',
                   alignItems: 'center',
                   gap: 8,
                 }}
               >
-                <Ionicons name={meter.icon as any} size={18} color={isSelected ? 'white' : meterColor} />
-                <Text style={{ color: isSelected ? 'white' : Colors.text, fontWeight: isSelected ? 'bold' : 'normal' }}>
+                <Ionicons name={meter.icon as any} size={18} color={isSelected ? Colors.white : meterColor} />
+                <Text style={{ color: isSelected ? Colors.white : Colors.text, fontWeight: isSelected ? 'bold' : 'normal' }}>
                   {meter.name}
                 </Text>
               </TouchableOpacity>
@@ -167,15 +167,15 @@ export const MetersAnalytics = () => {
 
       {/* 2. Панель фільтрів */}
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, marginBottom: 20 }}>
-        <View style={{ flexDirection: 'row', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 8, padding: 3 }}>
+        <View style={{ flexDirection: 'row', backgroundColor: Colors.surfaceSoft, borderRadius: 8, padding: 3 }}>
           <TouchableOpacity
-            style={{ paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6, backgroundColor: viewMode === 'months' ? 'rgba(255,255,255,0.15)' : 'transparent' }}
+            style={{ paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6, backgroundColor: viewMode === 'months' ? Colors.surfacePressed : 'transparent' }}
             onPress={() => setViewMode('months')}
           >
             <Text style={{ color: viewMode === 'months' ? Colors.text : Colors.textSecondary, fontSize: 13, fontWeight: '600' }}>Місяці</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={{ paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6, backgroundColor: viewMode === 'years' ? 'rgba(255,255,255,0.15)' : 'transparent' }}
+            style={{ paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6, backgroundColor: viewMode === 'years' ? Colors.surfacePressed : 'transparent' }}
             onPress={() => setViewMode('years')}
           >
             <Text style={{ color: viewMode === 'years' ? Colors.text : Colors.textSecondary, fontSize: 13, fontWeight: '600' }}>Роки</Text>
@@ -192,7 +192,7 @@ export const MetersAnalytics = () => {
       </View>
 
       {/* 3. Блок з графіком */}
-      <View style={{ marginHorizontal: 20, backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 20, padding: 20, alignItems: 'center' }}>
+      <View style={{ marginHorizontal: 20, backgroundColor: Colors.surfaceMuted, borderRadius: 20, padding: 20, alignItems: 'center' }}>
         <Text style={{ color: Colors.text, fontSize: 16, fontWeight: 'bold', marginBottom: 25, alignSelf: 'flex-start' }}>
           {viewMode === 'months' ? `Споживання за ${selectedYear} рік` : 'Глобальний тренд'}
         </Text>
@@ -216,16 +216,16 @@ export const MetersAnalytics = () => {
             noOfSections={noOfSections}
             stepValue={yAxisMax / noOfSections} 
             yAxisColor="transparent"
-            xAxisColor="rgba(255,255,255,0.1)"
+            xAxisColor={Colors.outlineMuted}
             yAxisTextStyle={{ color: Colors.textSecondary, fontSize: 10 }}
             xAxisLabelTextStyle={{ color: Colors.textSecondary, fontSize: 10 }}
             
             // 🛠️ СІТКА (Вертикальна та горизонтальна)
             hideRules={false}
-            rulesColor="rgba(255,255,255,0.05)"
+            rulesColor={Colors.outlineSoft}
             rulesType="solid"
             showVerticalLines
-            verticalLinesColor="rgba(255,255,255,0.05)"
+            verticalLinesColor={Colors.outlineSoft}
             
             // Дизайн лінії
             curved={viewMode === 'months'}
@@ -248,13 +248,13 @@ export const MetersAnalytics = () => {
       {/* 4. Статистика */}
       {chartData.length > 0 && !loading && (
         <View style={{ flexDirection: 'row', paddingHorizontal: 20, marginTop: 20, gap: 15 }}>
-            <View style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.03)', padding: 15, borderRadius: 15 }}>
+            <View style={{ flex: 1, backgroundColor: Colors.surfaceMuted, padding: 15, borderRadius: 15 }}>
                 <Text style={{ color: Colors.textSecondary, fontSize: 13, marginBottom: 5 }}>Середнє</Text>
                 <Text style={{ color: Colors.text, fontSize: 22, fontWeight: 'bold' }}>
                     {(maxDataValue > 0 ? avgConsumption : 0)}
                 </Text>
             </View>
-            <View style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.03)', padding: 15, borderRadius: 15 }}>
+            <View style={{ flex: 1, backgroundColor: Colors.surfaceMuted, padding: 15, borderRadius: 15 }}>
                 <Text style={{ color: Colors.textSecondary, fontSize: 13, marginBottom: 5 }}>Максимум</Text>
                 <Text style={{ color: Colors.text, fontSize: 22, fontWeight: 'bold' }}>
                     {maxDataValue}

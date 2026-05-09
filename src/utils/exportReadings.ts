@@ -1,5 +1,6 @@
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
+import { Colors } from '../constants/Colors';
 import { Meter, MeterReading, getMeterColor } from '../services/meters';
 
 export const shareReadingsAsPDF = async (
@@ -26,18 +27,18 @@ export const shareReadingsAsPDF = async (
     let detailsHtml = '';
     if (meter.calcType === 'readings') {
       detailsHtml = `
-        <div style="margin-bottom: 8px; font-size: 16px; color: #555;">Попередні показники: <strong style="color: #000;">${reading.prevValue ?? '-'}</strong></div>
-        <div style="margin-bottom: 8px; font-size: 16px; color: #555;">Поточні показники: <strong style="color: #000;">${reading.currentValue ?? '-'}</strong></div>
-        <div style="margin-top: 15px; font-size: 18px; color: #333;">Спожито (різниця): <strong style="font-size: 24px; color: #000;">${reading.consumedValue}</strong></div>
+        <div style="margin-bottom: 8px; font-size: 16px; color: ${Colors.textHint};">Попередні показники: <strong style="color: ${Colors.black};">${reading.prevValue ?? '-'}</strong></div>
+        <div style="margin-bottom: 8px; font-size: 16px; color: ${Colors.textHint};">Поточні показники: <strong style="color: ${Colors.black};">${reading.currentValue ?? '-'}</strong></div>
+        <div style="margin-top: 15px; font-size: 18px; color: ${Colors.textTertiary};">Спожито (різниця): <strong style="font-size: 24px; color: ${Colors.black};">${reading.consumedValue}</strong></div>
       `;
     } else {
       detailsHtml = `
-        <div style="margin-top: 15px; font-size: 18px; color: #333;">Об'єм споживання: <strong style="font-size: 24px; color: #000;">${reading.consumedValue}</strong></div>
+        <div style="margin-top: 15px; font-size: 18px; color: ${Colors.textTertiary};">Об'єм споживання: <strong style="font-size: 24px; color: ${Colors.black};">${reading.consumedValue}</strong></div>
       `;
     }
 
     rowsHtml += `
-      <div style="display: flex; flex-direction: row; margin-bottom: 30px; padding: 20px; border: 1px solid #ddd; border-radius: 12px; background-color: #fafafa; page-break-inside: avoid;">
+      <div style="display: flex; flex-direction: row; margin-bottom: 30px; padding: 20px; border: 1px solid ${Colors.mutedBorder}; border-radius: 12px; background-color: ${Colors.mutedSurface}; page-break-inside: avoid;">
         
         <div style="flex: 1;">
           <div style="color: ${meterColor}; font-weight: bold; font-size: 22px; margin-bottom: 15px; border-bottom: 2px solid ${meterColor}; padding-bottom: 5px; display: inline-block;">
@@ -46,7 +47,7 @@ export const shareReadingsAsPDF = async (
           
           ${detailsHtml}
           
-          ${reading.comment ? `<div style="margin-top: 20px; padding: 10px; background-color: #fff; border-left: 4px solid #ccc; font-style: italic; font-size: 14px; color: #666;">Коментар: ${reading.comment}</div>` : ''}
+          ${reading.comment ? `<div style="margin-top: 20px; padding: 10px; background-color: ${Colors.white}; border-left: 4px solid ${Colors.mutedBorder}; font-style: italic; font-size: 14px; color: ${Colors.textTertiary};">Коментар: ${reading.comment}</div>` : ''}
         </div>
 
         ${photoHtml}
@@ -67,13 +68,13 @@ export const shareReadingsAsPDF = async (
           }
           body { 
             font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
-            color: #333; 
+            color: ${Colors.textTertiary}; 
             line-height: 1.5; 
             /* padding тут більше не потрібен, бо працює @page */
           }
-          .header { margin-bottom: 40px; border-bottom: 2px solid #222; padding-bottom: 15px; }
-          .header h1 { margin: 0; font-size: 24px; color: #222; text-transform: uppercase; letter-spacing: 1px; }
-          .header .period { font-size: 18px; color: #555; margin-top: 10px; }
+          .header { margin-bottom: 40px; border-bottom: 2px solid ${Colors.surfaceOverlay}; padding-bottom: 15px; }
+          .header h1 { margin: 0; font-size: 24px; color: ${Colors.surfaceOverlay}; text-transform: uppercase; letter-spacing: 1px; }
+          .header .period { font-size: 18px; color: ${Colors.textHint}; margin-top: 10px; }
         </style>
       </head>
       <body>
@@ -85,7 +86,7 @@ export const shareReadingsAsPDF = async (
 
         ${rowsHtml}
         
-        <div style="margin-top: 50px; text-align: center; color: #999; font-size: 12px; border-top: 1px solid #eee; padding-top: 20px;">
+        <div style="margin-top: 50px; text-align: center; color: ${Colors.textFaint}; font-size: 12px; border-top: 1px solid ${Colors.outlineSoft}; padding-top: 20px;">
           Згенеровано автоматично в додатку СімБюджет
         </div>
       </body>

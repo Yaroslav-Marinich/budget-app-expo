@@ -5,7 +5,7 @@ import { Colors } from "@/src/constants/Colors";
 export const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    backgroundColor: Colors.overlayStrong,
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 24,
@@ -49,7 +49,7 @@ export const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1,
     borderColor: Colors.outline,
-    backgroundColor: "#232323",
+    backgroundColor: Colors.surfaceOverlay,
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 12,
@@ -58,7 +58,7 @@ export const styles = StyleSheet.create({
     backgroundColor: "transparent",
   },
   buttonDestructive: {
-    backgroundColor: "#3A1212",
+    backgroundColor: Colors.surfaceDanger,
     borderColor: Colors.error,
   },
   buttonDefault: {
@@ -75,7 +75,7 @@ export const styles = StyleSheet.create({
     color: Colors.textSecondary,
   },
   buttonTextDestructive: {
-    color: "#FFB4B4",
+    color: Colors.errorLight,
   },
   rowButton: {
     flex: 1,

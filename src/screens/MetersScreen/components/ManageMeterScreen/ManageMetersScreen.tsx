@@ -74,7 +74,7 @@ useFocusEffect(
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
           <Text style={styles.manageName}>{item.name}</Text>
           {item.isPending && (
-            <Ionicons name="time-outline" size={16} color={'#FF9500'} />
+            <Ionicons name="time-outline" size={16} color={Colors.warning} />
           )}
         </View>
         <Text style={styles.manageType}>{item.calcType === 'readings' ? 'За показами' : "За об'ємом"}</Text>
@@ -126,7 +126,7 @@ useFocusEffect(
           setModalVisible(true);
         }}
       >
-        <Ionicons name="add" size={24} color="white" />
+        <Ionicons name="add" size={24} color={Colors.white} />
         <Text style={styles.fabText}>Новий лічильник</Text>
       </TouchableOpacity>
 

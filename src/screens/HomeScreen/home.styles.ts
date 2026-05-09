@@ -35,13 +35,13 @@ export const styles = StyleSheet.create({
   },
 
   walletCardPending: {
-    borderColor: '#FF9500',
+    borderColor: Colors.warning,
     borderStyle: 'dashed',
   },
 
 walletCardArchived: {
     opacity: 0.6,
-    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    backgroundColor: Colors.surfaceMuted,
     borderColor: Colors.outline,
     borderWidth: 1,
     borderStyle: 'dashed',
@@ -68,7 +68,7 @@ walletCardArchived: {
     position: 'absolute',
     top: -1,
     left: 25,
-    backgroundColor: '#FF9500',
+    backgroundColor: Colors.warning,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderBottomLeftRadius: 10,
@@ -159,7 +159,7 @@ toggleBtn: {
 toggleBtnActive: { 
     backgroundColor: Colors.background, 
     borderColor: Colors.outline,
-    shadowColor: '#000',
+    shadowColor: Colors.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 4,
@@ -204,7 +204,7 @@ categoriesContainer: {
     paddingHorizontal: 15,
   },
   categoryCard: { 
-    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    backgroundColor: Colors.surfaceSubtle,
     width: '48%', 
     flexDirection: 'row', 
     alignItems: 'center', 
@@ -212,7 +212,7 @@ categoriesContainer: {
     borderRadius: 16, 
     marginBottom: 15,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.05)'
+    borderColor: Colors.outlineSoft
   },
   iconContainer: { 
     position: 'relative',
@@ -230,7 +230,7 @@ categoriesContainer: {
     width: 16,
     height: 16,
     borderRadius: 8,
-    backgroundColor: '#FF9500',
+    backgroundColor: Colors.warning,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -267,7 +267,7 @@ categoriesContainer: {
     paddingVertical: 18,
     marginTop: 10,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255,255,255,0.05)',
+    borderTopColor: Colors.outlineSoft,
   },
   transactionsListBtnText: {
     color: Colors.primary,

@@ -125,7 +125,7 @@ export const MetersScreen = () => {
           <Text style={styles.monthTitle}>{item.title}</Text>
           {/* 🕒 Показуємо іконку годинника, якщо дані ще не в хмарі */}
           {item.hasPending && (
-            <Ionicons name="time-outline" size={18} color={'#FF9500'} />
+            <Ionicons name="time-outline" size={18} color={Colors.warning} />
           )}
         </View>
         <Ionicons name="chevron-forward" size={20} color={Colors.textSecondary} />
@@ -142,7 +142,7 @@ export const MetersScreen = () => {
             <View 
               key={index} 
               // Робимо офлайн-показники трохи прозорими
-              style={[styles.readingItem, reading.isPending && { opacity: 0.6, borderColor: '#FF9500', borderWidth: 1 }]}
+              style={[styles.readingItem, reading.isPending && { opacity: 0.6, borderColor: Colors.warning, borderWidth: 1 }]}
             >
               <Ionicons name={meter.icon as any} size={16} color={getMeterColor(meter.icon)} />
               <Text style={styles.readingValue}>{reading.consumedValue}</Text>
@@ -156,7 +156,7 @@ export const MetersScreen = () => {
         position: 'absolute',
         right: 15,
         bottom: 15,
-        backgroundColor: 'rgba(255,255,255,0.05)',
+        backgroundColor: Colors.surfaceSoft,
         padding: 8,
         borderRadius: 10,
       }}
@@ -192,7 +192,7 @@ export const MetersScreen = () => {
         activeOpacity={0.9}
         onPress={() => router.push('/meters/submit')}
       >
-        <Ionicons name="add" size={24} color="white" />
+        <Ionicons name="add" size={24} color={Colors.white} />
         <Text style={styles.fabText}>Внести показники</Text>
       </TouchableOpacity>
 

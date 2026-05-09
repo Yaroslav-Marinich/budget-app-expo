@@ -7,7 +7,7 @@ export const styles = StyleSheet.create({
   // =======================
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.8)",
+    backgroundColor: Colors.overlayHeavy,
     justifyContent: "flex-end",
   },
 
@@ -138,7 +138,7 @@ export const styles = StyleSheet.create({
   },
 
   saveBtnText: {
-    color: "white",
+    color: Colors.white,
     fontWeight: "bold",
     fontSize: 16,
   },

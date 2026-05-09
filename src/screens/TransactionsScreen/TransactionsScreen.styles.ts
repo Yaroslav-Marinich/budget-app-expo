@@ -31,7 +31,7 @@ export const styles = StyleSheet.create({
   walletPill: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.05)',
+    backgroundColor: Colors.surfaceSoft,
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 20,
@@ -54,7 +54,7 @@ export const styles = StyleSheet.create({
   },
   dateArrow: {
     padding: 10,
-    backgroundColor: 'rgba(255,255,255,0.05)',
+    backgroundColor: Colors.surfaceSoft,
     borderRadius: 12,
   },
   dateCenter: {
@@ -87,7 +87,7 @@ export const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 16,
-    backgroundColor: 'rgba(255,255,255,0.05)',
+    backgroundColor: Colors.surfaceSoft,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -107,13 +107,13 @@ export const styles = StyleSheet.create({
   },
   lockIconContainer: {
     padding: 8,
-    backgroundColor: 'rgba(255,255,255,0.03)',
+    backgroundColor: Colors.surfaceMuted,
     borderRadius: 12,
   },
   lockedPeriodContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.03)',
+    backgroundColor: Colors.surfaceMuted,
     padding: 12,
     borderRadius: 16,
     gap: 8,

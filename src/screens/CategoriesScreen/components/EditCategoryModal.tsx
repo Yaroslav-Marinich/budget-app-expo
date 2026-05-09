@@ -1,12 +1,12 @@
 import { Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useRef, useState } from "react";
-import { Modal, Pressable, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Modal, Pressable, ScrollView, Switch, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 import { Colors } from "@/src/constants/Colors";
 import { useLoader } from "@/src/context/LoaderContext";
 import { appAlert } from "@/src/services/alert";
 import { addCategory, Category, updateCategory } from "@/src/services/categories";
-import { styles } from "./EditCategoryModal.styles"; // Можна використати стилі від Wallet з мінімальними правками
+import { styles } from "./EditCategoryModal.styles";
 
 // Список іконок для категорій
 const CATEGORY_ICONS = [
@@ -17,10 +17,7 @@ const CATEGORY_ICONS = [
 ];
 
 // Палітра кольорів
-const CATEGORY_COLORS = [
-  '#E57373', '#81C784', '#BA68C8', '#4CAF50', '#FFB74D', 
-  '#64B5F6', '#4DB6AC', '#FFD54F', '#F06292', '#4DD0E1'
-];
+const CATEGORY_COLORS = Colors.categoryColors;
 
 interface Props {
   visible: boolean;
@@ -39,15 +36,18 @@ export const EditCategoryModal = ({ visible, category, onClose, type, existingCa
   const [icon, setIcon] = useState("cart");
   const [color, setColor] = useState(CATEGORY_COLORS[0]);
 
+  const [isCryptoCategory, setIsCryptoCategory] = useState(false);
+
   useEffect(() => {
     if (category) {
       setName(category.name);
       setIcon(category.icon);
       setColor(category.color);
+      setIsCryptoCategory(category.isCrypto || false);
     } else {
       setName("");
       setIcon("cart");
-      // Авто-вибір унікального кольору для нової категорії
+      setIsCryptoCategory(false);
       const usedColors = existingCategories.filter(c => c.type === type).map(c => c.color);
       const availableColor = CATEGORY_COLORS.find(c => !usedColors.includes(c)) || CATEGORY_COLORS[0];
       setColor(availableColor);
@@ -62,6 +62,7 @@ export const EditCategoryModal = ({ visible, category, onClose, type, existingCa
       icon,
       color,
       type,
+      isCrypto: isCryptoCategory
     };
 
     showLoader();
@@ -119,6 +120,16 @@ export const EditCategoryModal = ({ visible, category, onClose, type, existingCa
           </View>
 
           <ScrollView showsVerticalScrollIndicator={false}>
+            {!isEdit && (
+              <View style={styles.switchRow}>
+                <Text style={styles.switchLabel}>Це криптовалютна категорія</Text>
+                <Switch 
+                  value={isCryptoCategory} 
+                  onValueChange={setIsCryptoCategory}
+                  trackColor={{ false: Colors.outline, true: Colors.primary }}
+                />
+              </View>
+            )}
             {/* Назва */}
             <Text style={styles.inputLabel}>Назва категорії</Text>
             <TextInput 
@@ -142,7 +153,7 @@ export const EditCategoryModal = ({ visible, category, onClose, type, existingCa
                     color === c && styles.colorBoxActive
                   ]}
                 >
-                  {color === c && <Ionicons name="checkmark" size={20} color="white" />}
+                  {color === c && <Ionicons name="checkmark" size={20} color={Colors.white} />}
                 </TouchableOpacity>
               ))}
             </View>

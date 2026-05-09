@@ -19,6 +19,7 @@ export interface Wallet {
   isArchived?: boolean;
   isPending?: boolean;
   excludeFromTotal?: boolean;
+  isCrypto?: boolean;
 }
 
 export type CreateWalletInput = Omit<Wallet, "id" | "userId" | "balance" | "order">;

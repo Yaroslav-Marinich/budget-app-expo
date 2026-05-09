@@ -4,7 +4,7 @@ import { StyleSheet } from "react-native";
 export const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.8)',
+    backgroundColor: Colors.overlayHeavy,
     justifyContent: 'flex-end',
   },
   modalContent: {
@@ -32,7 +32,7 @@ export const styles = StyleSheet.create({
   },
   arrowBtn: {
     padding: 10,
-    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    backgroundColor: Colors.surfaceSubtle,
     borderRadius: 15,
   },
   yearText: {
@@ -49,7 +49,7 @@ export const styles = StyleSheet.create({
   },
   monthBtn: {
     width: '31%',
-    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    backgroundColor: Colors.surfaceSubtle,
     paddingVertical: 15,
     borderRadius: 16,
     alignItems: 'center',

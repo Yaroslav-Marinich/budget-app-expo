@@ -133,7 +133,7 @@ useEffect(() => {
       onPress={() => confirmArchive(item)}
       activeOpacity={0.8}
     >
-      <Ionicons name="trash-outline" size={24} color="white" />
+      <Ionicons name="trash-outline" size={24} color={Colors.white} />
     </TouchableOpacity>
   );
 
@@ -222,7 +222,7 @@ useEffect(() => {
               </View>
 
               {/* НИЖНЯ ЧАСТИНА (ПЕРЕМИКАЧ) */}
-              <View style={styles.excludeContainer}>
+              {/* <View style={styles.excludeContainer}>
                 <Text style={styles.excludeText}>Враховувати у загальному балансі</Text>
                 <Switch
                   value={!item.excludeFromTotal}
@@ -231,7 +231,28 @@ useEffect(() => {
                   thumbColor={Colors.outline}
                   disabled={isPending || isArchived} 
                 />
-              </View>
+              </View> */}
+              {!item.isCrypto && (
+  <View style={styles.excludeContainer}>
+    <Text style={styles.excludeText}>Враховувати у загальному балансі</Text>
+    <Switch
+      value={!item.excludeFromTotal}
+      onValueChange={(val) => toggleExcludeFromTotal(item, !val)}
+      trackColor={{ false: Colors.error, true: Colors.primary }}
+      thumbColor={Colors.outline}
+      disabled={isPending} 
+    />
+  </View>
+)}
+
+{/* 👈 ОПЦІОНАЛЬНО: Можна додати інфо-плашку для крипти, щоб юзер розумів, чому там немає світчера */}
+{item.isCrypto && (
+  <View style={[styles.excludeContainer, { borderTopWidth: 0, marginTop: 4 }]}>
+    <Text style={[styles.excludeText, { fontStyle: 'italic', color: Colors.warningAccent }]}>
+      Криптовалюта (тільки індивідуальна аналітика)
+    </Text>
+  </View>
+)}
 
             </View>
           </Swipeable>
@@ -254,11 +275,11 @@ useEffect(() => {
         onDragEnd={handleDragEnd}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
-        contentContainerStyle={[styles.listContent, { paddingBottom: 100 }]}
+        contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 140 }]}
       />
 
       <TouchableOpacity style={[styles.fab, { bottom: insets.bottom + 20 }]} onPress={openCreate}>
-        <Ionicons name="add" size={32} color="white" />
+                      <Ionicons name="add" size={32} color={Colors.white} />
       </TouchableOpacity>
 
       <EditWalletModal 

@@ -21,7 +21,7 @@ export const styles = StyleSheet.create({
   },
   toggleContainer: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(0,0,0,0.05)',
+    backgroundColor: Colors.outlineSubtle,
     borderRadius: 20,
     padding: 4,
     marginBottom: 20,
@@ -34,7 +34,7 @@ export const styles = StyleSheet.create({
   },
   toggleBtnActive: {
     backgroundColor: Colors.surface,
-    shadowColor: "#000",
+    shadowColor: Colors.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 3,
@@ -112,7 +112,7 @@ export const styles = StyleSheet.create({
     backgroundColor: Colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: "#000",
+    shadowColor: Colors.shadow,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 4.65,
@@ -121,7 +121,7 @@ export const styles = StyleSheet.create({
   // Стилі для модалки перенесення
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.8)',
+    backgroundColor: Colors.overlayHeavy,
     justifyContent: 'flex-end',
   },
   modalContent: {
@@ -175,5 +175,32 @@ export const styles = StyleSheet.create({
     marginTop: 20,
     padding: 15,
     alignItems: 'center',
+  },
+
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+cryptoBadge: {
+    position: 'absolute',
+    top: -1, 
+    right: '40%', 
+    backgroundColor: Colors.accentSoft,
+    paddingHorizontal: 12,
+    paddingVertical: 3,
+    borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10,
+    borderWidth: 1,
+    borderTopWidth: 0, 
+    borderColor: Colors.accentBorderSoft,
+    zIndex: 2,
+  },
+  cryptoBadgeText: {
+    color: Colors.warningAccent,
+    fontSize: 9,
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
 });

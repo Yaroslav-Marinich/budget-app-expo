@@ -14,20 +14,17 @@ const CATEGORY_ICONS = [
   'paw', 'shirt', 'train', 'musical-notes', 'school'
 ];
 
-const CATEGORY_COLORS = [
-  '#E57373', '#81C784', '#BA68C8', '#4CAF50', '#FFB74D', 
-  '#64B5F6', '#4DB6AC', '#FFD54F', '#F06292', '#4DD0E1', 
-  '#A1887F', '#90A4AE', '#DCE775', '#FF8A65'
-];
+const CATEGORY_COLORS = Colors.categoryColors;
 
 interface CategoryModalProps {
   visible: boolean;
   onClose: () => void;
-    type: 'expense' | 'income';
-    existingCategories: Category[];
+  type: 'expense' | 'income';
+  existingCategories: Category[];
+  isCryptoWallet?: boolean;
 }
 
-export const CategoryModal: React.FC<CategoryModalProps> = ({ visible, onClose, type, existingCategories }) => {
+export const CategoryModal: React.FC<CategoryModalProps> = ({ visible, onClose, type, existingCategories, isCryptoWallet }) => {
     const touchY = useRef(0);
 
     const { showLoader, hideLoader } = useLoader();
@@ -56,7 +53,8 @@ const handleSave = async () => {
         icon,
         color: randomColor,
         type,
-        order: Date.now() 
+        order: Date.now(),
+        isCrypto: isCryptoWallet || false
       });
 
       if (!createdId) {

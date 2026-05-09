@@ -20,7 +20,7 @@ export const styles = StyleSheet.create({
     zIndex: 10,
   },
   primaryBadgeText: {
-    color: 'white',
+    color: Colors.white,
     fontSize: 10,
     fontWeight: 'bold',
     textTransform: 'uppercase',
@@ -50,7 +50,7 @@ export const styles = StyleSheet.create({
     marginTop: 8,   
     paddingTop: 8,   
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.05)', 
+    borderTopColor: Colors.outlineSoft, 
   },
   excludeText: {
     color: Colors.textSecondary,
@@ -107,7 +107,7 @@ export const styles = StyleSheet.create({
     backgroundColor: Colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: "#000",
+    shadowColor: Colors.shadow,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 4.65,
@@ -127,7 +127,7 @@ export const styles = StyleSheet.create({
   },
   archivedRow: {
     opacity: 0.6,
-    backgroundColor: 'rgba(255, 255, 255, 0.02)',
+    backgroundColor: Colors.outlineSubtle,
   },
   archivedBadge: {
     position: 'absolute',
@@ -149,7 +149,7 @@ export const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     right: 120,
-    backgroundColor: '#FF9500',
+    backgroundColor: Colors.warning,
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 8,
@@ -165,7 +165,7 @@ export const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   pendingRow: {
-    borderColor: '#FF9500',
+    borderColor: Colors.warning,
     borderStyle: 'dashed',
   },
 

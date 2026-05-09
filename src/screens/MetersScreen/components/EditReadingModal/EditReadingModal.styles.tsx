@@ -3,7 +3,7 @@ import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
   // Базові стилі модалки
-  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.8)', justifyContent: 'flex-end' },
+  overlay: { flex: 1, backgroundColor: Colors.overlayHeavy, justifyContent: 'flex-end' },
   modalContent: { 
     backgroundColor: Colors.surface, 
     borderTopLeftRadius: 30, 
@@ -85,7 +85,7 @@ export const styles = StyleSheet.create({
     marginTop: 10,
   },
   formSubmitBtnText: {
-    color: 'white',
+    color: Colors.white,
     fontWeight: 'bold',
     fontSize: 16,
     marginLeft: 8,
@@ -117,12 +117,12 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FF3B3015',
+    backgroundColor: Colors.dangerSoft,
     padding: 10,
     borderRadius: 12,
   },
   photoDeleteText: {
-    color: '#FF3B30',
+    color: Colors.danger,
     marginLeft: 5,
     fontWeight: '600',
     fontSize: 14,

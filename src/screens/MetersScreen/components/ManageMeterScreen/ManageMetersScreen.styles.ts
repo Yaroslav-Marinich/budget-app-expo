@@ -83,7 +83,7 @@ export const styles = StyleSheet.create({
     elevation: 5,
   },
   fabText: {
-    color: 'white',
+    color: Colors.white,
     fontWeight: 'bold',
     marginLeft: 8,
     fontSize: 16,

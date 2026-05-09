@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useRef, useState } from "react";
-import { FlatList, Modal, Pressable, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { FlatList, Modal, Pressable, Switch, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 import { Colors } from "@/src/constants/Colors";
 import { CURRENCIES } from "@/src/constants/Currencies";
@@ -20,29 +20,48 @@ export const EditWalletModal = ({ visible, wallet, onClose }: any) => {
   const [currency, setCurrency] = useState(wallet?.currency || "UAH");
   const [search, setSearch] = useState("");
   const [showCurrencyPicker, setShowCurrencyPicker] = useState(false);
+  
+  const [isCrypto, setIsCrypto] = useState(wallet?.isCrypto || false);
 
   useEffect(() => {
     if (wallet) {
       setTitle(wallet.title);
       setIcon(wallet.icon);
       setCurrency(wallet.currency);
+      setIsCrypto(wallet.isCrypto || false);
     } else {
       setTitle("");
       setIcon("card-outline");
       setCurrency("UAH");
+      setIsCrypto(false);
     }
   }, [wallet, visible]);
 
   const filteredCurrencies = CURRENCIES.filter(c => 
-    c.name.toLowerCase().includes(search.toLowerCase()) || 
+    c.type === (isCrypto ? 'crypto' : 'fiat') &&
+    (c.name.toLowerCase().includes(search.toLowerCase()) || 
     c.country.toLowerCase().includes(search.toLowerCase()) ||
-    c.code.toLowerCase().includes(search.toLowerCase())
+    c.code.toLowerCase().includes(search.toLowerCase()))
   );
 
-  const handleSave = async () => {
+  const handleCryptoToggle = (val: boolean) => {
+    setIsCrypto(val);
+    setCurrency(val ? 'USDT' : 'UAH');
+  };
+
+const handleSave = async () => {
     if (!title.trim()) return;
 
-    const data = { title, icon, currency };
+    const data: any = { 
+      title, 
+      icon, 
+      currency, 
+      isCrypto 
+    };
+
+    if (isCrypto) {
+      data.excludeFromTotal = true;
+    }
 
     showLoader(); 
     try {
@@ -58,7 +77,6 @@ export const EditWalletModal = ({ visible, wallet, onClose }: any) => {
       hideLoader(); 
     }
   };
-
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <Pressable style={styles.modalOverlay} onPress={onClose}>
@@ -67,10 +85,8 @@ export const EditWalletModal = ({ visible, wallet, onClose }: any) => {
           onTouchEnd={e => {
             if (e.nativeEvent.pageY - touchY.current > 50) onClose();
           }}>
-          {/* Візуальний індикатор свайпу */}
           <View style={styles.dragIndicator} />
           
-          {/* Хедер із кнопкою закриття */}
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>
               {isEdit ? "Редагувати рахунок" : "Новий рахунок"}
@@ -80,7 +96,20 @@ export const EditWalletModal = ({ visible, wallet, onClose }: any) => {
             </TouchableOpacity>
           </View>
 
-          {/* Вибір іконки */}
+          {!isEdit && (
+            <View style={styles.switchRow}>
+              <View>
+                <Text style={styles.switchLabel}>Криптовалютний рахунок</Text>
+                <Text style={styles.switchSubLabel}>Власні категорії, ігнорується в аналітиці</Text>
+              </View>
+              <Switch 
+                value={isCrypto} 
+                onValueChange={handleCryptoToggle}
+                trackColor={{ false: Colors.outline, true: Colors.primary }}
+              />
+            </View>
+          )}
+
           <Text style={styles.inputLabel}>Іконка</Text>
           <View style={styles.iconsContainer}>
             {WALLET_ICONS.map(i => (
@@ -89,11 +118,7 @@ export const EditWalletModal = ({ visible, wallet, onClose }: any) => {
                 onPress={() => setIcon(i.iconName)}
                 style={[styles.iconBox, icon === i.iconName && styles.iconBoxActive]}
               >
-                <Ionicons 
-                  name={i.iconName as any} 
-                  size={20} 
-                  color={icon === i.iconName ? Colors.primary : Colors.textSecondary} 
-                />
+                <Ionicons name={i.iconName as any} size={20} color={icon === i.iconName ? Colors.primary : Colors.textSecondary} />
               </TouchableOpacity>
             ))}
           </View>

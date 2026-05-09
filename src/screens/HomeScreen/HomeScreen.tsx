@@ -60,8 +60,30 @@ export const HomeScreen = () => {
 		.filter((transaction) => transaction.type === "income")
 		.reduce((sum, transaction) => sum + transaction.amount, 0);
 
+	// const activeCategories = categories
+	// 	.filter((category) => category.type === activeTab && !category.isArchived)
+	// 	.map((category) => {
+	// 		const sum = selectedWalletTransactions
+	// 			.filter((transaction) => transaction.categoryId === category.id)
+	// 			.reduce((accumulator, transaction) => accumulator + transaction.amount, 0);
+
+	// 		const hasPending = selectedWalletTransactions.some(
+	// 			(transaction) => transaction.categoryId === category.id && transaction.isPending,
+	// 		);
+
+	// 		return { ...category, sum, hasPending };
+	// 	});
+	const selectedWallet = useMemo(() => {
+		return wallets.find((wallet) => wallet.id === selectedWalletId);
+	}, [wallets, selectedWalletId]);
+
+	const isCryptoWallet = selectedWallet?.isCrypto || false;
+
 	const activeCategories = categories
-		.filter((category) => category.type === activeTab && !category.isArchived)
+		.filter((category) => {
+			const isCategoryCrypto = !!category.isCrypto;
+			return category.type === activeTab && !category.isArchived && isCategoryCrypto === isCryptoWallet;
+		})
 		.map((category) => {
 			const sum = selectedWalletTransactions
 				.filter((transaction) => transaction.categoryId === category.id)
@@ -201,49 +223,56 @@ export const HomeScreen = () => {
 						offset: (cardWidth + cardSpacing) * index,
 						index,
 					})}
-					renderItem={({ item: wallet, index }) => (
-						<TouchableOpacity
-							activeOpacity={0.9}
-							style={[
-								styles.walletCard,
-								{
-									width: cardWidth,
-									marginRight: index === processedWallets.length - 1 ? 0 : cardSpacing,
-								},
-								wallet.isArchived && styles.walletCardArchived,
-								wallet.isPending && styles.walletCardPending,
-								selectedWalletId === wallet.id && { borderColor: Colors.primary, borderWidth: 2 },
-							]}
-							onPress={() => handleWalletPress(wallet.id, index)}
-						>
-							{wallet.isArchived && (
-								<View style={styles.archiveBadgeHome}>
-									<Text style={styles.archiveBadgeTextHome}>Архів</Text>
-								</View>
-							)}
+					renderItem={({ item: wallet, index }) => {
+						const cryptoColor = Colors.warningAccent;
+						const accentColor = wallet.isCrypto ? cryptoColor : Colors.accent;
+						
+						return (
+							<TouchableOpacity
+								activeOpacity={0.9}
+								style={[
+									styles.walletCard,
+									{
+										width: cardWidth,
+										marginRight: index === processedWallets.length - 1 ? 0 : cardSpacing,
+									},
+									wallet.isArchived && styles.walletCardArchived,
+									wallet.isPending && styles.walletCardPending,
+									selectedWalletId === wallet.id && { borderColor: Colors.primary, borderWidth: 2 },
+								]}
+								onPress={() => handleWalletPress(wallet.id, index)}
+							>
+								{wallet.isArchived && (
+									<View style={styles.archiveBadgeHome}>
+										<Text style={styles.archiveBadgeTextHome}>Архів</Text>
+									</View>
+								)}
 
-							{wallet.isPending && (
-								<View style={styles.pendingBadgeHome}>
-									<Ionicons name="time-outline" size={12} color={Colors.background} />
-									<Text style={styles.pendingBadgeTextHome}>Черга</Text>
-								</View>
-							)}
+								{wallet.isPending && (
+									<View style={styles.pendingBadgeHome}>
+										<Ionicons name="time-outline" size={12} color={Colors.background} />
+										<Text style={styles.pendingBadgeTextHome}>Черга</Text>
+									</View>
+								)}
 
-							<View style={styles.cardHeader}>
-								<Ionicons
-									name={wallet.icon as any}
-									size={24}
-									color={wallet.isArchived ? Colors.textSecondary : Colors.accent}
-								/>
-								<View>
-									<Text style={styles.walletTitle}>{wallet.title}</Text>
+								<View style={styles.cardHeader}>
+									<Ionicons
+										name={wallet.icon as any}
+										size={24}
+										color={wallet.isArchived ? Colors.textSecondary : accentColor}
+									/>
+									<View>
+										<Text style={styles.walletTitle}>{wallet.title}</Text>
+									</View>
 								</View>
-							</View>
-							<Text style={styles.walletAmount}>
-								{formatMoney(wallet.balance)} <Text style={styles.currency}>{wallet.currency}</Text>
-							</Text>
-						</TouchableOpacity>
-					)}
+								<Text style={styles.walletAmount}>
+									{formatMoney(wallet.balance)} <Text style={[styles.currency, { color: wallet.isArchived ? Colors.textSecondary : accentColor }]}>
+                    {wallet.currency}
+                </Text>
+								</Text>
+							</TouchableOpacity>
+						)
+					}}
 				/>
 
 				<View style={styles.dateSelector}>
@@ -346,7 +375,7 @@ export const HomeScreen = () => {
 							style={[styles.categoryCard, styles.addCategoryCard]}
 							onPress={() => setCategoryModalVisible(true)}
 						>
-							<View style={[styles.iconContainer, { backgroundColor: "rgba(255,255,255,0.05)" }]}>
+								<View style={[styles.iconContainer, { backgroundColor: Colors.surfaceSoft }]}> 
 								<Ionicons name="add" size={24} color={Colors.textSecondary} />
 							</View>
 							<View style={styles.textContainer}>
@@ -393,6 +422,7 @@ onPress={() => router.push({
 				onClose={() => setCategoryModalVisible(false)}
 				type={activeTab}
 				existingCategories={categories}
+				isCryptoWallet={isCryptoWallet}
 			/>
 		</View>
 	);

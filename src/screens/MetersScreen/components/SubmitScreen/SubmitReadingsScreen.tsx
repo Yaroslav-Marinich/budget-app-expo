@@ -3,16 +3,16 @@ import * as ImagePicker from 'expo-image-picker';
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
-  FlatList,
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    FlatList,
+    Image,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -329,7 +329,7 @@ export const SubmitReadingsScreen = () => {
                     style={styles.photoDeleteBtn}
                     onPress={handleDeletePhoto}
                   >
-                    <Ionicons name="trash-outline" size={20} color="#FF3B30" />
+                    <Ionicons name="trash-outline" size={20} color={Colors.danger} />
                     <Text style={styles.photoDeleteText}>Видалити фото</Text>
                   </TouchableOpacity>
                 </View>
@@ -348,7 +348,7 @@ export const SubmitReadingsScreen = () => {
             {/* 📸 КІНЕЦЬ БЛОКУ ДЛЯ ФОТО */}
 
             <TouchableOpacity style={styles.formSubmitBtn} onPress={handleSave}>
-              <Ionicons name="checkmark-circle-outline" size={24} color="white" />
+              <Ionicons name="checkmark-circle-outline" size={24} color={Colors.white} />
               <Text style={styles.formSubmitBtnText}>Зберегти показники</Text>
             </TouchableOpacity>
           </ScrollView>

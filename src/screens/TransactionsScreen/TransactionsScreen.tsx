@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { SectionList, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, SectionList, Text, TouchableOpacity, View } from 'react-native';
 import Swipeable from "react-native-gesture-handler/Swipeable";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -27,6 +27,7 @@ export const TransactionsScreen = () => {
   const insets = useSafeAreaInsets();
   const { showLoader, hideLoader } = useLoader();
   const swipeableRefs = useRef<Map<string, Swipeable>>(new Map());
+  const walletsListRef = useRef<FlatList>(null);
   
   const {
     initialWalletId,
@@ -79,6 +80,21 @@ export const TransactionsScreen = () => {
   }, []);
 
   useEffect(() => {
+    if (wallets.length > 0 && selectedWalletId && !isLockedFiltersMode) {
+      const index = wallets.findIndex(w => w.id === selectedWalletId);
+      if (index >= 0) {
+        setTimeout(() => {
+          walletsListRef.current?.scrollToIndex({
+            index,
+            animated: true,
+            viewPosition: 0.5 
+          });
+        }, 200);
+      }
+    }
+  }, [wallets, selectedWalletId, isLockedFiltersMode]); 
+
+  useEffect(() => {
     const unsub = subscribeToMonthlyTransactions(monthYearStr, (data) => setTransactions(data as UITransaction[]));
     return () => unsub();
   }, [monthYearStr]);
@@ -118,6 +134,7 @@ export const TransactionsScreen = () => {
   }, [wallets, selectedWalletId]);
 
   const selectedWalletTitle = selectedWallet?.title || 'Рахунок';
+  const cryptoColor = Colors.warningAccent;
 
   const groupedTransactions = useMemo(() => {
     const filtered = transactions.filter((transaction) => {
@@ -188,7 +205,7 @@ export const TransactionsScreen = () => {
       onPress={() => confirmDelete(item)}
       activeOpacity={0.8}
     >
-      <Ionicons name="trash-outline" size={24} color="white" />
+      <Ionicons name="trash-outline" size={24} color={Colors.white} />
     </TouchableOpacity>
   );
 
@@ -230,7 +247,7 @@ export const TransactionsScreen = () => {
               <Text style={[styles.amountText, isIncome ? styles.incomeText : styles.expenseText]}>
                 {isIncome ? '+' : '-'}{formatMoney(item.amount)} {selectedWalletCurrencySymbol}
               </Text>
-              {item.isPending && <Ionicons name="time-outline" size={14} color="#FF9500" style={{ marginTop: 2 }} />}
+              {item.isPending && <Ionicons name="time-outline" size={14} color={Colors.warning} style={{ marginTop: 2 }} />}
             </View>
           </TouchableOpacity>
         </Swipeable>
@@ -248,10 +265,10 @@ export const TransactionsScreen = () => {
       </View>
 
       {isLockedFiltersMode ? (
-        <View style={styles.lockedWalletCard}>
+        <View style={[styles.lockedWalletCard, selectedWallet?.isCrypto && { borderColor: cryptoColor }]}>
           <View style={styles.lockedWalletHeader}>
             <View style={styles.lockedIconBox}>
-              <Ionicons name={(selectedWallet?.icon as any) || 'wallet-outline'} size={24} color={Colors.accent} />
+              <Ionicons name={(selectedWallet?.icon as any) || 'wallet-outline'} size={24} color={selectedWallet?.isCrypto ? cryptoColor : Colors.accent} />
             </View>
             <View style={styles.lockedWalletInfo}>
               <Text style={styles.lockedWalletTitle}>{selectedWalletTitle}</Text>
@@ -270,27 +287,39 @@ export const TransactionsScreen = () => {
       ) : (
         <>
           <View style={styles.walletsSelector}>
-            <SectionList
+            <FlatList
+              ref={walletsListRef}
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={{ paddingHorizontal: 20, gap: 10 }}
-              sections={[{ data: wallets }]}
+              data={wallets}
               keyExtractor={(item) => item.id}
-              renderItem={({ item: wallet }) => {
+              onScrollToIndexFailed={(info) => {
+                const wait = new Promise(resolve => setTimeout(resolve, 500));
+                wait.then(() => {
+                  walletsListRef.current?.scrollToIndex({ index: info.index, animated: true });
+                });
+              }}
+              renderItem={({ item: wallet, index }) => {
                 const isSelected = selectedWalletId === wallet.id;
                 const walletCurrencySymbol = CURRENCIES.find(c => c.code === wallet.currency)?.symbol || wallet.currency;
+                
+                const activeColor = wallet.isCrypto ? cryptoColor : Colors.primary;
 
                 return (
                   <TouchableOpacity
-                    onPress={() => setSelectedWalletId(wallet.id)}
+                    onPress={() => {
+                      setSelectedWalletId(wallet.id);
+                      walletsListRef.current?.scrollToIndex({ index, animated: true, viewPosition: 0.5 });
+                    }}
                     style={[
                       styles.walletPill,
-                      isSelected && styles.walletPillActive,
+                      isSelected && { backgroundColor: activeColor },
                       wallet.isArchived && !isSelected && { opacity: 0.6 },
                     ]}
                   >
-                    <Ionicons name={wallet.icon as any} size={16} color={isSelected ? 'white' : Colors.textSecondary} />
-                    <Text style={[styles.walletPillText, isSelected && { color: 'white', fontWeight: 'bold' }]}>
+                    <Ionicons name={wallet.icon as any} size={16} color={isSelected ? Colors.white : Colors.textSecondary} />
+                    <Text style={[styles.walletPillText, isSelected && { color: Colors.white, fontWeight: 'bold' }]}>
                       {wallet.title} {walletCurrencySymbol} {wallet.isArchived ? '(Архів)' : ''}
                     </Text>
                   </TouchableOpacity>

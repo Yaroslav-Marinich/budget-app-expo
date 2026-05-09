@@ -4,7 +4,7 @@ import { StyleSheet } from "react-native";
 export const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.8)',
+    backgroundColor: Colors.overlayHeavy,
     justifyContent: 'flex-end',
   },
 modalContent: {
@@ -81,7 +81,7 @@ modalContent: {
     marginBottom: 20,
   },
   saveBtnText: {
-    color: 'white',
+    color: Colors.white,
     fontWeight: 'bold',
     fontSize: 16,
   },

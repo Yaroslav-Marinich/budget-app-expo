@@ -147,7 +147,7 @@ export const styles = StyleSheet.create({
     marginBottom: 40,
   },
   formSubmitBtnText: {
-    color: 'white',
+    color: Colors.white,
     fontWeight: 'bold',
     fontSize: 16,
     marginLeft: 8,
@@ -177,12 +177,12 @@ export const styles = StyleSheet.create({
   photoDeleteBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FF3B3015',
+    backgroundColor: Colors.dangerSoft,
     padding: 10,
     borderRadius: 8,
   },
   photoDeleteText: {
-    color: '#FF3B30',
+    color: Colors.danger,
     marginLeft: 5,
     fontWeight: '600',
   },

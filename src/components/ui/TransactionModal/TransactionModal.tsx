@@ -148,14 +148,14 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
               <Calculator amount={amount} setAmount={setAmount} />
               <View style={styles.modalActionsRow}>
                 <TouchableOpacity onPress={onClose} style={styles.closeBtn} disabled={isSaving}>
-                  <Text style={{color: '#fff', fontWeight: 'bold'}}>Скасувати</Text>
+                  <Text style={{color: Colors.white, fontWeight: 'bold'}}>Скасувати</Text>
                 </TouchableOpacity>
                 
                 <TouchableOpacity 
                   onPress={handleNext}
                   style={[styles.saveBtn, { backgroundColor: Colors.primary }]}
                 >
-                  <Text style={{color: '#fff', fontWeight: 'bold'}}>Далі</Text>
+                  <Text style={{color: Colors.white, fontWeight: 'bold'}}>Далі</Text>
                 </TouchableOpacity>
               </View>
             </>
@@ -177,7 +177,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
               
               <View style={[styles.modalActionsRow, { marginTop: 30 }]}>
                 <TouchableOpacity onPress={() => setStep('amount')} style={styles.closeBtn} disabled={isSaving}>
-                  <Text style={{color: '#fff', fontWeight: 'bold'}}>Назад</Text>
+                  <Text style={{color: Colors.white, fontWeight: 'bold'}}>Назад</Text>
                 </TouchableOpacity>
                 
                 <TouchableOpacity 
@@ -189,7 +189,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                     isSaving && { opacity: 0.7 }
                   ]}
                 >
-                  <Text style={{color: '#fff', fontWeight: 'bold'}}>
+                  <Text style={{color: Colors.white, fontWeight: 'bold'}}>
                     {isSaving ? (isEditMode ? 'Оновлення...' : 'Збереження...') : (isEditMode ? 'Оновити' : 'Зберегти')}
                   </Text>
                 </TouchableOpacity>

@@ -163,7 +163,7 @@ const openCreate = () => {
       onPress={() => handleDeletePress(item)}
       activeOpacity={0.8}
     >
-      <Ionicons name="trash-outline" size={24} color="white" />
+      <Ionicons name="trash-outline" size={24} color={Colors.white} />
     </TouchableOpacity>
   );
 
@@ -185,11 +185,18 @@ const openCreate = () => {
             styles.categoryRow, 
             isActive && { borderColor: Colors.primary, backgroundColor: Colors.outline }
           ]}>
+
+            {item.isCrypto && (
+              <View style={styles.cryptoBadge}>
+                <Text style={styles.cryptoBadgeText}>Крипта</Text>
+              </View>
+            )}
+
             <View style={[styles.iconBox, { backgroundColor: `${item.color}15` }]}>
               <Ionicons name={item.icon as any} size={24} color={item.color} />
             </View>
             
-            <View style={styles.infoBox}>
+<View style={styles.infoBox}>
               <Text style={styles.title}>{item.name}</Text>
             </View>
 
@@ -291,7 +298,7 @@ const openCreate = () => {
 
             {/* FAB Кнопка */}
             <TouchableOpacity style={[styles.fab, { bottom: insets.bottom + 20 }]} onPress={openCreate}>
-              <Ionicons name="add" size={32} color="white" />
+              <Ionicons name="add" size={32} color={Colors.white} />
             </TouchableOpacity>
 
       <EditCategoryModal 
