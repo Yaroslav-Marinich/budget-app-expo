@@ -18,6 +18,7 @@ export interface Wallet {
   order?: number;
   isArchived?: boolean;
   isPending?: boolean;
+  excludeFromTotal?: boolean;
 }
 
 export type CreateWalletInput = Omit<Wallet, "id" | "userId" | "balance" | "order">;
@@ -31,6 +32,12 @@ const getMergedWallets = async (baseWallets: Wallet[]): Promise<Wallet[]> => {
     .map((task) => ({ ...task.payload, id: task.id, isPending: true } as Wallet));
 
   const pendingTransactions = queue.filter((task) => task.type === 'TRANSACTION' && task.status !== 'FAILED');
+  const pendingTransactionDeletes = queue.filter(
+    (task) => task.type === 'TRANSACTION_DELETE' && task.status !== 'FAILED',
+  );
+  const pendingTransactionUpdates = queue.filter(
+    (task) => task.type === 'TRANSACTION_UPDATE' && task.status !== 'FAILED',
+  );
 
   const deltaByWalletId = pendingTransactions.reduce<Record<string, number>>((accumulator, task) => {
     const walletId = task.payload?.walletId;
@@ -43,6 +50,36 @@ const getMergedWallets = async (baseWallets: Wallet[]): Promise<Wallet[]> => {
     accumulator[walletId] = (accumulator[walletId] || 0) + delta;
     return accumulator;
   }, {});
+
+  pendingTransactionDeletes.forEach((task) => {
+    const walletId = task.payload?.walletId;
+    if (!walletId) {
+      return;
+    }
+
+    const amount = Number(task.payload?.amount || 0);
+    const reverseDelta = task.payload?.type === 'expense' ? amount : -amount;
+    deltaByWalletId[walletId] = (deltaByWalletId[walletId] || 0) + reverseDelta;
+  });
+
+  pendingTransactionUpdates.forEach((task) => {
+    const oldWalletId = task.payload?.oldWalletId;
+    const newWalletId = task.payload?.walletId;
+    if (!oldWalletId || !newWalletId) {
+      return;
+    }
+
+    const oldAmount = Number(task.payload?.oldAmount || 0);
+    const newAmount = Number(task.payload?.amount || 0);
+    const oldType = task.payload?.oldType;
+    const newType = task.payload?.type;
+
+    const oldEffect = oldType === 'expense' ? -oldAmount : oldAmount;
+    const newEffect = newType === 'expense' ? -newAmount : newAmount;
+
+    deltaByWalletId[oldWalletId] = (deltaByWalletId[oldWalletId] || 0) - oldEffect;
+    deltaByWalletId[newWalletId] = (deltaByWalletId[newWalletId] || 0) + newEffect;
+  });
 
   const allWallets = [...baseWallets, ...pendingWallets].map((wallet) => ({
     ...wallet,

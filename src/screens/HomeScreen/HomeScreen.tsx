@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Dimensions, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
@@ -9,13 +9,16 @@ import { CategoryModal } from "@/src/components/ui/CategoryModal/CategoryModal";
 import { MonthPickerModal } from "@/src/components/ui/MonthPickerModal/MonthPickerModal";
 import { TransactionModal } from "@/src/components/ui/TransactionModal/TransactionModal";
 import { Colors } from "@/src/constants/Colors";
+import { CURRENCIES } from "@/src/constants/Currencies";
 import { styles } from "@/src/screens/HomeScreen/home.styles";
 import { Category, subscribeToCategories } from "@/src/services/categories";
 import { subscribeToMonthlyTransactions } from "@/src/services/transactions";
 import { subscribeToWallets, Wallet } from "@/src/services/wallets";
+import { formatMoney } from "@/src/utils/formatMoney";
 
 export const HomeScreen = () => {
 	const insets = useSafeAreaInsets();
+	const router = useRouter();
 	const walletsListRef = useRef<FlatList>(null);
 
 	const { width: screenWidth } = Dimensions.get("window");
@@ -122,15 +125,12 @@ export const HomeScreen = () => {
 		return selectedWallet?.isArchived || false;
 	}, [wallets, selectedWalletId]);
 
-	// useEffect(() => {
-    //     const unsubscribe = onAuthStateChanged(auth, (user) => {
-    //         if (user) {
-    //             console.log("🟢 Firebase готовий! Юзер:", user.uid);
-    //             setIsAuthReady(true); 
-    //         }
-    //     });
-    //     return () => unsubscribe();
-    // }, []);
+	const selectedWalletCurrencySymbol = useMemo(() => {
+		const selectedWallet = wallets.find((wallet) => wallet.id === selectedWalletId);
+		const currency = CURRENCIES.find((c) => c.code === selectedWallet?.currency);
+		return currency?.symbol ?? selectedWallet?.currency ?? "₴";
+	}, [wallets, selectedWalletId]);
+
 
 	useEffect(() => {
 		const year = currentDate.getFullYear();
@@ -240,7 +240,7 @@ export const HomeScreen = () => {
 								</View>
 							</View>
 							<Text style={styles.walletAmount}>
-								{wallet.balance.toLocaleString()} <Text style={styles.currency}>{wallet.currency}</Text>
+								{formatMoney(wallet.balance)} <Text style={styles.currency}>{wallet.currency}</Text>
 							</Text>
 						</TouchableOpacity>
 					)}
@@ -267,7 +267,7 @@ export const HomeScreen = () => {
 							onPress={() => setActiveTab("expense")}
 						>
 							<Text style={[styles.toggleLabel, activeTab === "expense" && { color: Colors.error }]}>Витрати</Text>
-							<Text style={styles.toggleAmount}>{totalExpense.toLocaleString()} ₴</Text>
+							<Text style={styles.toggleAmount}>{formatMoney(totalExpense)} {selectedWalletCurrencySymbol}</Text>
 						</TouchableOpacity>
 
 						<TouchableOpacity
@@ -275,7 +275,7 @@ export const HomeScreen = () => {
 							onPress={() => setActiveTab("income")}
 						>
 							<Text style={[styles.toggleLabel, activeTab === "income" && { color: Colors.primary }]}>Доходи</Text>
-							<Text style={styles.toggleAmount}>{totalIncome.toLocaleString()} ₴</Text>
+							<Text style={styles.toggleAmount}>{formatMoney(totalIncome)} {selectedWalletCurrencySymbol}</Text>
 						</TouchableOpacity>
 					</View>
 
@@ -302,7 +302,20 @@ export const HomeScreen = () => {
 										}
 									}}
 									onLongPress={() => {
-										console.log("Тут буде статистика для категорії:", category.name);
+										if (!selectedWalletId) {
+											return;
+										}
+
+										router.push({
+											pathname: "/transactions",
+											params: {
+												initialWalletId: selectedWalletId,
+												initialDate: currentDate.toISOString(),
+												categoryId: category.id,
+												categoryName: category.name,
+												lockFilters: "1",
+											},
+										} as any);
 									}}
 									delayLongPress={300}
 								>
@@ -322,7 +335,7 @@ export const HomeScreen = () => {
 											style={[styles.categoryAmount, category.sum === 0 && { color: Colors.textSecondary }]}
 											numberOfLines={1}
 										>
-											{category.sum.toLocaleString()} ₴
+											{formatMoney(category.sum)} {selectedWalletCurrencySymbol}
 										</Text>
 									</View>
 								</TouchableOpacity>
@@ -342,6 +355,20 @@ export const HomeScreen = () => {
 							</View>
 						</TouchableOpacity>
 					</View>
+
+					<TouchableOpacity 
+                        style={styles.transactionsListBtn}
+onPress={() => router.push({
+        pathname: '/transactions',
+        params: { 
+            initialWalletId: selectedWalletId, 
+            initialDate: currentDate.toISOString() 
+        }
+    } as any)}
+                    >
+                        <Text style={styles.transactionsListBtnText}>Всі операції</Text>
+                        <Ionicons name="arrow-forward" size={20} color={Colors.primary} />
+                    </TouchableOpacity>
 				</View>
 			</ScrollView>
 

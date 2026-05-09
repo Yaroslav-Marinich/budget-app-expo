@@ -259,4 +259,20 @@ categoriesContainer: {
   categoryCardDisabled: {
     // opacity: 0.6, 
   },
+
+  transactionsListBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 18,
+    marginTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255,255,255,0.05)',
+  },
+  transactionsListBtnText: {
+    color: Colors.primary,
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginRight: 8,
+  },
 });

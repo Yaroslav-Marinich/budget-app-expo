@@ -6,7 +6,7 @@ import { useSyncPendingCount } from '@/src/hooks/useSyncPendingCount';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { LogBox, StyleSheet, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -17,6 +17,8 @@ import { initializeUserData } from '@/src/services/setup';
 import { startSync } from '@/src/services/syncEngine';
 import NetInfo from '@react-native-community/netinfo';
 import { onAuthStateChanged, signInAnonymously } from 'firebase/auth';
+
+LogBox.ignoreLogs(['InteractionManager has been deprecated']);
 
 const GlobalSyncBanner = () => {
   const insets = useSafeAreaInsets();

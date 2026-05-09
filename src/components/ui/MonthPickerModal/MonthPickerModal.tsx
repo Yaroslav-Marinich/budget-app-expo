@@ -9,6 +9,7 @@ interface MonthPickerModalProps {
   onClose: () => void;
   currentDate: Date;
   onSelect: (date: Date) => void;
+  activeMonths?: string[]; 
 }
 
 const MONTHS = [
@@ -22,7 +23,8 @@ export const MonthPickerModal: React.FC<MonthPickerModalProps> = ({
   visible, 
   onClose, 
   currentDate, 
-  onSelect 
+  onSelect,
+  activeMonths = [] 
 }) => {
   const touchY = useRef(0);
   const [viewYear, setViewYear] = useState(currentDate.getFullYear());
@@ -62,7 +64,6 @@ export const MonthPickerModal: React.FC<MonthPickerModalProps> = ({
         >
           <View style={styles.dragIndicator} />
 
-          {/* ХЕДЕР: ПЕРЕМИКАЧ РОКУ */}
           <View style={styles.yearSelector}>
             <TouchableOpacity onPress={() => changeYear(-1)} style={styles.arrowBtn}>
               <Ionicons name="chevron-back" size={28} color={Colors.textSecondary} />
@@ -75,12 +76,14 @@ export const MonthPickerModal: React.FC<MonthPickerModalProps> = ({
             </TouchableOpacity>
           </View>
 
-          {/* СІТКА МІСЯЦІВ */}
           <View style={styles.monthsGrid}>
             {MONTHS.map((monthName, index) => {
               const isActive = 
                 currentDate.getMonth() === index && 
                 currentDate.getFullYear() === viewYear;
+                
+              const monthStr = `${viewYear}-${String(index + 1).padStart(2, '0')}`;
+              const hasData = activeMonths.includes(monthStr);
 
               return (
                 <TouchableOpacity
@@ -91,6 +94,17 @@ export const MonthPickerModal: React.FC<MonthPickerModalProps> = ({
                   <Text style={[styles.monthText, isActive && styles.monthTextActive]}>
                     {monthName}
                   </Text>
+                  
+                  {hasData && (
+                    <View style={{ 
+                      position: 'absolute', 
+                      bottom: 6, 
+                      width: 6, 
+                      height: 6, 
+                      borderRadius: 3, 
+                      backgroundColor: isActive ? Colors.primary : Colors.textSecondary 
+                    }} />
+                  )}
                 </TouchableOpacity>
               );
             })}
@@ -106,4 +120,3 @@ export const MonthPickerModal: React.FC<MonthPickerModalProps> = ({
     </Modal>
   );
 };
-

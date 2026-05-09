@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SYNC_QUEUE_KEY = '@sync_queue';
 
-export type SyncTaskType = 'TRANSACTION' | 'METER_READING' | 'METER_CREATE' | 'WALLET_CREATE';
+export type SyncTaskType = 'TRANSACTION' | 'TRANSACTION_DELETE' | 'TRANSACTION_UPDATE' | 'METER_READING' | 'METER_CREATE' | 'WALLET_CREATE';
 export type SyncStatus = 'PENDING' | 'SYNCING' | 'FAILED' | 'DONE';
 
 export interface SyncTask {

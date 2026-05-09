@@ -1,4 +1,5 @@
 import { Colors } from "@/src/constants/Colors";
+import { formatMoney } from "@/src/utils/formatMoney";
 import { Ionicons } from "@expo/vector-icons";
 import React from 'react';
 import { Text, View } from 'react-native';
@@ -22,7 +23,7 @@ export const WalletCard: React.FC<WalletCardProps> = ({ title, balance, currency
         <Text style={styles.walletTitle}>{title}</Text>
       </View>
       <Text style={styles.walletAmount}>
-        {balance.toLocaleString()}
+        {formatMoney(balance)}
         <Text style={styles.currency}> {currency}</Text>
       </Text>
     </View>

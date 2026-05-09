@@ -1,7 +1,8 @@
 import { Colors } from "@/src/constants/Colors";
 import { useLoader } from "@/src/context/LoaderContext";
 import { appAlert } from "@/src/services/alert";
-import { addTransaction } from "@/src/services/transactions";
+import { addTransaction, updateTransaction } from "@/src/services/transactions";
+import { parseAmountInput } from "@/src/utils/formatMoney";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useRef, useState } from "react";
 import { Modal, Pressable, Text, TextInput, TouchableOpacity, View } from "react-native";
@@ -16,6 +17,17 @@ interface TransactionModalProps {
   categoryId?: string; 
   categoryName?: string; 
   walletId: string | null;
+  editingTransaction?: {
+    id: string;
+    amount: number;
+    type: 'income' | 'expense';
+    categoryId: string;
+    categoryName?: string;
+    walletId: string;
+    comment?: string;
+    monthYear?: string;
+    date?: string;
+  } | null;
 }
 
 export const TransactionModal: React.FC<TransactionModalProps> = ({ 
@@ -24,11 +36,14 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
   type, 
   categoryId,
   categoryName,
-  walletId
+  walletId,
+  editingTransaction,
 }) => {
   const insets = useSafeAreaInsets();
   const touchY = useRef(0);
   
+  const isEditMode = Boolean(editingTransaction);
+
   const { showLoader, hideLoader } = useLoader();
   const [amount, setAmount] = useState("0");
   const [comment, setComment] = useState("");
@@ -37,12 +52,12 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
 
   useEffect(() => {
     if (visible) {
-      setAmount("0");
-      setComment("");
+      setAmount(editingTransaction ? String(editingTransaction.amount) : "0");
+      setComment(editingTransaction?.comment || "");
       setStep('amount');
       setIsSaving(false);
     }
-  }, [visible]);
+  }, [visible, editingTransaction]);
 
   const handleNext = () => {
     if (amount === "0" || !categoryId || !categoryName || !walletId) {
@@ -55,21 +70,45 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
   const handleSave = async () => {
     showLoader();
     setIsSaving(true);
-    const numericAmount = parseFloat(amount);
+    const numericAmount = parseAmountInput(amount);
 
-    const success = await addTransaction({
-      amount: numericAmount,
-      type: type,
-      categoryId: categoryId as string,
-      categoryName: categoryName as string,
-      walletId: walletId as string,
-      comment: comment.trim() || undefined, 
-    });
+    let success = false;
+
+    if (isEditMode && editingTransaction) {
+      success = await updateTransaction({
+        transactionId: editingTransaction.id,
+        oldWalletId: editingTransaction.walletId,
+        oldAmount: editingTransaction.amount,
+        oldType: editingTransaction.type,
+        walletId: (walletId || editingTransaction.walletId) as string,
+        amount: numericAmount,
+        type: type,
+        categoryId: (categoryId || editingTransaction.categoryId) as string,
+        categoryName: (categoryName || editingTransaction.categoryName || "") as string,
+        comment: comment.trim() || undefined,
+        monthYear: editingTransaction.monthYear,
+        date: editingTransaction.date,
+      });
+    } else {
+      success = await addTransaction({
+        amount: numericAmount,
+        type: type,
+        categoryId: categoryId as string,
+        categoryName: categoryName as string,
+        walletId: walletId as string,
+        comment: comment.trim() || undefined,
+      });
+    }
 
     if (success) {
       onClose();
     } else {
-      appAlert("Помилка", "Не вдалося зберегти транзакцію. Спробуйте ще раз.");
+      appAlert(
+        "Помилка",
+        isEditMode
+          ? "Не вдалося оновити транзакцію. Спробуйте ще раз."
+          : "Не вдалося зберегти транзакцію. Спробуйте ще раз.",
+      );
       setIsSaving(false);
     }
     hideLoader();
@@ -96,7 +135,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
           <View style={styles.headerRow}>
             <View style={styles.headerSpacer} />
             <Text style={[styles.modalTitle, { color: type === 'income' ? Colors.accent : Colors.error }]}>
-              {type === 'income' ? 'Дохід' : 'Витрата'} в {categoryName}
+              {isEditMode ? 'Редагування' : type === 'income' ? 'Дохід' : 'Витрата'} в {categoryName}
             </Text>
             <TouchableOpacity onPress={onClose} style={styles.headerCloseBtn}>
               <Ionicons name="close" size={28} color={Colors.textSecondary} />
@@ -151,7 +190,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                   ]}
                 >
                   <Text style={{color: '#fff', fontWeight: 'bold'}}>
-                    {isSaving ? 'Збереження...' : 'Зберегти'}
+                    {isSaving ? (isEditMode ? 'Оновлення...' : 'Збереження...') : (isEditMode ? 'Оновити' : 'Зберегти')}
                   </Text>
                 </TouchableOpacity>
               </View>

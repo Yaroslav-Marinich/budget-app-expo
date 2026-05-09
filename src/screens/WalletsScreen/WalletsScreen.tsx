@@ -1,11 +1,12 @@
 import { Colors } from "@/src/constants/Colors";
 import { useLoader } from "@/src/context/LoaderContext";
 import { appAlert } from "@/src/services/alert";
-import { archiveWallet, permanentDeleteWallet, subscribeToWallets, updateWalletsOrder, Wallet } from "@/src/services/wallets";
+import { archiveWallet, permanentDeleteWallet, subscribeToWallets, updateWallet, updateWalletsOrder, Wallet } from "@/src/services/wallets";
+import { formatMoney } from "@/src/utils/formatMoney";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Switch, Text, TouchableOpacity, View } from "react-native";
 import DraggableFlatList, { RenderItemParams, ScaleDecorator } from "react-native-draggable-flatlist";
 import Swipeable from "react-native-gesture-handler/Swipeable";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -15,7 +16,7 @@ import { EditWalletModal } from "./components/EditWalletModal";
 export const WalletsScreen = () => {
   const insets = useSafeAreaInsets();
   const swipeableRefs = useRef<Map<string, Swipeable>>(new Map());
-    const router = useRouter();
+  const router = useRouter();
 
   const { showLoader, hideLoader } = useLoader();
   const [wallets, setWallets] = useState<Wallet[]>([]);
@@ -24,7 +25,7 @@ export const WalletsScreen = () => {
   const [selectedWallet, setSelectedWallet] = useState<Wallet | null>(null);
 
   const handleDragEnd = async ({ data }: { data: Wallet[] }) => {
-  const isOrderChanged = data.some((wallet, index) => wallet.id !== wallets[index]?.id);
+    const isOrderChanged = data.some((wallet, index) => wallet.id !== wallets[index]?.id);
     if (!isOrderChanged) return;
 
     setWallets(data); 
@@ -45,8 +46,8 @@ export const WalletsScreen = () => {
     setOpenedRowId(id);
   };
 
-const confirmArchive = (wallet: Wallet) => {
-  if (wallet.isPending) return;
+  const confirmArchive = (wallet: Wallet) => {
+    if (wallet.isPending) return;
     appAlert(
       "Архівування рахунку",
       `Рахунок "${wallet.title}" буде перенесено в архів. Ви не зможете додавати нові операції на нього, але історія та статистика збережуться.`,
@@ -91,25 +92,42 @@ const confirmArchive = (wallet: Wallet) => {
     );
   };
 
-    const openEdit = (wallet: Wallet) => {
+  const openEdit = (wallet: Wallet) => {
     setSelectedWallet(wallet);
     setEditModalVisible(true);
-    };
+  };
     
-    const openCreate = () => {
+  const openCreate = () => {
     setSelectedWallet(null);
     setEditModalVisible(true);
   };
     
-      useEffect(() => {
+useEffect(() => {
     const unsubscribe = subscribeToWallets((data) => {
-      setWallets(data.sort((a, b) => (a.order ?? Number.MAX_SAFE_INTEGER) - (b.order ?? Number.MAX_SAFE_INTEGER)));
+      const sortedWallets = data.sort((a, b) => {
+        if (a.isArchived && !b.isArchived) return 1;
+        if (!a.isArchived && b.isArchived) return -1;
+        
+        return (a.order ?? Number.MAX_SAFE_INTEGER) - (b.order ?? Number.MAX_SAFE_INTEGER);
+      });
+      
+      setWallets([...sortedWallets]); 
     });
     return () => unsubscribe();
-      }, []);
+  }, []);
+
+  const toggleExcludeFromTotal = async (wallet: Wallet, newValue: boolean) => {
+    if (wallet.isPending || wallet.isArchived) return; // Додатковий захист
+    setWallets(prev => prev.map(w => w.id === wallet.id ? { ...w, excludeFromTotal: newValue } : w));
+    try {
+      await updateWallet(wallet.id, { excludeFromTotal: newValue });
+    } catch (e) {
+      console.error("Помилка оновлення налаштувань рахунку", e);
+      setWallets(prev => prev.map(w => w.id === wallet.id ? { ...w, excludeFromTotal: !newValue } : w));
+    }
+  };
   
-  // Функція малювання кнопки-кошика (ховається під карткою)
-const renderRightActions = (item: Wallet) => (
+  const renderRightActions = (item: Wallet) => (
     <TouchableOpacity 
       style={styles.deleteAction} 
       onPress={() => confirmArchive(item)}
@@ -126,7 +144,6 @@ const renderRightActions = (item: Wallet) => (
     
     return (
       <ScaleDecorator>
-        {/* Обгортка для відступів */}
         <View style={styles.itemContainer}>
 
           {isPrimary && !isArchived && (
@@ -148,7 +165,6 @@ const renderRightActions = (item: Wallet) => (
             </View>
           )}
 
-          {/* Додаємо Swipeable компонент */}
           <Swipeable 
             ref={(ref) => {
               if (ref) swipeableRefs.current.set(item.id, ref);
@@ -162,44 +178,59 @@ const renderRightActions = (item: Wallet) => (
             rightThreshold={40} 
           >
             <View style={[
-              styles.walletRow, 
+              styles.walletCard,
               isPrimary && !isArchived && styles.primaryBorder,
               isArchived && styles.archivedRow,
               isPending && styles.pendingRow,
               isActive && { borderColor: Colors.primary, backgroundColor: Colors.outline }
             ]}>
 
-              <View style={styles.iconBox}>
-                <Ionicons name={item.icon as any} size={22} color={isArchived ? Colors.textSecondary : Colors.accent} />
-              </View>
-              
-              <View style={styles.infoBox}>
-                <Text style={styles.title}>{item.title}</Text>
-                <Text style={styles.balance}>{item.balance.toLocaleString()} {item.currency}</Text>
+              {/* ВЕРХНЯ ЧАСТИНА */}
+              <View style={styles.walletTopRow}>
+                <View style={styles.iconBox}>
+                  <Ionicons name={item.icon as any} size={22} color={isArchived ? Colors.textSecondary : Colors.accent} />
+                </View>
+                
+                <View style={styles.infoBox}>
+                  <Text style={styles.title}>{item.title}</Text>
+                  <Text style={styles.balance}>{formatMoney(item.balance)} {item.currency}</Text>
+                </View>
+
+                <View style={styles.actions}>
+                  {!isArchived ? (
+                    <>
+                      <TouchableOpacity style={styles.actionBtn} onPress={() => {
+                          if (isPending) return;
+                          swipeableRefs.current.get(item.id)?.close();
+                          openEdit(item);
+                        }} disabled={isPending}>
+                        <Ionicons name="pencil" size={20} color={Colors.textSecondary} />
+                      </TouchableOpacity>
+                      <TouchableOpacity onLongPress={drag} delayLongPress={200} style={styles.actionBtn} disabled={isPending}>
+                        <Ionicons name="menu" size={24} color={Colors.textSecondary} />
+                      </TouchableOpacity>
+                    </>
+                  ) : (
+                    <TouchableOpacity 
+                      style={styles.actionBtn} 
+                      onPress={() => confirmPermanentDelete(item)}
+                    >
+                      <Ionicons name="trash" size={22} color={Colors.error} />
+                    </TouchableOpacity>
+                  )}
+                </View>
               </View>
 
-              <View style={styles.actions}>
-                {!isArchived ? (
-                  <>
-                    <TouchableOpacity style={styles.actionBtn} onPress={() => {
-                        if (isPending) return;
-                        swipeableRefs.current.get(item.id)?.close();
-                        openEdit(item);
-                      }} disabled={isPending}>
-                      <Ionicons name="pencil" size={20} color={Colors.textSecondary} />
-                    </TouchableOpacity>
-                    <TouchableOpacity onLongPress={drag} delayLongPress={200} style={styles.actionBtn} disabled={isPending}>
-                      <Ionicons name="menu" size={24} color={Colors.textSecondary} />
-                    </TouchableOpacity>
-                  </>
-                ) : (
-                  <TouchableOpacity 
-                    style={styles.actionBtn} 
-                    onPress={() => confirmPermanentDelete(item)}
-                  >
-                    <Ionicons name="trash" size={22} color={Colors.error} />
-                  </TouchableOpacity>
-                )}
+              {/* НИЖНЯ ЧАСТИНА (ПЕРЕМИКАЧ) */}
+              <View style={styles.excludeContainer}>
+                <Text style={styles.excludeText}>Враховувати у загальному балансі</Text>
+                <Switch
+                  value={!item.excludeFromTotal}
+                  onValueChange={(val) => toggleExcludeFromTotal(item, !val)}
+                  trackColor={{ false: Colors.error, true: Colors.primary }}
+                  thumbColor={Colors.outline}
+                  disabled={isPending || isArchived} 
+                />
               </View>
 
             </View>
@@ -211,7 +242,6 @@ const renderRightActions = (item: Wallet) => (
 
   return (
     <View style={[styles.container, { paddingTop: insets.top + 10 }]}>
-      {/* Кастомний заголовок замість системного */}
       <View style={styles.headerRow}>
         <Text style={styles.screenTitle}>Рахунки</Text>
         <TouchableOpacity onPress={() => router.back()} style={{ padding: 5 }}>
@@ -227,7 +257,6 @@ const renderRightActions = (item: Wallet) => (
         contentContainerStyle={[styles.listContent, { paddingBottom: 100 }]}
       />
 
-      {/* FAB Кнопка */}
       <TouchableOpacity style={[styles.fab, { bottom: insets.bottom + 20 }]} onPress={openCreate}>
         <Ionicons name="add" size={32} color="white" />
       </TouchableOpacity>

@@ -1,9 +1,9 @@
 import NetInfo from '@react-native-community/netinfo';
-import { addDoc, collection, doc, increment, updateDoc } from 'firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, increment, updateDoc } from 'firebase/firestore';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 
 import { db, storage } from '../config/firebase';
-import { sanitizeFirestoreData } from '../utils/sanitizeFirestoreData';
+import { sanitizeFirestoreData, sanitizeFirestoreUpdate } from '../utils/sanitizeFirestoreData';
 import { deleteLocalFile } from './fileManager';
 import {
   getSyncQueue,
@@ -75,6 +75,86 @@ const processTask = async (task: SyncTask) => {
   if (task.type === 'WALLET_CREATE') {
     const walletDoc = await addDoc(collection(db, 'wallets'), sanitizeFirestoreData(task.payload));
     await remapQueuedWalletReferences(task.id, walletDoc.id);
+    return;
+  }
+
+  if (task.type === 'TRANSACTION_DELETE') {
+    const transactionId = task.payload?.transactionId;
+    const walletId = task.payload?.walletId;
+    const transactionType = task.payload?.type;
+    const amount = Number(task.payload?.amount || 0);
+
+    if (!transactionId) {
+      throw new Error('Missing transaction id for deletion');
+    }
+
+    if (!walletId || walletId.startsWith('task_')) {
+      throw new Error('Transaction delete wallet reference is not resolved');
+    }
+
+    await deleteDoc(doc(db, 'transactions', transactionId));
+
+    const balanceChange = transactionType === 'expense' ? amount : -amount;
+    await updateDoc(doc(db, 'wallets', walletId), {
+      balance: increment(balanceChange),
+    });
+
+    return;
+  }
+
+  if (task.type === 'TRANSACTION_UPDATE') {
+    const transactionId = task.payload?.transactionId;
+    const oldWalletId = task.payload?.oldWalletId;
+    const oldAmount = Number(task.payload?.oldAmount || 0);
+    const oldType = task.payload?.oldType;
+
+    const newWalletId = task.payload?.walletId;
+    const newAmount = Number(task.payload?.amount || 0);
+    const newType = task.payload?.type;
+
+    if (!transactionId) {
+      throw new Error('Missing transaction id for update');
+    }
+
+    if (!oldWalletId || oldWalletId.startsWith('task_')) {
+      throw new Error('Old wallet reference is not resolved for transaction update');
+    }
+
+    if (!newWalletId || newWalletId.startsWith('task_')) {
+      throw new Error('New wallet reference is not resolved for transaction update');
+    }
+
+    await updateDoc(doc(db, 'transactions', transactionId), sanitizeFirestoreUpdate({
+      amount: newAmount,
+      type: newType,
+      categoryId: task.payload?.categoryId,
+      categoryName: task.payload?.categoryName,
+      comment: task.payload?.comment,
+      walletId: newWalletId,
+      monthYear: task.payload?.monthYear,
+      date: task.payload?.date,
+      syncedAt: new Date().toISOString(),
+    }));
+
+    const oldEffect = oldType === 'expense' ? -oldAmount : oldAmount;
+    const newEffect = newType === 'expense' ? -newAmount : newAmount;
+
+    if (oldWalletId === newWalletId) {
+      const delta = newEffect - oldEffect;
+      if (delta !== 0) {
+        await updateDoc(doc(db, 'wallets', newWalletId), {
+          balance: increment(delta),
+        });
+      }
+    } else {
+      await updateDoc(doc(db, 'wallets', oldWalletId), {
+        balance: increment(-oldEffect),
+      });
+      await updateDoc(doc(db, 'wallets', newWalletId), {
+        balance: increment(newEffect),
+      });
+    }
+
     return;
   }
 

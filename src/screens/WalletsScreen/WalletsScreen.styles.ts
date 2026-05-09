@@ -27,16 +27,38 @@ export const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   
-  // Рядок рахунку
-  walletRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  walletCard: {
+    flexDirection: 'column', 
     backgroundColor: Colors.surface,
-    padding: 12,
+    paddingVertical: 12, 
+    paddingHorizontal: 15,
     borderRadius: 20,
     borderWidth: 1,
     borderColor: Colors.outline,
   },
+  
+  walletTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+
+  excludeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 8,   
+    paddingTop: 8,   
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.05)', 
+  },
+  excludeText: {
+    color: Colors.textSecondary,
+    fontSize: 14,  
+    flex: 1, 
+    paddingRight: 10,
+  },
+
   itemContainer: {
     marginBottom: 12,
     position: 'relative',
@@ -68,10 +90,14 @@ export const styles = StyleSheet.create({
   title: { color: Colors.text, fontSize: 16, fontWeight: 'bold' },
   balance: { color: Colors.textSecondary, fontSize: 14, marginTop: 2 },
   
-  actions: { flexDirection: 'row', alignItems: 'center' },
-    actionBtn: { padding: 8, marginLeft: 4 },
+  actions: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    marginLeft: 10 
+  },
+  actionBtn: { padding: 8, marginLeft: 4 },
   
-    fab: {
+  fab: {
     position: 'absolute',
     bottom: 30,
     right: 20,
