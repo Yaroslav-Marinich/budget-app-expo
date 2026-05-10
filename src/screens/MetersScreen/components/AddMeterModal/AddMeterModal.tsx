@@ -1,7 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
-import React, { useEffect, useRef, useState } from "react";
-import { Modal, Pressable, Text, TextInput, TouchableOpacity, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import { Text, TextInput, TouchableOpacity, View } from "react-native";
 
+import { DefaultModal } from "@/src/components/ui/DefaultModal/DefaultModal";
 import { Colors } from "@/src/constants/Colors";
 import { useLoader } from "@/src/context/LoaderContext";
 import { addMeter, Meter, METER_ICONS, updateMeter } from "@/src/services/meters";
@@ -16,7 +17,6 @@ interface AddMeterModalProps {
 export const AddMeterModal: React.FC<AddMeterModalProps> = ({ visible, onClose, meterToEdit }) => {
   const { showLoader, hideLoader } = useLoader();
   const isEdit = !!meterToEdit;
-  const touchY = useRef(0);
   
   const [name, setName] = useState("");
   const [icon, setIcon] = useState(METER_ICONS[0].name);
@@ -64,18 +64,7 @@ export const AddMeterModal: React.FC<AddMeterModalProps> = ({ visible, onClose, 
   };
 
   return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
-      <Pressable style={styles.overlay} onPress={onClose}>
-        <Pressable
-          style={styles.modalContent}
-          onPress={e => e.stopPropagation()}
-          onTouchStart={e => touchY.current = e.nativeEvent.pageY}
-          onTouchEnd={e => {
-            if (e.nativeEvent.pageY - touchY.current > 50) onClose();
-          }}
-        >
-          <View style={styles.dragIndicator} />
-          
+    <DefaultModal visible={visible} onClose={onClose} overlayStyle={styles.overlay} contentStyle={styles.modalContent}>
           <View style={styles.headerRow}>
             <Text style={styles.modalTitle}>{isEdit ? "Редагувати лічильник" : "Новий лічильник"}</Text>
             <TouchableOpacity onPress={onClose} style={{ padding: 5 }}>
@@ -130,8 +119,6 @@ export const AddMeterModal: React.FC<AddMeterModalProps> = ({ visible, onClose, 
           <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
             <Text style={styles.saveBtnText}>{isEdit ? "Зберегти зміни" : "Створити лічильник"}</Text>
           </TouchableOpacity>
-        </Pressable>
-      </Pressable>
-    </Modal>
+    </DefaultModal>
   );
 };

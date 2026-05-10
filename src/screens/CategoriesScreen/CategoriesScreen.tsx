@@ -1,11 +1,12 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
-import { FlatList, LogBox, Modal, Pressable, Text, TouchableOpacity, View } from "react-native";
+import { FlatList, LogBox, Text, TouchableOpacity, View } from "react-native";
 import { NestableDraggableFlatList, NestableScrollContainer, RenderItemParams, ScaleDecorator } from "react-native-draggable-flatlist";
 import Swipeable from "react-native-gesture-handler/Swipeable";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { DefaultModal } from "@/src/components/ui/DefaultModal/DefaultModal";
 import { Colors } from "@/src/constants/Colors";
 import { useLoader } from "@/src/context/LoaderContext";
 import { appAlert } from "@/src/services/alert";
@@ -20,7 +21,6 @@ LogBox.ignoreLogs([
 export const CategoriesScreen = () => {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const reassignModalTouchY = useRef(0);
   const swipeableRefs = useRef<Map<string, Swipeable>>(new Map());
 
   const { showLoader, hideLoader } = useLoader();
@@ -294,22 +294,12 @@ export const CategoriesScreen = () => {
       </NestableScrollContainer>
 
       {/* Модалка Reassign */}
-      <Modal visible={reassignModalVisible} animationType="slide" transparent onRequestClose={() => setReassignModalVisible(false)}>
-        <Pressable style={styles.modalOverlay} onPress={() => setReassignModalVisible(false)}>
-          <Pressable
-            style={styles.modalContent}
-            onPress={e => e.stopPropagation()}
-            onTouchStart={e => {
-              reassignModalTouchY.current = e.nativeEvent.pageY;
-            }}
-            onTouchEnd={e => {
-              if (e.nativeEvent.pageY - reassignModalTouchY.current > 50) {
-                setReassignModalVisible(false);
-              }
-            }}
-          >
-            <View style={styles.dragIndicator} />
-
+      <DefaultModal
+        visible={reassignModalVisible}
+        onClose={() => setReassignModalVisible(false)}
+        overlayStyle={styles.modalOverlay}
+        contentStyle={styles.modalContent}
+      >
             <View style={styles.modalHeaderRow}>
               <View style={styles.modalHeaderSpacer} />
               <Text style={styles.modalTitle}>Видалення: {categoryToDelete?.name}</Text>
@@ -334,9 +324,7 @@ export const CategoriesScreen = () => {
             <TouchableOpacity style={styles.cancelBtn} onPress={() => setReassignModalVisible(false)}>
               <Text style={{color: Colors.error, fontSize: 16, fontWeight: 'bold'}}>Скасувати</Text>
             </TouchableOpacity>
-          </Pressable>
-        </Pressable>
-      </Modal>
+      </DefaultModal>
 
       {/* FAB Кнопка */}
       <TouchableOpacity style={[styles.fab, { bottom: insets.bottom + 20 }]} onPress={openCreate}>

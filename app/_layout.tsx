@@ -3,7 +3,7 @@ import { CustomAlertProvider } from '@/src/context/AlertContext';
 import { LoaderProvider } from '@/src/context/LoaderContext';
 import { SyncQueueProvider } from '@/src/context/SyncQueueContext';
 import { useSyncPendingCount } from '@/src/hooks/useSyncPendingCount';
-import { Stack } from 'expo-router';
+import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
 import { LogBox, StyleSheet, View } from 'react-native';
@@ -16,7 +16,7 @@ import { auth } from '@/src/config/firebase';
 import { initializeUserData } from '@/src/services/setup';
 import { startSync } from '@/src/services/syncEngine';
 import NetInfo from '@react-native-community/netinfo';
-import { onAuthStateChanged, signInAnonymously } from 'firebase/auth';
+import { onAuthStateChanged, User } from 'firebase/auth';
 
 LogBox.ignoreLogs(['InteractionManager has been deprecated']);
 
@@ -33,43 +33,61 @@ const GlobalSyncBanner = () => {
 };
 
 export default function RootLayout() {
-  const [isReady, setIsReady] = useState(false);
+    const router = useRouter();
+  const segments = useSegments();
 
-useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        try {
-          await signInAnonymously(auth);
-          console.log('✅ Увійшли анонімно');
-        } catch (error) {
-          console.error('❌ Помилка анонімного входу:', error);
-        }
-      } else {
-        console.log('👤 Активний користувач:', user.uid, user.isAnonymous ? '(Анонім)' : '(Google)');
-        
-        await initializeUserData();
-        
-        setTimeout(() => {
-          setIsReady(true);
-        }, 1000);
+  const [user, setUser] = useState<User | null | undefined>(undefined);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      setUser(currentUser); 
+      
+      if (currentUser) {
+        console.log('👤 Активний користувач:', currentUser.uid, currentUser.isAnonymous ? '(Анонім)' : '(Google)');
+        await initializeUserData(); 
       }
     });
 
     return () => unsubscribe();
-}, []);
-  
+  }, []);
+  // useEffect(() => {
+  //   const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+  //     // Штучна затримка на 2 секунди
+  //     setTimeout(async () => {
+  //       setUser(currentUser); 
+  //       if (currentUser) {
+  //         await initializeUserData(); 
+  //       }
+  //     }, 2000);
+  //   });
+
+  //   return () => unsubscribe();
+  // }, []);
+
   useEffect(() => {
     const unsubscribeNet = NetInfo.addEventListener(state => {
-      if (state.isConnected && isReady) {
+      if (state.isConnected && user) {
         console.log("🌐 Мережа відновлена! Запускаємо фонову синхронізацію...");
         startSync();
       }
     });
 
     return () => unsubscribeNet();
-  }, [isReady]);
+  }, [user]);
 
-  if (!isReady) {
+  useEffect(() => {
+    if (user === undefined) return; 
+
+    const inAuthGroup = segments[0] === 'login';
+
+    if (user === null && !inAuthGroup) {
+      router.replace('/login' as any);
+    } else if (user && inAuthGroup) {
+      router.replace('/(tabs)/home' as any);
+    }
+  }, [router, user, segments]);
+
+  if (user === undefined) {
     return <InitialLoadingScreen />;
   }
 
@@ -80,14 +98,16 @@ return (
         <CustomAlertProvider>
           <SyncQueueProvider>
             <View style={styles.rootContainer}>
-              <GlobalSyncBanner />
+              {/* Банер показуємо лише якщо користувач увійшов */}
+              {user && <GlobalSyncBanner />} 
               <Stack
                 screenOptions={{
                   headerShown: false, 
                   contentStyle: { backgroundColor: Colors.background },
                 }}
               >
-                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                <Stack.Screen name="(tabs)" />
+                <Stack.Screen name="login/index" /> 
               </Stack>
             </View>
           </SyncQueueProvider>

@@ -12,7 +12,7 @@ export const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: Colors.outline,
   },
-  avatarPlaceholder: {
+avatarPlaceholder: {
     width: 80,
     height: 80,
     borderRadius: 40,
@@ -21,8 +21,34 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 15,
   },
+  avatarImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    marginBottom: 15,
+  },
   userName: { color: Colors.text, fontSize: 22, fontWeight: 'bold' },
   userEmail: { color: Colors.textSecondary, fontSize: 14, marginTop: 4 },
+
+  // Кнопка прив'язки акаунту
+  syncBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.surface,
+    marginHorizontal: 20,
+    marginTop: 20,
+    padding: 16,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: Colors.outline,
+  },
+  syncBtnText: {
+    color: Colors.text,
+    fontSize: 16,
+    fontWeight: '600',
+    marginLeft: 10,
+  },
 
   // Секції налаштувань
   section: { marginTop: 25 },

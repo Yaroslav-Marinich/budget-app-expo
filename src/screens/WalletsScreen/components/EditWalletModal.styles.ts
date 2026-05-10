@@ -7,14 +7,6 @@ export const styles = StyleSheet.create({
     backgroundColor: Colors.overlayHeavy,
     justifyContent: 'flex-end',
   },
-  dragIndicator: {
-    width: 40,
-    height: 5,
-    borderRadius: 3,
-    backgroundColor: Colors.outline,
-    alignSelf: 'center',
-    marginBottom: 15,
-  },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',

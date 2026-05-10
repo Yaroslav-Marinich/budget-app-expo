@@ -15,6 +15,12 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    ```bash
    npx expo start
    ```
+or start dev build
+```
+npx expo start --dev-client
+or clear cash
+npx expo start -c --dev-client
+```
 
 In the output, you'll find options to open the app in a
 

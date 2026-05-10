@@ -15,16 +15,8 @@ export const styles = StyleSheet.create({
     backgroundColor: Colors.surface,
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
-    padding: 20,
-  },
-
-  dragIndicator: {
-    width: 40,
-    height: 5,
-    borderRadius: 3,
-    backgroundColor: Colors.outline,
-    alignSelf: "center",
-    marginBottom: 15,
+    paddingHorizontal: 20,
+    paddingTop: 20,
   },
 
   // =======================

@@ -1,7 +1,8 @@
 import { Colors } from "@/src/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
-import React, { useEffect, useRef, useState } from "react";
-import { Modal, Pressable, Text, TouchableOpacity, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import { Text, TouchableOpacity, View } from "react-native";
+import { DefaultModal } from "../DefaultModal/DefaultModal";
 import { styles } from "./MonthPickerModal.styles";
 
 interface MonthPickerModalProps {
@@ -26,7 +27,6 @@ export const MonthPickerModal: React.FC<MonthPickerModalProps> = ({
   onSelect,
   activeMonths = [] 
 }) => {
-  const touchY = useRef(0);
   const [viewYear, setViewYear] = useState(currentDate.getFullYear());
 
   useEffect(() => {
@@ -52,17 +52,13 @@ export const MonthPickerModal: React.FC<MonthPickerModalProps> = ({
   };
 
   return (
-    <Modal visible={visible} animationType="fade" transparent onRequestClose={onClose}>
-      <Pressable style={styles.overlay} onPress={onClose}>
-        <Pressable 
-          style={styles.modalContent} 
-          onPress={e => e.stopPropagation()}
-          onTouchStart={e => touchY.current = e.nativeEvent.pageY}
-          onTouchEnd={e => {
-            if (e.nativeEvent.pageY - touchY.current > 50) onClose();
-          }}
-        >
-          <View style={styles.dragIndicator} />
+    <DefaultModal
+      visible={visible}
+      onClose={onClose}
+      animationType="fade"
+      overlayStyle={styles.overlay}
+      contentStyle={styles.modalContent}
+    >
 
           <View style={styles.yearSelector}>
             <TouchableOpacity onPress={() => changeYear(-1)} style={styles.arrowBtn}>
@@ -115,8 +111,6 @@ export const MonthPickerModal: React.FC<MonthPickerModalProps> = ({
             <Text style={styles.currentMonthText}>На поточний місяць</Text>
           </TouchableOpacity>
 
-        </Pressable>
-      </Pressable>
-    </Modal>
+    </DefaultModal>
   );
 };

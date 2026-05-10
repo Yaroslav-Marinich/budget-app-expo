@@ -299,15 +299,24 @@ export const FinancesAnalytics = () => {
       </View>
 
       {/* Картки Балансу */}
-      <View style={{ flexDirection: 'row', paddingHorizontal: 20, gap: 15, marginBottom: 30 }}>
-        <View style={{ flex: 1, backgroundColor: Colors.errorSoft, padding: 15, borderRadius: 16, borderLeftWidth: 4, borderColor: Colors.errorBright }}>
+ <View style={{ flexDirection: 'row', paddingHorizontal: 20, gap: 15, marginBottom: 30 }}>
+        
+        {/* Картка ДОХОДИ (Зелена) */}
+        <View style={{ flex: 1, backgroundColor: 'rgba(46, 125, 50, 0.1)', padding: 15, borderRadius: 16, borderLeftWidth: 4, borderColor: Colors.accent }}>
           <Text style={{ color: Colors.textSecondary, fontSize: 13, marginBottom: 5 }}>Доходи</Text>
-          <Text style={{ color: Colors.errorBright, fontSize: 20, fontWeight: 'bold' }}>+ {formatMoney(totalIncome)} {currencySymbol}</Text>
+          <Text style={{ color: Colors.accent, fontSize: 20, fontWeight: 'bold' }}>
+            + {formatMoney(totalIncome)} {currencySymbol}
+          </Text>
         </View>
+
+        {/* Картка ВИТРАТИ (Червона) */}
         <View style={{ flex: 1, backgroundColor: Colors.errorSoft, padding: 15, borderRadius: 16, borderLeftWidth: 4, borderColor: Colors.errorBright }}>
           <Text style={{ color: Colors.textSecondary, fontSize: 13, marginBottom: 5 }}>Витрати</Text>
-          <Text style={{ color: Colors.errorBright, fontSize: 20, fontWeight: 'bold' }}>- {formatMoney(totalExpense)} {currencySymbol}</Text>
+          <Text style={{ color: Colors.errorBright, fontSize: 20, fontWeight: 'bold' }}>
+            - {formatMoney(totalExpense)} {currencySymbol}
+          </Text>
         </View>
+
       </View>
 
       {/* Кільцева діаграма */}

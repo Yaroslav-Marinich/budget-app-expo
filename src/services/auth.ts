@@ -1,91 +1,209 @@
-import * as Google from "expo-auth-session/providers/google";
-import * as WebBrowser from "expo-web-browser";
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import {
   GoogleAuthProvider,
+  linkWithCredential,
+  signInAnonymously,
   signInWithCredential,
-  User
+  signOut
 } from "firebase/auth";
-import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
-import { useEffect } from "react";
+import { collection, deleteDoc, doc, getDocs, query, serverTimestamp, setDoc, where, writeBatch } from "firebase/firestore";
+import { deleteObject, getStorage, listAll, ref } from "firebase/storage";
 import { auth, db } from "../config/firebase";
-import { sanitizeFirestoreData } from '../utils/sanitizeFirestoreData';
 
-WebBrowser.maybeCompleteAuthSession();
+const storage = getStorage();
 
-export const useGoogleAuth = () => {
-  const [request, response, promptAsync] = Google.useAuthRequest({
-    // Основний Web Client ID (для Firebase)
-    webClientId: "752552917614-kbpetdssrppkqv8mi055mdl1qpa51p1m.apps.googleusercontent.com",
+GoogleSignin.configure({
+  webClientId: "752552917614-kbpetdssrppkqv8mi055mdl1qpa51p1m.apps.googleusercontent.com",
+});
+
+const USER_COLLECTIONS = [
+  "categories", 
+  "meter_readings", 
+  "meters", 
+  "transactions", 
+  "userSettings", 
+  "wallets"
+];
+
+export const deleteUserStorageFolder = async (userId: string) => {
+  const folderRef = ref(storage, `meter_photos/${userId}`);
+  try {
+    const res = await listAll(folderRef);
+    const deletePromises = res.items.map((item) => deleteObject(item));
+    await Promise.all(deletePromises);
+    console.log(`✅ Storage photos for user ${userId} deleted`);
+  } catch (error) {
+    console.error("❌ Error deleting storage folder:", error);
+  }
+};
+
+export const cleanupUserData = async (userId: string) => {
+  for (const colName of USER_COLLECTIONS) {
+    const q = query(collection(db, colName), where("userId", "==", userId));
+    const snapshot = await getDocs(q);
     
-    // Android Client ID з вашим SHA-1
-    androidClientId: "752552917614-t5g16uii6qn45tpgql8or5na9iu0lalo.apps.googleusercontent.com",
+    let batch = writeBatch(db);
+    let count = 0;
     
-    // iOS Client ID
-    iosClientId: "752552917614-t5g16uii6qn45tpgql8or5na9iu0lalo.apps.googleusercontent.com",
-
-    // Використовуємо автоматичну генерацію URI для Expo Go
-    // redirectUri: makeRedirectUri({
-    //   scheme: "budget-app",
-    //   path: "firebaseauth/link",
-    // }),
-  });
-
-  const syncUserWithFirestore = async (user: User) => {
-    try {
-      const userRef = doc(db, "users", user.uid);
-      const userSnap = await getDoc(userRef);
-
-      if (!userSnap.exists()) {
-        await setDoc(userRef, sanitizeFirestoreData({
-          uid: user.uid,
-          email: user.email,
-          displayName: user.displayName,
-          photoURL: user.photoURL,
-          familyId: null,
-          createdAt: serverTimestamp(),
-          lastLogin: serverTimestamp(),
-        }));
-        console.log("✅ New user created in Firestore");
-      } else {
-        await setDoc(userRef, { lastLogin: serverTimestamp() }, { merge: true });
-        console.log("✅ User session updated");
+    for (const document of snapshot.docs) {
+      batch.delete(document.ref);
+      count++;
+      if (count === 490) {
+        await batch.commit();
+        batch = writeBatch(db);
+        count = 0;
       }
-    } catch (e) {
-      console.error("❌ Firestore sync error:", e);
     }
-  };
+    if (count > 0) await batch.commit();
+  }
 
-  // Відстежуємо зміну стану відповіді від Google
-  useEffect(() => {
-    if (response?.type === "success") {
-      const { id_token } = response.params;
-      const credential = GoogleAuthProvider.credential(id_token);
-      
-      signInWithCredential(auth, credential)
-        .then((userCredential) => {
-          syncUserWithFirestore(userCredential.user);
-        })
-        .catch((error) => {
-          console.error("❌ Firebase Auth Error:", error);
-        });
-    }
-  }, [response]);
+  try {
+    await deleteDoc(doc(db, "userSettings", userId));
+  } catch (e) {
+  }
 
-  const signIn = async () => {
-    try {
-      const result = await promptAsync();
-      if (result?.type === "success") {
-        const { id_token } = result.params;
-        const credential = GoogleAuthProvider.credential(id_token);
-        const userCredential = await signInWithCredential(auth, credential);
-        await syncUserWithFirestore(userCredential.user);
-        return userCredential.user;
+  await deleteUserStorageFolder(userId);
+};
+
+export const migrateDataToNewUser = async (oldUserId: string, newUserId: string) => {
+  for (const colName of USER_COLLECTIONS) {
+    const q = query(collection(db, colName), where("userId", "==", oldUserId));
+    const snapshot = await getDocs(q);
+    
+    let batch = writeBatch(db);
+    let count = 0;
+    
+    for (const document of snapshot.docs) {
+      batch.update(document.ref, { userId: newUserId });
+      count++;
+      if (count === 490) {
+        await batch.commit();
+        batch = writeBatch(db);
+        count = 0;
       }
-    } catch (error) {
-      console.error("❌ Sign In Error:", error);
     }
+    if (count > 0) await batch.commit();
+  }
+};
+
+export const loginAnonymously = async () => {
+  try {
+    const { user } = await signInAnonymously(auth);
+    return user;
+  } catch (error) {
+    console.error("Помилка анонімного входу:", error);
     return null;
-  };
+  }
+};
 
-  return { signIn, isReady: !!request };
+export const linkWithGoogle = async () => {
+  try {
+    await GoogleSignin.hasPlayServices();
+    const userInfo = await GoogleSignin.signIn();
+    
+    const idToken = userInfo.data?.idToken || (userInfo as any).idToken;
+
+    if (!idToken) {
+      return { success: false, error: 'Google sign-in token is missing' };
+    }
+    
+    const credential = GoogleAuthProvider.credential(idToken);
+    const user = auth.currentUser;
+    if (!user) return { success: false, error: 'No user' };
+
+    try {
+      await linkWithCredential(user, credential);
+      return { success: true, mode: 'linked' };
+    } catch (linkError: any) {
+      if (linkError.code === 'auth/credential-already-in-use') {
+        return { success: false, conflict: true, credential };
+      }
+      throw linkError;
+    }
+  } catch (error) {
+    console.error("Помилка прив'язки Google:", error);
+    return { success: false, error };
+  }
+};
+
+export const resolveAuthConflict = async (credential: any, choice: 'keep_cloud' | 'keep_local') => {
+  const anonUser = auth.currentUser;
+  if (!anonUser) return false;
+  const anonUid = anonUser.uid;
+
+  try {
+    let resultUser;
+    if (choice === 'keep_cloud') {
+      await cleanupUserData(anonUid);
+      await anonUser.delete();
+      const result = await signInWithCredential(auth, credential);
+      resultUser = result.user;
+    } 
+    else if (choice === 'keep_local') {
+      const googleResult = await signInWithCredential(auth, credential);
+      const googleUid = googleResult.user.uid;
+      
+      await cleanupUserData(googleUid); 
+      await migrateDataToNewUser(anonUid, googleUid);
+      resultUser = googleResult.user;
+    }
+    if (resultUser) {
+      await saveUserProfile(resultUser);
+    }
+    return true;
+  } catch (error) {
+    console.error("Помилка вирішення конфлікту:", error);
+    return false;
+  }
+};
+
+export const logoutUser = async () => {
+  const user = auth.currentUser;
+  if (user?.isAnonymous) {
+    const uid = user.uid;
+    await cleanupUserData(uid); 
+    await user.delete();
+  } else {
+    await signOut(auth);
+    await GoogleSignin.signOut();
+  }
+};
+
+export const saveUserProfile = async (user: any) => {
+  if (!user || user.isAnonymous) return;
+
+  const userRef = doc(db, "users", user.uid);
+  
+  try {
+    await setDoc(userRef, {
+      uid: user.uid,
+      displayName: user.displayName,
+      email: user.email,
+      photoURL: user.photoURL,
+      lastLogin: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    }, { merge: true }); 
+    
+    console.log(`✅ Профіль користувача ${user.uid} збережено в БД`);
+  } catch (error) {
+    console.error("❌ Помилка збереження профілю:", error);
+  }
+};
+
+export const loginWithGoogle = async () => {
+  try {
+    await GoogleSignin.hasPlayServices();
+    const userInfo = await GoogleSignin.signIn();
+    
+    const idToken = userInfo.data?.idToken || (userInfo as any).idToken;
+    if (!idToken) return { success: false, error: 'Token missing' };
+
+    const credential = GoogleAuthProvider.credential(idToken);
+    const { user } = await signInWithCredential(auth, credential);
+    await saveUserProfile(user);
+    return { success: true, user };
+  } catch (error) {
+    console.error("Помилка входу через Google:", error);
+    return { success: false, error };
+  }
 };

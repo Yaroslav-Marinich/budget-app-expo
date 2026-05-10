@@ -3,10 +3,6 @@ import React, { useEffect, useState } from 'react';
 import {
     ActivityIndicator,
     Image,
-    KeyboardAvoidingView,
-    Modal,
-    Platform,
-    Pressable,
     ScrollView,
     Text,
     TextInput,
@@ -14,6 +10,7 @@ import {
     View,
 } from 'react-native';
 
+import { DefaultModal } from '@/src/components/ui/DefaultModal/DefaultModal';
 import { Colors } from '@/src/constants/Colors';
 import { useLoader } from '@/src/context/LoaderContext';
 import { appAlert } from '@/src/services/alert';
@@ -120,12 +117,7 @@ const handleChangePhoto = async () => {
   if (!meter || !reading) return null;
 
   return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <Pressable style={styles.overlay} onPress={onClose}>
-          <Pressable style={styles.modalContent} onPress={e => e.stopPropagation()}>
-            <View style={styles.dragIndicator} />
-            
+    <DefaultModal visible={visible} onClose={onClose} overlayStyle={styles.overlay} contentStyle={styles.modalContent}>
             <View style={styles.headerRow}>
               <Text style={styles.modalTitle}>Редагування</Text>
               <TouchableOpacity onPress={onClose} style={{ padding: 5 }}>
@@ -244,9 +236,6 @@ const handleChangePhoto = async () => {
               </TouchableOpacity>
             </ScrollView>
 
-          </Pressable>
-        </Pressable>
-      </KeyboardAvoidingView>
-    </Modal>
+    </DefaultModal>
   );
 };

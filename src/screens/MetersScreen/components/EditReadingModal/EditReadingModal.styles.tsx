@@ -11,7 +11,6 @@ export const styles = StyleSheet.create({
     padding: 20, 
     maxHeight: '90%' 
   },
-  dragIndicator: { width: 40, height: 5, borderRadius: 3, backgroundColor: Colors.outline, alignSelf: 'center', marginBottom: 15 },
   headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
   modalTitle: { color: Colors.text, fontSize: 20, fontWeight: 'bold' },
 

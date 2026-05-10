@@ -1,7 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
-import React, { useEffect, useRef, useState } from "react";
-import { Modal, Pressable, ScrollView, Switch, Text, TextInput, TouchableOpacity, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import { ScrollView, Switch, Text, TextInput, TouchableOpacity, View } from "react-native";
 
+import { DefaultModal } from "@/src/components/ui/DefaultModal/DefaultModal";
 import { Colors } from "@/src/constants/Colors";
 import { useLoader } from "@/src/context/LoaderContext";
 import { appAlert } from "@/src/services/alert";
@@ -29,7 +30,6 @@ interface Props {
 
 export const EditCategoryModal = ({ visible, category, onClose, type, existingCategories }: Props) => {
   const isEdit = !!category;
-  const touchY = useRef(0);
   const { showLoader, hideLoader } = useLoader();
 
   const [name, setName] = useState("");
@@ -98,18 +98,7 @@ export const EditCategoryModal = ({ visible, category, onClose, type, existingCa
   };
 
   return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
-      <Pressable style={styles.modalOverlay} onPress={onClose}>
-        <Pressable 
-          style={styles.modalContent} 
-          onPress={e => e.stopPropagation()}
-          onTouchStart={e => touchY.current = e.nativeEvent.pageY}
-          onTouchEnd={e => {
-            if (e.nativeEvent.pageY - touchY.current > 50) onClose();
-          }}
-        >
-          <View style={styles.dragIndicator} />
-          
+    <DefaultModal visible={visible} onClose={onClose} overlayStyle={styles.modalOverlay} contentStyle={styles.modalContent}>
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>
               {isEdit ? "Редагувати категорію" : "Нова категорія"}
@@ -182,8 +171,6 @@ export const EditCategoryModal = ({ visible, category, onClose, type, existingCa
               </Text>
             </TouchableOpacity>
           </ScrollView>
-        </Pressable>
-      </Pressable>
-    </Modal>
+    </DefaultModal>
   );
 };

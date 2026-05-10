@@ -163,14 +163,6 @@ export const styles = StyleSheet.create({
     padding: 20,
     maxHeight: '80%',
   },
-  dragIndicator: {
-    width: 42,
-    height: 5,
-    borderRadius: 4,
-    backgroundColor: Colors.outline,
-    alignSelf: 'center',
-    marginBottom: 14,
-  },
   modalHeaderRow: {
     flexDirection: 'row',
     alignItems: 'center',

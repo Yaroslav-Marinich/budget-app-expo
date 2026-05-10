@@ -14,14 +14,6 @@ modalContent: {
     padding: 20,
     maxHeight: '95%',
   },
-  dragIndicator: {
-    width: 40,
-    height: 5,
-    borderRadius: 3,
-    backgroundColor: Colors.outline,
-    alignSelf: 'center',
-    marginBottom: 15,
-  },
   headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',

@@ -2,26 +2,6 @@ import { Colors } from "@/src/constants/Colors";
 import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
-  modalOverlay: { 
-    flex: 1, 
-      backgroundColor: Colors.overlayMax, 
-    justifyContent: 'flex-end' 
-  },
-  modalContent: { 
-    backgroundColor: Colors.surface, 
-    borderTopLeftRadius: 30, 
-    borderTopRightRadius: 30, 
-    paddingHorizontal: 20,
-    paddingTop: 15,
-  },
-  dragIndicator: {
-    width: 40,
-    height: 5,
-    backgroundColor: Colors.outline,
-    borderRadius: 3,
-    alignSelf: 'center',
-    marginBottom: 20
-  },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',

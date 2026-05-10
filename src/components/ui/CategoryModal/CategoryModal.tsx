@@ -3,8 +3,9 @@ import { useLoader } from "@/src/context/LoaderContext";
 import { appAlert } from "@/src/services/alert";
 import { addCategory, Category } from "@/src/services/categories";
 import { Ionicons } from "@expo/vector-icons";
-import React, { useRef, useState } from "react";
-import { Modal, Pressable, Text, TextInput, TouchableOpacity, View } from "react-native";
+import React, { useState } from "react";
+import { Text, TextInput, TouchableOpacity, View } from "react-native";
+import { DefaultModal } from "../DefaultModal/DefaultModal";
 import { styles } from "./CategoryModal.styles";
 
 const CATEGORY_ICONS = [
@@ -25,8 +26,6 @@ interface CategoryModalProps {
 }
 
 export const CategoryModal: React.FC<CategoryModalProps> = ({ visible, onClose, type, existingCategories, isCryptoWallet }) => {
-    const touchY = useRef(0);
-
     const { showLoader, hideLoader } = useLoader();
     const [name, setName] = useState("");
     const [icon, setIcon] = useState(CATEGORY_ICONS[0]);
@@ -78,18 +77,7 @@ const handleSave = async () => {
   };
 
   return (
-<Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
-      <Pressable style={styles.overlay} onPress={onClose}>
-        <Pressable 
-          style={styles.modalContent} 
-          onPress={e => e.stopPropagation()}
-          onTouchStart={e => touchY.current = e.nativeEvent.pageY}
-          onTouchEnd={e => {
-            if (e.nativeEvent.pageY - touchY.current > 50) onClose();
-          }}
-        >
-          <View style={styles.dragIndicator} />
-          
+    <DefaultModal visible={visible} onClose={onClose} overlayStyle={styles.overlay} contentStyle={styles.modalContent}>
           <View style={styles.headerRow}>
             <View style={{ width: 30 }} />
             <Text style={styles.title}>
@@ -125,9 +113,7 @@ const handleSave = async () => {
           <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
             <Text style={styles.saveBtnText}>Створити категорію</Text>
           </TouchableOpacity>
-        </Pressable>
-      </Pressable>
-    </Modal>
+    </DefaultModal>
   );
 };
 

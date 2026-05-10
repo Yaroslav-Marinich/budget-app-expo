@@ -32,9 +32,14 @@ export const MetersAnalytics = () => {
     return () => unsubscribe();
   }, []);
 
-  useEffect(() => {
+useEffect(() => {
     const fetchReadings = async () => {
-      if (!selectedMeter) return;
+      if (!selectedMeter) {
+        setLoading(false);
+        setAllReadings([]);
+        return;
+      }
+      
       setLoading(true);
       const readings = await getMeterReadingsForAnalytics(selectedMeter.id);
       setAllReadings(readings);
@@ -200,7 +205,8 @@ export const MetersAnalytics = () => {
         {loading ? (
            <View style={{ height: 200, justifyContent: 'center' }}><ActivityIndicator color={Colors.primary} /></View>
         ) : chartData.length > 0 ? (
-          <LineChart
+            <LineChart
+              key={`chart-${viewMode}-${chartData.length}`}
             data={chartData}
             height={200}
             width={screenWidth - 100} 
