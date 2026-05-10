@@ -1,8 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
-import { FlatList, Modal, Pressable, Text, TouchableOpacity, View } from "react-native";
-import DraggableFlatList, { RenderItemParams, ScaleDecorator } from "react-native-draggable-flatlist";
+import { FlatList, LogBox, Modal, Pressable, Text, TouchableOpacity, View } from "react-native";
+import { NestableDraggableFlatList, NestableScrollContainer, RenderItemParams, ScaleDecorator } from "react-native-draggable-flatlist";
 import Swipeable from "react-native-gesture-handler/Swipeable";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -12,6 +12,10 @@ import { appAlert } from "@/src/services/alert";
 import { Category, checkCategoryHasTransactions, deleteAndReassignCategory, deleteCategory, subscribeToCategories, updateCategoriesOrder } from "@/src/services/categories";
 import { styles } from "./CategoriesScreen.styles";
 import { EditCategoryModal } from "./components/EditCategoryModal";
+
+LogBox.ignoreLogs([
+  'Warning: ref.measureLayout must be called with a ref to a native component'
+]);
 
 export const CategoriesScreen = () => {
   const insets = useSafeAreaInsets();
@@ -27,7 +31,6 @@ export const CategoriesScreen = () => {
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   
-
   const [reassignModalVisible, setReassignModalVisible] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
 
@@ -38,21 +41,28 @@ export const CategoriesScreen = () => {
     return () => unsubscribe();
   }, []);
 
-  const activeCategories = categories
-    .filter(c => c.type === activeTab)
+  const fiatCategories = categories
+    .filter(c => c.type === activeTab && !c.isCrypto)
     .sort((a, b) => (a.order || 0) - (b.order || 0));
 
-  const handleDragEnd = async ({ data }: { data: Category[] }) => {
-    const isOrderChanged = data.some((cat, index) => cat.id !== activeCategories[index]?.id);
+  const cryptoCategories = categories
+    .filter(c => c.type === activeTab && !!c.isCrypto)
+    .sort((a, b) => (a.order || 0) - (b.order || 0));
+
+  const handleDragEnd = async (updatedGroup: Category[], isCrypto: boolean) => {
+    const originalGroup = isCrypto ? cryptoCategories : fiatCategories;
+    const isOrderChanged = updatedGroup.some((cat, index) => cat.id !== originalGroup[index]?.id);
+    
     if (!isOrderChanged) return;
-    const updatedData = data.map((c, index) => ({ ...c, order: index }));
-    const otherCategories = categories.filter(c => c.type !== activeTab);
+    
+    const reordered = updatedGroup.map((c, index) => ({ ...c, order: index }));
+    const otherTabsAndTypes = categories.filter(c => c.type !== activeTab || (!!c.isCrypto !== isCrypto));
   
-    setCategories([...otherCategories, ...updatedData]); 
+    setCategories([...otherTabsAndTypes, ...reordered]); 
 
     showLoader(); 
     try {
-      await updateCategoriesOrder(updatedData); 
+      await updateCategoriesOrder(reordered); 
     } catch (error) {
       console.error(error);
     } finally {
@@ -67,7 +77,7 @@ export const CategoriesScreen = () => {
     setOpenedRowId(id);
   };
 
-const handleDeletePress = async (cat: Category) => {
+  const handleDeletePress = async (cat: Category) => {
     showLoader(); 
     
     try {
@@ -104,7 +114,7 @@ const handleDeletePress = async (cat: Category) => {
         return;
       }
 
-      const availableToReassign = categories.filter(c => c.type === cat.type && c.id !== cat.id);
+      const availableToReassign = categories.filter(c => c.type === cat.type && c.id !== cat.id && !!c.isCrypto === !!cat.isCrypto);
 
       if (availableToReassign.length === 0) {
         hideLoader();
@@ -148,14 +158,14 @@ const handleDeletePress = async (cat: Category) => {
   };
 
   const openEdit = (cat: Category) => {
-  setSelectedCategory(cat);
-  setEditModalVisible(true);
-};
+    setSelectedCategory(cat);
+    setEditModalVisible(true);
+  };
 
-const openCreate = () => {
-  setSelectedCategory(null);
-  setEditModalVisible(true);
-};
+  const openCreate = () => {
+    setSelectedCategory(null);
+    setEditModalVisible(true);
+  };
 
   const renderRightActions = (item: Category) => (
     <TouchableOpacity 
@@ -163,7 +173,7 @@ const openCreate = () => {
       onPress={() => handleDeletePress(item)}
       activeOpacity={0.8}
     >
-      <Ionicons name="trash-outline" size={24} color={Colors.white} />
+      <Ionicons name="trash-outline" size={24} color="white" />
     </TouchableOpacity>
   );
 
@@ -185,7 +195,7 @@ const openCreate = () => {
             styles.categoryRow, 
             isActive && { borderColor: Colors.primary, backgroundColor: Colors.outline }
           ]}>
-
+            {/* Бейдж крипти зверху бордера */}
             {item.isCrypto && (
               <View style={styles.cryptoBadge}>
                 <Text style={styles.cryptoBadgeText}>Крипта</Text>
@@ -196,14 +206,15 @@ const openCreate = () => {
               <Ionicons name={item.icon as any} size={24} color={item.color} />
             </View>
             
-<View style={styles.infoBox}>
+            {/* Блок інфо тепер просто виводить назву */}
+            <View style={styles.infoBox}>
               <Text style={styles.title}>{item.name}</Text>
             </View>
 
             <View style={styles.actions}>
               <TouchableOpacity style={styles.actionBtn} onPress={() => openEdit(item)}>
-  <Ionicons name="pencil" size={20} color={Colors.textSecondary} />
-</TouchableOpacity>
+                <Ionicons name="pencil" size={20} color={Colors.textSecondary} />
+              </TouchableOpacity>
               <TouchableOpacity onLongPress={drag} delayLongPress={200} style={styles.actionBtn}>
                 <Ionicons name="menu" size={24} color={Colors.textSecondary} />
               </TouchableOpacity>
@@ -214,8 +225,9 @@ const openCreate = () => {
     </ScaleDecorator>
   );
 
+  // Список категорій для перенесення
   const availableToReassign = categoryToDelete 
-    ? categories.filter(c => c.type === categoryToDelete.type && c.id !== categoryToDelete.id) 
+    ? categories.filter(c => c.type === categoryToDelete.type && c.id !== categoryToDelete.id && !!c.isCrypto === !!categoryToDelete.isCrypto) 
     : [];
 
   return (
@@ -227,7 +239,6 @@ const openCreate = () => {
         </TouchableOpacity>
       </View>
 
-      {/* --- ТАБИ (ПЕРЕМИКАЧ) --- */}
       <View style={styles.toggleContainer}>
         <TouchableOpacity 
           style={[styles.toggleBtn, activeTab === 'expense' && styles.toggleBtnActive]} 
@@ -244,14 +255,45 @@ const openCreate = () => {
         </TouchableOpacity>
       </View>
 
-      <DraggableFlatList
-        data={activeCategories} // ПЕРЕДАЄМО ТІЛЬКИ АКТИВНУ ВКЛАДКУ
-        onDragEnd={handleDragEnd}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        contentContainerStyle={styles.listContent}
-      />
+      {/* NestableScrollContainer для двох списків */}
+      <NestableScrollContainer showsVerticalScrollIndicator={false} contentContainerStyle={styles.listContent}>
+        
+        {/* --- СЕКЦІЯ: ФІАТ --- */}
+        {fiatCategories.length > 0 && (
+          <View style={styles.listWrapper} collapsable={false}>
+            <View style={styles.sectionHeader}>
+              <Ionicons name="cash-outline" size={16} color={Colors.textSecondary} />
+              <Text style={styles.sectionTitle}>Фіатні категорії</Text>
+              <View style={styles.sectionBadge}><Text style={styles.sectionBadgeText}>{fiatCategories.length}</Text></View>
+            </View>
+            <NestableDraggableFlatList
+              data={fiatCategories}
+              onDragEnd={({ data }) => handleDragEnd(data, false)}
+              keyExtractor={(item) => item.id}
+              renderItem={renderItem}
+            />
+          </View>
+        )}
 
+        {/* --- СЕКЦІЯ: КРИПТА --- */}
+        {cryptoCategories.length > 0 && (
+          <View style={styles.listWrapper} collapsable={false}>
+            <View style={styles.sectionHeader}>
+              <Ionicons name="logo-bitcoin" size={16} color="#F7931A" />
+              <Text style={[styles.sectionTitle, { color: '#F7931A' }]}>Крипто категорії</Text>
+              <View style={styles.sectionBadge}><Text style={styles.sectionBadgeText}>{cryptoCategories.length}</Text></View>
+            </View>
+            <NestableDraggableFlatList
+              data={cryptoCategories}
+              onDragEnd={({ data }) => handleDragEnd(data, true)}
+              keyExtractor={(item) => item.id}
+              renderItem={renderItem}
+            />
+          </View>
+        )}
+      </NestableScrollContainer>
+
+      {/* Модалка Reassign */}
       <Modal visible={reassignModalVisible} animationType="slide" transparent onRequestClose={() => setReassignModalVisible(false)}>
         <Pressable style={styles.modalOverlay} onPress={() => setReassignModalVisible(false)}>
           <Pressable
@@ -296,19 +338,19 @@ const openCreate = () => {
         </Pressable>
       </Modal>
 
-            {/* FAB Кнопка */}
-            <TouchableOpacity style={[styles.fab, { bottom: insets.bottom + 20 }]} onPress={openCreate}>
-              <Ionicons name="add" size={32} color={Colors.white} />
-            </TouchableOpacity>
+      {/* FAB Кнопка */}
+      <TouchableOpacity style={[styles.fab, { bottom: insets.bottom + 20 }]} onPress={openCreate}>
+        <Ionicons name="add" size={32} color="white" />
+      </TouchableOpacity>
 
+      {/* Модалка створення/редагування */}
       <EditCategoryModal 
-  visible={editModalVisible}
-  category={selectedCategory}
-  onClose={() => setEditModalVisible(false)}
-  type={activeTab}
-  existingCategories={categories}
-/>
-
+        visible={editModalVisible}
+        category={selectedCategory}
+        onClose={() => setEditModalVisible(false)}
+        type={activeTab}
+        existingCategories={categories}
+      />
     </View>
   );
 };

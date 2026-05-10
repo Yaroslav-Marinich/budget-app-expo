@@ -48,6 +48,38 @@ export const styles = StyleSheet.create({
   listContent: {
     paddingBottom: 100,
   },
+  // --- Заголовки секцій ---
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+    marginBottom: 15,
+    paddingHorizontal: 5,
+    gap: 8,
+  },
+  sectionTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: Colors.textSecondary,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  sectionBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+  },
+  sectionBadgeText: {
+    fontSize: 10,
+    color: Colors.textSecondary,
+    fontWeight: 'bold',
+  },
+  
+  // Відступ для списків
+  listWrapper: {
+    marginBottom: 10,
+  },
   itemContainer: {
     marginBottom: 12,
   },
