@@ -1,6 +1,11 @@
-import { collection, doc, getDoc, writeBatch } from "firebase/firestore";
+import { collection, deleteField, doc, getDoc, setDoc, updateDoc, writeBatch } from "firebase/firestore";
 import { auth, db } from "../config/firebase";
 import { DEFAULT_CATEGORIES } from "./categories";
+export interface MeterNotificationSettings {
+  enabled: boolean;
+  dayOption: 'first' | 'second_last' | 'last';
+  time: string;
+}
 
 export const initializeUserData = async () => {
   try {
@@ -38,5 +43,55 @@ export const initializeUserData = async () => {
     console.log("✅ Ініціалізація нового користувача успішна!");
   } catch (error) {
     console.error("❌ Помилка ініціалізації даних:", error);
+  }
+};
+
+/**
+ * Зберігає налаштування сповіщень у Firestore
+ */
+export const saveNotificationSettings = async (userId: string, settings: MeterNotificationSettings) => {
+  const settingsRef = doc(db, "userSettings", userId);
+  try {
+    await setDoc(settingsRef, { 
+      notifications: {
+        meters: settings
+      }
+    }, { merge: true });
+    console.log("✅ Налаштування сповіщень збережено в БД");
+  } catch (error) {
+    console.error("❌ Помилка при збереженні налаштувань:", error);
+    throw error;
+  }
+};
+
+/**
+ * Отримує налаштування сповіщень з Firestore
+ */
+export const getNotificationSettings = async (userId: string): Promise<MeterNotificationSettings | null> => {
+  const settingsRef = doc(db, "userSettings", userId);
+  try {
+    const snap = await getDoc(settingsRef);
+    if (snap.exists() && snap.data().notifications?.meters) {
+      return snap.data().notifications.meters;
+    }
+    return null;
+  } catch (error) {
+    console.error("❌ Помилка при отриманні налаштувань:", error);
+    return null;
+  }
+};
+
+/**
+ * Повністю видаляє налаштування сповіщень про лічильники з БД
+ */
+export const deleteMeterSettingsFromDB = async (userId: string) => {
+  const settingsRef = doc(db, "userSettings", userId);
+  try {
+    await updateDoc(settingsRef, {
+      "notifications.meters": deleteField() 
+    });
+    console.log("✅ Дані про лічильники видалено з БД");
+  } catch (error) {
+    console.error("❌ Помилка видалення з БД:", error);
   }
 };

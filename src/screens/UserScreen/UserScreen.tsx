@@ -166,7 +166,7 @@ export const UserScreen = () => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Налаштування</Text>
           <View style={styles.menuBlock}>
-            {renderMenuItem("notifications", Colors.warning, "Сповіщення", () => {})}
+            {renderMenuItem("notifications", Colors.warning, "Сповіщення", () => { router.push("/notifications"); })}
             {renderMenuItem("color-palette", "#AF52DE", "Тема застосунку", () => {})}
             {renderMenuItem("shield-checkmark", Colors.success, "Безпека", () => {})}
           </View>

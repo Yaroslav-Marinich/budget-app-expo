@@ -1,10 +1,14 @@
 {
   "expo": {
-    "name": "budget-app",
+    "name": "СімБюджет",
     "slug": "budget-app",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./src/assets/images/icon.png",
+    "notification": {
+      "icon": "./src/assets/images/notification-icon.png",
+      "color": "#1B5E20" 
+    },
     "scheme": "budget-app",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -15,10 +19,8 @@
       "package": "com.budget.budgetapp",
       "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "foregroundImage": "./src/assets/images/icon.png",
+        "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
