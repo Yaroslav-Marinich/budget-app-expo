@@ -13,7 +13,7 @@ import { auth, db } from "../config/firebase";
 const storage = getStorage();
 
 GoogleSignin.configure({
-  webClientId: "752552917614-kbpetdssrppkqv8mi055mdl1qpa51p1m.apps.googleusercontent.com",
+  webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
 });
 
 const USER_COLLECTIONS = [

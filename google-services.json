@@ -7,18 +7,18 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:752552917614:android:e78addd8f57f263251447f",
+        "mobilesdk_app_id": "1:752552917614:android:1b93e2a124ecb87851447f",
         "android_client_info": {
-          "package_name": "com.budget.budgetapp"
+          "package_name": "com.simbudget.budgetapp"
         }
       },
       "oauth_client": [
         {
-          "client_id": "752552917614-ulvd69f8atvgnhtv26bq1lhm05pfsodm.apps.googleusercontent.com",
+          "client_id": "752552917614-v1cgi1jd0trimfdvsfghnmgtakijjh4n.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.budget.budgetapp",
-            "certificate_hash": "c6e5ba7f9426258294db193430e5666ff6b06cf4"
+            "package_name": "com.simbudget.budgetapp",
+            "certificate_hash": "eaaf62099a721749b34302f698c88fd6aea20c68"
           }
         },
         {
@@ -55,43 +55,6 @@
           "client_type": 1,
           "android_info": {
             "package_name": "com.simbudget.budgetapp.dev",
-            "certificate_hash": "eaaf62099a721749b34302f698c88fd6aea20c68"
-          }
-        },
-        {
-          "client_id": "752552917614-153vmurcj0hcqviee2le3ikvrg4bmnq2.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyAQZo3cFnwICqkQSqkPZaz2bLVBFG5kUaw"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "752552917614-153vmurcj0hcqviee2le3ikvrg4bmnq2.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:752552917614:android:565d88ee8f14f42d51447f",
-        "android_client_info": {
-          "package_name": "com.yargomarinich.budgetapp"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "752552917614-1s2o0l41dfqarfggiin32bra1r0oou55.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.yargomarinich.budgetapp",
             "certificate_hash": "eaaf62099a721749b34302f698c88fd6aea20c68"
           }
         },
