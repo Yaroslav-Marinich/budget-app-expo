@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "752552917614-okhj7kb65qhfmlk1jtem7r7vunqn76va.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.simbudget.budgetapp",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
           "client_id": "752552917614-v1cgi1jd0trimfdvsfghnmgtakijjh4n.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -56,6 +64,14 @@
           "android_info": {
             "package_name": "com.simbudget.budgetapp.dev",
             "certificate_hash": "eaaf62099a721749b34302f698c88fd6aea20c68"
+          }
+        },
+        {
+          "client_id": "752552917614-ee0ieru31osfa36smsieandj59rqt7a1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.simbudget.budgetapp.dev",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
           }
         },
         {

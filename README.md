@@ -8,14 +8,68 @@
 
 Використовуйте цей режим для написання коду та тестування змін у реальному часі.
 
-### 1. Запуск локального сервера
+### Запуск локального сервера
 ```bash
 npx expo start --dev-client
+```
 
-Білд для створення прев'ю для розсилки користувачам
-
+### Білд для створення прев'ю для розсилки користувачам
+```bash
 eas build -p android --profile preview
+```
 
-Білд для створення версії розробника
-
+### Білд для створення версії розробника
+```bash
 eas build -p android --profile development
+```
+
+### Білд для development local (android/app/build/outputs/apk/debug/app-debug.apk)
+```bash
+# 1. Видаляємо стару папку, щоб уникнути змішування налаштувань
+rm -rf android
+
+# 2. Генеруємо нативну папку спеціально для DEV профілю
+EAS_BUILD_PROFILE=development npx expo prebuild -p android --clean
+
+# 3. Заходимо в папку android і збираємо відлагоджувальний (Debug) білд
+cd android
+./gradlew assembleDebug
+
+# 4. Повертаємося в корінь проєкту після збірки
+cd ..
+```
+
+### Білд для production local (android/app/build/outputs/apk/release/app-release.apk)
+```bash
+# 1. Знову видаляємо папку android, бо нам потрібні інші налаштування
+rm -rf android
+
+# 2. Генеруємо нативну папку для PROD (змінна може бути production або порожня)
+EAS_BUILD_PROFILE=production npx expo prebuild -p android --clean
+
+# 3. Заходимо в папку android і збираємо релізний (Release) білд
+cd android
+./gradlew assembleRelease
+
+# 4. Повертаємося в корінь проєкту після збірки
+cd ..
+```
+
+### Очищення в разі помилок
+```bash
+./gradlew clean
+```
+
+### Оновлення додатку через ОТА (Заміни preview на production, якщо ти оновлюєш Prod-версію додатка)
+```bash
+eas update --branch preview --message "Виправив баг на головному екрані"
+```
+
+### Оновлення додатку при нативних змінах
+Онови версії в app.config.js
+```bash
+android: {
+  versionCode: 2, // ЗБІЛЬШИТИ НА 1 (було 1) - це для Play Market / Android
+  version: "1.0.1", // Візуальна версія (була 1.0.0)
+```
+далі перезбірка 
