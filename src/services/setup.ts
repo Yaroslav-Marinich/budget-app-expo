@@ -7,6 +7,11 @@ export interface MeterNotificationSettings {
   time: string;
 }
 
+export interface ThemeSettings {
+  isDarkMode: boolean;
+  customBackground: string | null;
+}
+
 export const initializeUserData = async () => {
   try {
     const user = auth.currentUser;
@@ -93,5 +98,29 @@ export const deleteMeterSettingsFromDB = async (userId: string) => {
     console.log("✅ Дані про лічильники видалено з БД");
   } catch (error) {
     console.error("❌ Помилка видалення з БД:", error);
+  }
+};
+
+// Кольорові теми
+export const saveThemeSettings = async (userId: string, settings: ThemeSettings) => {
+  const settingsRef = doc(db, "userSettings", userId);
+  try {
+    await setDoc(settingsRef, { theme: settings }, { merge: true });
+    console.log("✅ Налаштування теми збережено");
+  } catch (error) {
+    console.error("❌ Помилка збереження теми:", error);
+  }
+};
+
+export const getThemeSettings = async (userId: string): Promise<ThemeSettings | null> => {
+  const settingsRef = doc(db, "userSettings", userId);
+  try {
+    const snap = await getDoc(settingsRef);
+    if (snap.exists() && snap.data().theme) {
+      return snap.data().theme;
+    }
+    return null;
+  } catch (error) {
+    return null;
   }
 };

@@ -168,7 +168,7 @@ export const UserScreen = () => {
           <View style={styles.menuBlock}>
             {renderMenuItem("notifications", Colors.warning, "Сповіщення", () => { router.push("/notifications"); })}
             {renderMenuItem("color-palette", "#AF52DE", "Тема застосунку", () => {})}
-            {renderMenuItem("shield-checkmark", Colors.success, "Безпека", () => {})}
+            {/* {renderMenuItem("shield-checkmark", Colors.success, "Безпека", () => {})} */}
           </View>
         </View>
 

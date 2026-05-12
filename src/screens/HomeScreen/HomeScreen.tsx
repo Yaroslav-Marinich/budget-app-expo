@@ -10,16 +10,16 @@ import { MonthPickerModal } from "@/src/components/ui/MonthPickerModal/MonthPick
 import { TransactionModal } from "@/src/components/ui/TransactionModal/TransactionModal";
 import { Colors } from "@/src/constants/Colors";
 import { CURRENCIES } from "@/src/constants/Currencies";
+import { useGlobalData } from "@/src/context/DataContext";
 import { styles } from "@/src/screens/HomeScreen/home.styles";
-import { Category, subscribeToCategories } from "@/src/services/categories";
 import { subscribeToMonthlyTransactions } from "@/src/services/transactions";
-import { subscribeToWallets, Wallet } from "@/src/services/wallets";
 import { formatMoney } from "@/src/utils/formatMoney";
 
 export const HomeScreen = () => {
 	const insets = useSafeAreaInsets();
 	const router = useRouter();
 	const walletsListRef = useRef<FlatList>(null);
+	const { categories, wallets } = useGlobalData();
 
 	const { width: screenWidth } = Dimensions.get("window");
 	const cardWidth = screenWidth * 0.75;
@@ -27,14 +27,12 @@ export const HomeScreen = () => {
 
 	const [activeTab, setActiveTab] = useState<"expense" | "income">("expense");
 
-	const [wallets, setWallets] = useState<Wallet[]>([]);
 	const [selectedWalletId, setSelectedWalletId] = useState<string | null>(null);
 	const [modalVisible, setModalVisible] = useState(false);
 	const [selectedCategory, setSelectedCategory] = useState<any>(null);
 	const [transactions, setTransactions] = useState<any[]>([]);
 	const [currentDate, setCurrentDate] = useState(new Date());
 	const [isMonthPickerVisible, setMonthPickerVisible] = useState(false);
-	const [categories, setCategories] = useState<Category[]>([]);
 	const [isCategoryModalVisible, setCategoryModalVisible] = useState(false);
 
 	const handleWalletPress = (walletId: string, index: number) => {
@@ -60,19 +58,6 @@ export const HomeScreen = () => {
 		.filter((transaction) => transaction.type === "income")
 		.reduce((sum, transaction) => sum + transaction.amount, 0);
 
-	// const activeCategories = categories
-	// 	.filter((category) => category.type === activeTab && !category.isArchived)
-	// 	.map((category) => {
-	// 		const sum = selectedWalletTransactions
-	// 			.filter((transaction) => transaction.categoryId === category.id)
-	// 			.reduce((accumulator, transaction) => accumulator + transaction.amount, 0);
-
-	// 		const hasPending = selectedWalletTransactions.some(
-	// 			(transaction) => transaction.categoryId === category.id && transaction.isPending,
-	// 		);
-
-	// 		return { ...category, sum, hasPending };
-	// 	});
 	const selectedWallet = useMemo(() => {
 		return wallets.find((wallet) => wallet.id === selectedWalletId);
 	}, [wallets, selectedWalletId]);
@@ -167,40 +152,57 @@ export const HomeScreen = () => {
 	}, [currentDate]);
 
 	useEffect(() => {
-		const unsubscribeWallets = subscribeToWallets((data) => {
-			setWallets(data);
+  if (!wallets.length) return;
 
-			const sortedActive = data
-				.filter((wallet) => !wallet.isArchived)
-				.sort(
-					(left, right) =>
-						(left.order ?? Number.MAX_SAFE_INTEGER) - (right.order ?? Number.MAX_SAFE_INTEGER),
-				);
+  const sortedActive = wallets
+    .filter((wallet) => !wallet.isArchived)
+    .sort((left, right) => (left.order ?? Number.MAX_SAFE_INTEGER) - (right.order ?? Number.MAX_SAFE_INTEGER));
 
-			setSelectedWalletId((currentSelectedId) => {
-				if (sortedActive.length === 0) {
-					return null;
-				}
+  setSelectedWalletId((currentSelectedId) => {
+    if (sortedActive.length === 0) return null;
+    const selectedStillActive = sortedActive.some((wallet) => wallet.id === currentSelectedId);
+    if (!currentSelectedId || !selectedStillActive) {
+      return sortedActive[0].id;
+    }
+    return currentSelectedId;
+  });
+}, [wallets]);
 
-				const selectedStillActive = sortedActive.some((wallet) => wallet.id === currentSelectedId);
-				if (!currentSelectedId || !selectedStillActive) {
-					return sortedActive[0].id;
-				}
+	// useEffect(() => {
+	// 	const unsubscribeWallets = subscribeToWallets((data) => {
+	// 		setWallets(data);
 
-				return currentSelectedId;
-			});
-		});
+	// 		const sortedActive = data
+	// 			.filter((wallet) => !wallet.isArchived)
+	// 			.sort(
+	// 				(left, right) =>
+	// 					(left.order ?? Number.MAX_SAFE_INTEGER) - (right.order ?? Number.MAX_SAFE_INTEGER),
+	// 			);
 
-		return () => unsubscribeWallets();
-	}, []);
+	// 		setSelectedWalletId((currentSelectedId) => {
+	// 			if (sortedActive.length === 0) {
+	// 				return null;
+	// 			}
 
-	useEffect(() => {
-		const unsubscribeCategories = subscribeToCategories((data) => {
-			setCategories(data);
-		});
+	// 			const selectedStillActive = sortedActive.some((wallet) => wallet.id === currentSelectedId);
+	// 			if (!currentSelectedId || !selectedStillActive) {
+	// 				return sortedActive[0].id;
+	// 			}
 
-		return () => unsubscribeCategories();
-	}, []);
+	// 			return currentSelectedId;
+	// 		});
+	// 	});
+
+	// 	return () => unsubscribeWallets();
+	// }, []);
+
+	// useEffect(() => {
+	// 	const unsubscribeCategories = subscribeToCategories((data) => {
+	// 		setCategories(data);
+	// 	});
+
+	// 	return () => unsubscribeCategories();
+	// }, []);
 
 	return (
 		<View style={[styles.container, { paddingTop: insets.top }]}>
@@ -239,6 +241,7 @@ export const HomeScreen = () => {
 									wallet.isArchived && styles.walletCardArchived,
 									wallet.isPending && styles.walletCardPending,
 									selectedWalletId === wallet.id && { borderColor: Colors.primary, borderWidth: 2 },
+									wallet.balance < 0 && { borderColor: Colors.error, borderWidth: 2 },
 								]}
 								onPress={() => handleWalletPress(wallet.id, index)}
 							>

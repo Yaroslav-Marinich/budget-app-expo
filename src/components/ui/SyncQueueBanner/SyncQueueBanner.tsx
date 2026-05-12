@@ -17,7 +17,7 @@ export const SyncQueueBanner = ({ syncPendingCount, style }: SyncQueueBannerProp
   return (
     <View style={[styles.syncBanner, style]}>
       <Ionicons name="sync-outline" size={16} color={Colors.background} />
-      <Text style={styles.syncBannerText}>На синхронізацію: {syncPendingCount} даних</Text>
+      <Text style={styles.syncBannerText}>Очікують синхронізації: {syncPendingCount}</Text>
     </View>
   );
 };

@@ -1,5 +1,6 @@
 import { Colors } from '@/src/constants/Colors';
 import { CustomAlertProvider } from '@/src/context/AlertContext';
+import { DataProvider, useGlobalData } from '@/src/context/DataContext';
 import { LoaderProvider } from '@/src/context/LoaderContext';
 import { SyncQueueProvider } from '@/src/context/SyncQueueContext';
 import { useSyncPendingCount } from '@/src/hooks/useSyncPendingCount';
@@ -22,21 +23,47 @@ LogBox.ignoreLogs(['InteractionManager has been deprecated']);
 
 const GlobalSyncBanner = () => {
   const insets = useSafeAreaInsets();
-  const syncPendingCount = useSyncPendingCount();
+  const actualSyncPendingCount = useSyncPendingCount();
+  const [displayCount, setDisplayCount] = useState(0);
+
+  useEffect(() => {
+    let timeout: ReturnType<typeof setTimeout>;
+
+    if (actualSyncPendingCount > 0) {
+      if (displayCount === 0) {
+        timeout = setTimeout(() => {
+          setDisplayCount(actualSyncPendingCount);
+        }, 800); 
+      } else {
+        setDisplayCount(actualSyncPendingCount);
+      }
+    } else {
+      setDisplayCount(0);
+    }
+
+    return () => {
+      if (timeout) clearTimeout(timeout);
+    };
+  }, [actualSyncPendingCount, displayCount]);
+
+  if (displayCount === 0) {
+    return null;
+  }
 
   return (
     <SyncQueueBanner
-      syncPendingCount={syncPendingCount}
+      syncPendingCount={displayCount}
       style={[styles.globalSyncBanner, { top: insets.top + 8 }]}
     />
   );
 };
 
-export default function RootLayout() {
-    const router = useRouter();
+const AppContent = () => {
+  const router = useRouter();
   const segments = useSegments();
-
   const [user, setUser] = useState<User | null | undefined>(undefined);
+  
+  const { isDataReady } = useGlobalData(); 
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -50,19 +77,6 @@ export default function RootLayout() {
 
     return () => unsubscribe();
   }, []);
-  // useEffect(() => {
-  //   const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-  //     // Штучна затримка на 2 секунди
-  //     setTimeout(async () => {
-  //       setUser(currentUser); 
-  //       if (currentUser) {
-  //         await initializeUserData(); 
-  //       }
-  //     }, 2000);
-  //   });
-
-  //   return () => unsubscribe();
-  // }, []);
 
   useEffect(() => {
     const unsubscribeNet = NetInfo.addEventListener(state => {
@@ -87,29 +101,36 @@ export default function RootLayout() {
     }
   }, [router, user, segments]);
 
-  if (user === undefined) {
+  if (user === undefined || (user !== null && !isDataReady)) {
     return <InitialLoadingScreen />;
   }
 
-return (
+  return (
+    <View style={styles.rootContainer}>
+      {user && <GlobalSyncBanner />} 
+      <Stack
+        screenOptions={{
+          headerShown: false, 
+          contentStyle: { backgroundColor: Colors.background },
+        }}
+      >
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="login/index" /> 
+      </Stack>
+    </View>
+  );
+};
+
+export default function RootLayout() {
+  return (
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: Colors.background }}>
       <StatusBar style="light" />
       <LoaderProvider>
         <CustomAlertProvider>
           <SyncQueueProvider>
-            <View style={styles.rootContainer}>
-              {/* Банер показуємо лише якщо користувач увійшов */}
-              {user && <GlobalSyncBanner />} 
-              <Stack
-                screenOptions={{
-                  headerShown: false, 
-                  contentStyle: { backgroundColor: Colors.background },
-                }}
-              >
-                <Stack.Screen name="(tabs)" />
-                <Stack.Screen name="login/index" /> 
-              </Stack>
-            </View>
+            <DataProvider> 
+              <AppContent />
+            </DataProvider>
           </SyncQueueProvider>
         </CustomAlertProvider>
       </LoaderProvider>
@@ -118,9 +139,7 @@ return (
 }
 
 const styles = StyleSheet.create({
-  rootContainer: {
-    flex: 1,
-  },
+  rootContainer: { flex: 1 },
   globalSyncBanner: {
     position: 'absolute',
     right: 0,
