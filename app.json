@@ -16,7 +16,9 @@
       "supportsTablet": true
     },
     "android": {
-      "package": "com.budget.budgetapp",
+      "package": "com.yargomarinich.budgetapp",
+      "versionCode": 1,
+      "version": "1.0.0",
       "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/images/icon.png",
