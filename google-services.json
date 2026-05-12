@@ -14,7 +14,15 @@
       },
       "oauth_client": [
         {
-          "client_id": "752552917614-kbpetdssrppkqv8mi055mdl1qpa51p1m.apps.googleusercontent.com",
+          "client_id": "752552917614-ulvd69f8atvgnhtv26bq1lhm05pfsodm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.budget.budgetapp",
+            "certificate_hash": "c6e5ba7f9426258294db193430e5666ff6b06cf4"
+          }
+        },
+        {
+          "client_id": "752552917614-153vmurcj0hcqviee2le3ikvrg4bmnq2.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
@@ -27,7 +35,81 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "752552917614-kbpetdssrppkqv8mi055mdl1qpa51p1m.apps.googleusercontent.com",
+              "client_id": "752552917614-153vmurcj0hcqviee2le3ikvrg4bmnq2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:752552917614:android:d2b8328833d5c52151447f",
+        "android_client_info": {
+          "package_name": "com.simbudget.budgetapp.dev"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "752552917614-d9v5e7saemfjqh8d6h92bi953c4227la.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.simbudget.budgetapp.dev",
+            "certificate_hash": "eaaf62099a721749b34302f698c88fd6aea20c68"
+          }
+        },
+        {
+          "client_id": "752552917614-153vmurcj0hcqviee2le3ikvrg4bmnq2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAQZo3cFnwICqkQSqkPZaz2bLVBFG5kUaw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "752552917614-153vmurcj0hcqviee2le3ikvrg4bmnq2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:752552917614:android:565d88ee8f14f42d51447f",
+        "android_client_info": {
+          "package_name": "com.yargomarinich.budgetapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "752552917614-1s2o0l41dfqarfggiin32bra1r0oou55.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.yargomarinich.budgetapp",
+            "certificate_hash": "eaaf62099a721749b34302f698c88fd6aea20c68"
+          }
+        },
+        {
+          "client_id": "752552917614-153vmurcj0hcqviee2le3ikvrg4bmnq2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAQZo3cFnwICqkQSqkPZaz2bLVBFG5kUaw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "752552917614-153vmurcj0hcqviee2le3ikvrg4bmnq2.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

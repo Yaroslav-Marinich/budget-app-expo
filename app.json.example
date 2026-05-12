@@ -16,7 +16,7 @@
       "supportsTablet": true
     },
     "android": {
-      "package": "com.yargomarinich.budgetapp",
+      "package": "com.simbudget.budgetapp",
       "versionCode": 1,
       "version": "1.0.0",
       "googleServicesFile": "./google-services.json",
