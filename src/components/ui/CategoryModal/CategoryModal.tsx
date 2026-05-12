@@ -1,12 +1,12 @@
-import { Colors } from "@/src/constants/Colors";
 import { useLoader } from "@/src/context/LoaderContext";
+import { useTheme } from "@/src/context/ThemeContext";
 import { appAlert } from "@/src/services/alert";
 import { addCategory, Category } from "@/src/services/categories";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
 import { DefaultModal } from "../DefaultModal/DefaultModal";
-import { styles } from "./CategoryModal.styles";
+import { getStyles } from "./CategoryModal.styles";
 
 const CATEGORY_ICONS = [
   'cart', 'car', 'restaurant', 'cafe', 'medkit', 
@@ -14,8 +14,6 @@ const CATEGORY_ICONS = [
   'bus', 'book', 'basketball', 'briefcase', 'build',
   'paw', 'shirt', 'train', 'musical-notes', 'school'
 ];
-
-const CATEGORY_COLORS = Colors.categoryColors;
 
 interface CategoryModalProps {
   visible: boolean;
@@ -26,6 +24,11 @@ interface CategoryModalProps {
 }
 
 export const CategoryModal: React.FC<CategoryModalProps> = ({ visible, onClose, type, existingCategories, isCryptoWallet }) => {
+    const { colors } = useTheme();
+  const styles = getStyles(colors);
+
+const CATEGORY_COLORS = colors.categoryColors;
+  
     const { showLoader, hideLoader } = useLoader();
     const [name, setName] = useState("");
     const [icon, setIcon] = useState(CATEGORY_ICONS[0]);
@@ -84,7 +87,7 @@ const handleSave = async () => {
               Нова ({type === 'expense' ? 'Витрати' : 'Доходи'})
             </Text>
             <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
-              <Ionicons name="close" size={28} color={Colors.textSecondary} />
+              <Ionicons name="close" size={28} color={colors.textSecondary} />
             </TouchableOpacity>
           </View>
 
@@ -94,7 +97,7 @@ const handleSave = async () => {
             value={name} 
             onChangeText={setName} 
             placeholder="Наприклад: Кава" 
-            placeholderTextColor={Colors.textSecondary}
+            placeholderTextColor={colors.textSecondary}
           />
 
           <Text style={styles.label}>Оберіть іконку</Text>
@@ -105,7 +108,7 @@ const handleSave = async () => {
                 onPress={() => setIcon(ic)}
                 style={[styles.iconBox, icon === ic && styles.iconBoxActive]}
               >
-                <Ionicons name={ic as any} size={26} color={icon === ic ? Colors.primary : Colors.textSecondary} />
+                <Ionicons name={ic as any} size={26} color={icon === ic ? colors.primary : colors.textSecondary} />
               </TouchableOpacity>
             ))}
           </View>

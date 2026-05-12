@@ -3,10 +3,10 @@ import React, { useEffect, useState } from "react";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
 
 import { DefaultModal } from "@/src/components/ui/DefaultModal/DefaultModal";
-import { Colors } from "@/src/constants/Colors";
 import { useLoader } from "@/src/context/LoaderContext";
+import { useTheme } from "@/src/context/ThemeContext";
 import { addMeter, Meter, METER_ICONS, updateMeter } from "@/src/services/meters";
-import { styles } from "./AddMeterModal.styles";
+import { getStyles } from "./AddMeterModal.styles";
 
 interface AddMeterModalProps {
   visible: boolean;
@@ -16,6 +16,8 @@ interface AddMeterModalProps {
 
 export const AddMeterModal: React.FC<AddMeterModalProps> = ({ visible, onClose, meterToEdit }) => {
   const { showLoader, hideLoader } = useLoader();
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
   const isEdit = !!meterToEdit;
   
   const [name, setName] = useState("");
@@ -68,7 +70,7 @@ export const AddMeterModal: React.FC<AddMeterModalProps> = ({ visible, onClose, 
           <View style={styles.headerRow}>
             <Text style={styles.modalTitle}>{isEdit ? "Редагувати лічильник" : "Новий лічильник"}</Text>
             <TouchableOpacity onPress={onClose} style={{ padding: 5 }}>
-              <Ionicons name="close" size={28} color={Colors.textSecondary} />
+              <Ionicons name="close" size={28} color={colors.textSecondary} />
             </TouchableOpacity>
           </View>
           
@@ -78,7 +80,7 @@ export const AddMeterModal: React.FC<AddMeterModalProps> = ({ visible, onClose, 
             value={name} 
             onChangeText={setName} 
             placeholder="Введіть назву..." 
-            placeholderTextColor={Colors.textSecondary}
+            placeholderTextColor={colors.textSecondary}
           />
 
           <Text style={styles.label}>Тип послуги</Text>
@@ -91,7 +93,7 @@ export const AddMeterModal: React.FC<AddMeterModalProps> = ({ visible, onClose, 
                   onPress={() => setIcon(item.name)}
                   style={[styles.iconBox, isActive && { borderColor: item.color, backgroundColor: `${item.color}15` }]}
                 >
-                  <Ionicons name={item.name as any} size={28} color={isActive ? item.color : Colors.textSecondary} />
+                  <Ionicons name={item.name as any} size={28} color={isActive ? item.color : colors.textSecondary} />
                 </TouchableOpacity>
               );
             })}

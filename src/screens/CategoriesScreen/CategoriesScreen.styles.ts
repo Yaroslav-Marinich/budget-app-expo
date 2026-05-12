@@ -1,10 +1,9 @@
-import { Colors } from "@/src/constants/Colors";
 import { StyleSheet } from "react-native";
 
-export const styles = StyleSheet.create({
+export const getStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
     paddingHorizontal: 20,
     paddingBottom: 120,
   },
@@ -17,11 +16,11 @@ export const styles = StyleSheet.create({
   screenTitle: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: Colors.text,
+    color: colors.text,
   },
   toggleContainer: {
     flexDirection: 'row',
-    backgroundColor: Colors.outlineSubtle,
+    backgroundColor: colors.outlineSubtle,
     borderRadius: 20,
     padding: 4,
     marginBottom: 20,
@@ -33,8 +32,8 @@ export const styles = StyleSheet.create({
     borderRadius: 16,
   },
   toggleBtnActive: {
-    backgroundColor: Colors.surface,
-    shadowColor: Colors.shadow,
+    backgroundColor: colors.surface,
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 3,
@@ -43,7 +42,7 @@ export const styles = StyleSheet.create({
   toggleLabel: {
     fontSize: 15,
     fontWeight: 'bold',
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
   },
   listContent: {
     paddingBottom: 100,
@@ -60,7 +59,7 @@ export const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -72,7 +71,7 @@ export const styles = StyleSheet.create({
   },
   sectionBadgeText: {
     fontSize: 10,
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     fontWeight: 'bold',
   },
   
@@ -86,11 +85,11 @@ export const styles = StyleSheet.create({
   categoryRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     padding: 12,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: Colors.outline,
+    borderColor: colors.outline,
   },
   iconBox: {
     width: 48,
@@ -104,12 +103,12 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
-    color: Colors.text,
+    color: colors.text,
     fontSize: 16,
     fontWeight: '600',
   },
   typeLabel: {
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     fontSize: 12,
     marginTop: 4,
   },
@@ -122,7 +121,7 @@ export const styles = StyleSheet.create({
     marginLeft: 5,
   },
   deleteAction: {
-    backgroundColor: Colors.error,
+    backgroundColor: colors.error,
     justifyContent: 'center',
     alignItems: 'flex-end',
     paddingRight: 20,
@@ -130,7 +129,7 @@ export const styles = StyleSheet.create({
     width: 100,
     height: '100%',
     borderWidth: 1,
-    borderColor: Colors.outline,
+    borderColor: colors.outline,
     borderLeftWidth: 0,
     marginLeft: -40, 
   },
@@ -141,10 +140,10 @@ export const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: Colors.primary,
+    backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: Colors.shadow,
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 4.65,
@@ -153,11 +152,11 @@ export const styles = StyleSheet.create({
   // Стилі для модалки перенесення
   modalOverlay: {
     flex: 1,
-    backgroundColor: Colors.overlayHeavy,
+    backgroundColor: colors.overlayHeavy,
     justifyContent: 'flex-end',
   },
   modalContent: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     padding: 20,
@@ -176,14 +175,14 @@ export const styles = StyleSheet.create({
     padding: 2,
   },
   modalTitle: {
-    color: Colors.text,
+    color: colors.text,
     fontSize: 18,
     fontWeight: 'bold',
     flex: 1,
     textAlign: 'center',
   },
   modalSubtitle: {
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     fontSize: 14,
     textAlign: 'center',
     marginBottom: 20,
@@ -193,7 +192,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 15,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.outline,
+    borderBottomColor: colors.outline,
   },
   cancelBtn: {
     marginTop: 20,
@@ -210,18 +209,18 @@ cryptoBadge: {
     position: 'absolute',
     top: -1, 
     right: '40%', 
-    backgroundColor: Colors.accentSoft,
+    backgroundColor: colors.accentSoft,
     paddingHorizontal: 12,
     paddingVertical: 3,
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
     borderWidth: 1,
     borderTopWidth: 0, 
-    borderColor: Colors.accentBorderSoft,
+    borderColor: colors.accentBorderSoft,
     zIndex: 2,
   },
   cryptoBadgeText: {
-    color: Colors.warningAccent,
+    color: colors.warningAccent,
     fontSize: 9,
     fontWeight: 'bold',
     textTransform: 'uppercase',

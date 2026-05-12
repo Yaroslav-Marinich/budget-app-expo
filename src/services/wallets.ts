@@ -30,7 +30,10 @@ const getMergedWallets = async (baseWallets: Wallet[]): Promise<Wallet[]> => {
 
   const pendingWallets = queue
     .filter((task) => task.type === 'WALLET_CREATE' && task.status !== 'FAILED')
-    .map((task) => ({ ...task.payload, id: task.id, isPending: true } as Wallet));
+    .map((task) => ({ ...task.payload, id: task.id, isPending: true } as Wallet))
+  .filter((pendingWallet) => {
+      return !baseWallets.some((baseWallet) => (baseWallet as any).createdAt === (pendingWallet as any).createdAt);
+    });
 
   const pendingTransactions = queue.filter((task) => task.type === 'TRANSACTION' && task.status !== 'FAILED');
   const pendingTransactionDeletes = queue.filter(

@@ -1,7 +1,7 @@
-import { Colors } from '@/src/constants/Colors';
 import React, { createContext, useContext, useState } from 'react';
 import { ActivityIndicator, Modal, View } from 'react-native';
-import { styles } from './LoaderContext.styles';
+import { getStyles } from './LoaderContext.styles';
+import { useTheme } from './ThemeContext';
 
 // Описуємо, які функції будуть доступні
 interface LoaderContextType {
@@ -12,6 +12,9 @@ interface LoaderContextType {
 const LoaderContext = createContext<LoaderContextType | undefined>(undefined);
 
 export const LoaderProvider = ({ children }: { children: React.ReactNode }) => {
+    const { colors } = useTheme();
+  const styles = getStyles(colors);
+  
   const [isLoading, setIsLoading] = useState(false);
 
   return (
@@ -25,7 +28,7 @@ export const LoaderProvider = ({ children }: { children: React.ReactNode }) => {
       <Modal transparent visible={isLoading} animationType="fade">
         <View style={styles.overlay}>
           <View style={styles.loaderBox}>
-            <ActivityIndicator size="large" color={Colors.primary} />
+            <ActivityIndicator size="large" color={colors.primary} />
           </View>
         </View>
       </Modal>

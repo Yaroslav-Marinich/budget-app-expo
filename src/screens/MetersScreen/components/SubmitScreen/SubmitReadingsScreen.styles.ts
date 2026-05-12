@@ -1,10 +1,9 @@
-import { Colors } from '@/src/constants/Colors';
 import { StyleSheet } from 'react-native';
 
-export const styles = StyleSheet.create({
+export const getStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
   },
   header: {
     paddingHorizontal: 20,
@@ -15,7 +14,7 @@ export const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: Colors.text,
+    color: colors.text,
     marginLeft: 15,
   },
   listContent: {
@@ -23,7 +22,7 @@ export const styles = StyleSheet.create({
     paddingBottom: 120,
   },
   emptyText: {
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
     marginTop: 40,
     fontSize: 16,
@@ -31,18 +30,18 @@ export const styles = StyleSheet.create({
   manageCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     padding: 15,
     borderRadius: 20,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: Colors.outline,
+    borderColor: colors.outline,
   },
   manageIconBox: {
     width: 48,
     height: 48,
     borderRadius: 16,
-    backgroundColor: `${Colors.primary}15`,
+    backgroundColor: `${colors.primary}15`,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 15,
@@ -51,26 +50,26 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   manageName: {
-    color: Colors.text,
+    color: colors.text,
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 4,
   },
   manageType: {
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     fontSize: 13,
   },
   dateSelectorContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 20,
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: Colors.outline,
+    borderColor: colors.outline,
   },
   dateSelectorTextContainer: {
     paddingHorizontal: 15,
@@ -80,22 +79,22 @@ export const styles = StyleSheet.create({
   dateSelectorText: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: Colors.text,
+    color: colors.text,
     width: 150,
     textAlign: 'center',
   },
   dateSelectorBtn: {
     padding: 10,
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderRadius: 12,
   },
   submitCard: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     padding: 15,
     borderRadius: 20,
     marginBottom: 15,
     borderWidth: 1,
-    borderColor: Colors.outline,
+    borderColor: colors.outline,
   },
   submitHeader: {
     flexDirection: 'row',
@@ -110,34 +109,34 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   inputLabel: {
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     fontSize: 12,
     marginBottom: 6,
     marginLeft: 4,
   },
   meterInput: {
-    backgroundColor: Colors.background,
-    color: Colors.text,
+    backgroundColor: colors.background,
+    color: colors.text,
     padding: 12,
     borderRadius: 12,
     fontSize: 16,
     borderWidth: 1,
-    borderColor: Colors.outline,
+    borderColor: colors.outline,
   },
   commentInput: {
-    backgroundColor: Colors.background,
-    color: Colors.text,
+    backgroundColor: colors.background,
+    color: colors.text,
     padding: 15,
     borderRadius: 15,
     fontSize: 16,
     borderWidth: 1,
-    borderColor: Colors.outline,
+    borderColor: colors.outline,
     minHeight: 100,
     textAlignVertical: 'top',
     marginTop: 15,
   },
   formSubmitBtn: {
-    backgroundColor: Colors.primary,
+    backgroundColor: colors.primary,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -147,7 +146,7 @@ export const styles = StyleSheet.create({
     marginBottom: 40,
   },
   formSubmitBtnText: {
-    color: Colors.white,
+    color: colors.white,
     fontWeight: 'bold',
     fontSize: 16,
     marginLeft: 8,
@@ -162,7 +161,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   photoUploadingText: {
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     marginTop: 10,
   },
   photoPreviewContainer: {
@@ -177,12 +176,12 @@ export const styles = StyleSheet.create({
   photoDeleteBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.dangerSoft,
+    backgroundColor: colors.dangerSoft,
     padding: 10,
     borderRadius: 8,
   },
   photoDeleteText: {
-    color: Colors.danger,
+    color: colors.danger,
     marginLeft: 5,
     fontWeight: '600',
   },
@@ -190,15 +189,15 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: `${Colors.primary}30`,
+    backgroundColor: `${colors.primary}30`,
     padding: 15,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: `${Colors.primary}30`,
+    borderColor: `${colors.primary}30`,
     borderStyle: 'dashed',
   },
   photoAddText: {
-    color: Colors.primary,
+    color: colors.primary,
     marginLeft: 10,
     fontWeight: '600',
     fontSize: 16,

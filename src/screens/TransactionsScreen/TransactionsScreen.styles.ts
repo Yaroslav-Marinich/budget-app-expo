@@ -1,10 +1,9 @@
-import { Colors } from "@/src/constants/Colors";
 import { StyleSheet } from "react-native";
 
-export const styles = StyleSheet.create({
+export const getStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
   },
   header: {
     flexDirection: 'row',
@@ -18,7 +17,7 @@ export const styles = StyleSheet.create({
     marginLeft: -5,
   },
   headerTitle: {
-    color: Colors.text,
+    color: colors.text,
     fontSize: 24,
     fontWeight: 'bold',
   },
@@ -31,17 +30,17 @@ export const styles = StyleSheet.create({
   walletPill: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.surfaceSoft,
+    backgroundColor: colors.surfaceSoft,
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 20,
     gap: 8,
   },
   walletPillActive: {
-    backgroundColor: Colors.primary,
+    backgroundColor: colors.primary,
   },
   walletPillText: {
-    color: Colors.text,
+    color: colors.text,
   },
 
   // Селектор дати
@@ -54,7 +53,7 @@ export const styles = StyleSheet.create({
   },
   dateArrow: {
     padding: 10,
-    backgroundColor: Colors.surfaceSoft,
+    backgroundColor: colors.surfaceSoft,
     borderRadius: 12,
   },
   dateCenter: {
@@ -62,7 +61,7 @@ export const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   dateText: {
-    color: Colors.text,
+    color: colors.text,
     fontSize: 18,
     fontWeight: 'bold',
     textTransform: 'capitalize',
@@ -70,13 +69,13 @@ export const styles = StyleSheet.create({
 
   // 👈 НОВІ СТИЛІ: Картка заблокованого режиму
   lockedWalletCard: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     marginHorizontal: 20,
     marginBottom: 10,
     padding: 16,
     borderRadius: 24,
     borderWidth: 1,
-    borderColor: Colors.outline,
+    borderColor: colors.outline,
   },
   lockedWalletHeader: {
     flexDirection: 'row',
@@ -87,7 +86,7 @@ export const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 16,
-    backgroundColor: Colors.surfaceSoft,
+    backgroundColor: colors.surfaceSoft,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -96,30 +95,30 @@ export const styles = StyleSheet.create({
     marginLeft: 12,
   },
   lockedWalletTitle: {
-    color: Colors.text,
+    color: colors.text,
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 4,
   },
   lockedWalletCurrency: {
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     fontSize: 13,
   },
   lockIconContainer: {
     padding: 8,
-    backgroundColor: Colors.surfaceMuted,
+    backgroundColor: colors.surfaceMuted,
     borderRadius: 12,
   },
   lockedPeriodContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.surfaceMuted,
+    backgroundColor: colors.surfaceMuted,
     padding: 12,
     borderRadius: 16,
     gap: 8,
   },
   lockedPeriodText: {
-    color: Colors.text,
+    color: colors.text,
     fontSize: 15,
     fontWeight: '600',
     textTransform: 'capitalize',
@@ -136,7 +135,7 @@ export const styles = StyleSheet.create({
     paddingLeft: 5,
   },
   sectionHeaderText: {
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     fontSize: 14,
     fontWeight: 'bold',
     textTransform: 'uppercase',
@@ -148,7 +147,7 @@ export const styles = StyleSheet.create({
     paddingTop: 6,
   },
   deleteAction: {
-    backgroundColor: Colors.error,
+    backgroundColor: colors.error,
     justifyContent: 'center',
     alignItems: 'flex-end',
     paddingRight: 20,
@@ -156,18 +155,18 @@ export const styles = StyleSheet.create({
     width: 100,
     height: '100%',
     borderWidth: 1,
-    borderColor: Colors.outline,
+    borderColor: colors.outline,
     borderLeftWidth: 0,
     marginLeft: -40,
   },
   transactionCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     padding: 15,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: Colors.outline,
+    borderColor: colors.outline,
   },
   iconBox: {
     width: 48,
@@ -182,13 +181,13 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   categoryName: {
-    color: Colors.text,
+    color: colors.text,
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 4,
   },
   commentText: {
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     fontSize: 13,
   },
   amountBox: {
@@ -200,10 +199,10 @@ export const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   expenseText: {
-    color: Colors.error,
+    color: colors.error,
   },
   incomeText: {
-    color: Colors.primary,
+    color: colors.primary,
   },
 
   // Порожній стан
@@ -213,7 +212,7 @@ export const styles = StyleSheet.create({
     marginTop: 60,
   },
   emptyText: {
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     fontSize: 16,
     marginTop: 15,
   },

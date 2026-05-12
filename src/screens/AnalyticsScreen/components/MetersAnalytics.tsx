@@ -1,15 +1,17 @@
-import { Colors } from '@/src/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Dimensions, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { LineChart } from "react-native-gifted-charts";
 
+import { useTheme } from '@/src/context/ThemeContext';
 import { getMeterColor, getMeterReadingsForAnalytics, Meter, MeterReading, subscribeToMeters } from '@/src/services/meters';
 
 type ViewMode = 'months' | 'years';
 const screenWidth = Dimensions.get('window').width;
 
 export const MetersAnalytics = () => {
+    const { colors } = useTheme();
+  
   const [loading, setLoading] = useState(true);
   const [meters, setMeters] = useState<Meter[]>([]);
   const [selectedMeter, setSelectedMeter] = useState<Meter | null>(null);
@@ -59,7 +61,7 @@ useEffect(() => {
     // 🎨 Функція для створення маленького контейнера над точкою
     const renderLabel = (value: number) => (
       <View style={{
-        backgroundColor: Colors.surface, 
+        backgroundColor: colors.surface, 
         borderWidth: 1,
         borderColor: currentMeterColor, 
         borderRadius: 6,
@@ -72,7 +74,7 @@ useEffect(() => {
           numberOfLines={1} 
           adjustsFontSizeToFit 
           style={{ 
-            color: Colors.text, 
+            color: colors.text, 
             fontSize: 16, 
             fontWeight: 'bold' 
           }}
@@ -118,13 +120,13 @@ useEffect(() => {
   };
 
   if (loading && meters.length === 0) {
-    return <ActivityIndicator size="large" color={Colors.primary} style={{ flex: 1, justifyContent: 'center' }} />;
+    return <ActivityIndicator size="large" color={colors.primary} style={{ flex: 1, justifyContent: 'center' }} />;
   }
 
   if (meters.length === 0) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
-        <Text style={{ color: Colors.textSecondary, textAlign: 'center' }}>Додайте хоча б один лічильник.</Text>
+        <Text style={{ color: colors.textSecondary, textAlign: 'center' }}>Додайте хоча б один лічильник.</Text>
       </View>
     );
   }
@@ -154,14 +156,14 @@ useEffect(() => {
                   paddingHorizontal: 16,
                   paddingVertical: 10,
                   borderRadius: 20,
-                  backgroundColor: isSelected ? meterColor : Colors.surfaceSoft,
+                  backgroundColor: isSelected ? meterColor : colors.surfaceSoft,
                   flexDirection: 'row',
                   alignItems: 'center',
                   gap: 8,
                 }}
               >
-                <Ionicons name={meter.icon as any} size={18} color={isSelected ? Colors.white : meterColor} />
-                <Text style={{ color: isSelected ? Colors.white : Colors.text, fontWeight: isSelected ? 'bold' : 'normal' }}>
+                <Ionicons name={meter.icon as any} size={18} color={isSelected ? colors.white : meterColor} />
+                <Text style={{ color: isSelected ? colors.white : colors.text, fontWeight: isSelected ? 'bold' : 'normal' }}>
                   {meter.name}
                 </Text>
               </TouchableOpacity>
@@ -172,38 +174,38 @@ useEffect(() => {
 
       {/* 2. Панель фільтрів */}
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, marginBottom: 20 }}>
-        <View style={{ flexDirection: 'row', backgroundColor: Colors.surfaceSoft, borderRadius: 8, padding: 3 }}>
+        <View style={{ flexDirection: 'row', backgroundColor: colors.surfaceSoft, borderRadius: 8, padding: 3 }}>
           <TouchableOpacity
-            style={{ paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6, backgroundColor: viewMode === 'months' ? Colors.surfacePressed : 'transparent' }}
+            style={{ paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6, backgroundColor: viewMode === 'months' ? colors.surfacePressed : 'transparent' }}
             onPress={() => setViewMode('months')}
           >
-            <Text style={{ color: viewMode === 'months' ? Colors.text : Colors.textSecondary, fontSize: 13, fontWeight: '600' }}>Місяці</Text>
+            <Text style={{ color: viewMode === 'months' ? colors.text : colors.textSecondary, fontSize: 13, fontWeight: '600' }}>Місяці</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={{ paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6, backgroundColor: viewMode === 'years' ? Colors.surfacePressed : 'transparent' }}
+            style={{ paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6, backgroundColor: viewMode === 'years' ? colors.surfacePressed : 'transparent' }}
             onPress={() => setViewMode('years')}
           >
-            <Text style={{ color: viewMode === 'years' ? Colors.text : Colors.textSecondary, fontSize: 13, fontWeight: '600' }}>Роки</Text>
+            <Text style={{ color: viewMode === 'years' ? colors.text : colors.textSecondary, fontSize: 13, fontWeight: '600' }}>Роки</Text>
           </TouchableOpacity>
         </View>
 
         {viewMode === 'months' && (
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-            <TouchableOpacity onPress={() => changeYear(-1)} style={{ padding: 5 }}><Ionicons name="chevron-back" size={20} color={Colors.textSecondary} /></TouchableOpacity>
-            <Text style={{ color: Colors.text, fontSize: 16, fontWeight: 'bold' }}>{selectedYear}</Text>
-            <TouchableOpacity onPress={() => changeYear(1)} style={{ padding: 5 }}><Ionicons name="chevron-forward" size={20} color={Colors.textSecondary} /></TouchableOpacity>
+            <TouchableOpacity onPress={() => changeYear(-1)} style={{ padding: 5 }}><Ionicons name="chevron-back" size={20} color={colors.textSecondary} /></TouchableOpacity>
+            <Text style={{ color: colors.text, fontSize: 16, fontWeight: 'bold' }}>{selectedYear}</Text>
+            <TouchableOpacity onPress={() => changeYear(1)} style={{ padding: 5 }}><Ionicons name="chevron-forward" size={20} color={colors.textSecondary} /></TouchableOpacity>
           </View>
         )}
       </View>
 
       {/* 3. Блок з графіком */}
-      <View style={{ marginHorizontal: 20, backgroundColor: Colors.surfaceMuted, borderRadius: 20, padding: 20, alignItems: 'center' }}>
-        <Text style={{ color: Colors.text, fontSize: 16, fontWeight: 'bold', marginBottom: 25, alignSelf: 'flex-start' }}>
+      <View style={{ marginHorizontal: 20, backgroundColor: colors.surfaceMuted, borderRadius: 20, padding: 20, alignItems: 'center' }}>
+        <Text style={{ color: colors.text, fontSize: 16, fontWeight: 'bold', marginBottom: 25, alignSelf: 'flex-start' }}>
           {viewMode === 'months' ? `Споживання за ${selectedYear} рік` : 'Глобальний тренд'}
         </Text>
 
         {loading ? (
-           <View style={{ height: 200, justifyContent: 'center' }}><ActivityIndicator color={Colors.primary} /></View>
+           <View style={{ height: 200, justifyContent: 'center' }}><ActivityIndicator color={colors.primary} /></View>
         ) : chartData.length > 0 ? (
             <LineChart
               key={`chart-${viewMode}-${chartData.length}`}
@@ -222,16 +224,16 @@ useEffect(() => {
             noOfSections={noOfSections}
             stepValue={yAxisMax / noOfSections} 
             yAxisColor="transparent"
-            xAxisColor={Colors.outlineMuted}
-            yAxisTextStyle={{ color: Colors.textSecondary, fontSize: 10 }}
-            xAxisLabelTextStyle={{ color: Colors.textSecondary, fontSize: 10 }}
+            xAxisColor={colors.outlineMuted}
+            yAxisTextStyle={{ color: colors.textSecondary, fontSize: 10 }}
+            xAxisLabelTextStyle={{ color: colors.textSecondary, fontSize: 10 }}
             
             // 🛠️ СІТКА (Вертикальна та горизонтальна)
             hideRules={false}
-            rulesColor={Colors.outlineSoft}
+            rulesColor={colors.outlineSoft}
             rulesType="solid"
             showVerticalLines
-            verticalLinesColor={Colors.outlineSoft}
+            verticalLinesColor={colors.outlineSoft}
             
             // Дизайн лінії
             curved={viewMode === 'months'}
@@ -244,7 +246,7 @@ useEffect(() => {
           />
         ) : (
           <View style={{ height: 200, justifyContent: 'center' }}>
-            <Text style={{ color: Colors.textSecondary, textAlign: 'center' }}>
+            <Text style={{ color: colors.textSecondary, textAlign: 'center' }}>
               Немає даних за цей період.
             </Text>
           </View>
@@ -254,15 +256,15 @@ useEffect(() => {
       {/* 4. Статистика */}
       {chartData.length > 0 && !loading && (
         <View style={{ flexDirection: 'row', paddingHorizontal: 20, marginTop: 20, gap: 15 }}>
-            <View style={{ flex: 1, backgroundColor: Colors.surfaceMuted, padding: 15, borderRadius: 15 }}>
-                <Text style={{ color: Colors.textSecondary, fontSize: 13, marginBottom: 5 }}>Середнє</Text>
-                <Text style={{ color: Colors.text, fontSize: 22, fontWeight: 'bold' }}>
+            <View style={{ flex: 1, backgroundColor: colors.surfaceMuted, padding: 15, borderRadius: 15 }}>
+                <Text style={{ color: colors.textSecondary, fontSize: 13, marginBottom: 5 }}>Середнє</Text>
+                <Text style={{ color: colors.text, fontSize: 22, fontWeight: 'bold' }}>
                     {(maxDataValue > 0 ? avgConsumption : 0)}
                 </Text>
             </View>
-            <View style={{ flex: 1, backgroundColor: Colors.surfaceMuted, padding: 15, borderRadius: 15 }}>
-                <Text style={{ color: Colors.textSecondary, fontSize: 13, marginBottom: 5 }}>Максимум</Text>
-                <Text style={{ color: Colors.text, fontSize: 22, fontWeight: 'bold' }}>
+            <View style={{ flex: 1, backgroundColor: colors.surfaceMuted, padding: 15, borderRadius: 15 }}>
+                <Text style={{ color: colors.textSecondary, fontSize: 13, marginBottom: 5 }}>Максимум</Text>
+                <Text style={{ color: colors.text, fontSize: 22, fontWeight: 'bold' }}>
                     {maxDataValue}
                 </Text>
             </View>

@@ -72,7 +72,10 @@ const getMergedMeters = async (baseMeters: Meter[]): Promise<Meter[]> => {
   const queue = await getSyncQueue();
   const pendingMeters = queue
     .filter(t => t.type === 'METER_CREATE' && t.status !== 'DONE')
-    .map(t => ({ ...t.payload, id: t.id, isPending: true } as Meter));
+    .map(t => ({ ...t.payload, id: t.id, isPending: true } as Meter))
+  .filter((pendingMeter) => {
+      return !baseMeters.some((baseMeter) => (baseMeter as any).createdAt === (pendingMeter as any).createdAt);
+    });
 
   return [...baseMeters, ...pendingMeters];
 };

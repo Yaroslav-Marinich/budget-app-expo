@@ -7,26 +7,28 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { DefaultModal } from '@/src/components/ui/DefaultModal/DefaultModal';
 import { auth } from '@/src/config/firebase';
-import { Colors } from '@/src/constants/Colors';
 import { useLoader } from '@/src/context/LoaderContext';
+import { useTheme } from '@/src/context/ThemeContext';
 import { appAlert } from '@/src/services/alert';
 import {
-    cancelMeterNotifications,
-    requestNotificationPermissions,
-    scheduleMeterNotification
+  cancelMeterNotifications,
+  requestNotificationPermissions,
+  scheduleMeterNotification
 } from '@/src/services/notifications';
 import {
-    deleteMeterSettingsFromDB,
-    getNotificationSettings,
-    saveNotificationSettings
+  deleteMeterSettingsFromDB,
+  getNotificationSettings,
+  saveNotificationSettings
 } from '@/src/services/setup';
-import { styles } from './NotificationsScreen.styles';
+import { getStyles } from './NotificationsScreen.styles';
 
 export const NotificationsScreen = () => {
   const userId = auth.currentUser?.uid;
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { showLoader, hideLoader } = useLoader();
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
 
   const [isMetersEnabled, setIsMetersEnabled] = useState(false);
   const [isMetersModalVisible, setMetersModalVisible] = useState(false);
@@ -151,7 +153,7 @@ const saveMetersSettings = async () => {
     <View style={[styles.container, { paddingTop: insets.top + 10 }]}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={{ padding: 5 }}>
-          <Ionicons name="arrow-back" size={28} color={Colors.textSecondary} />
+          <Ionicons name="arrow-back" size={28} color={colors.textSecondary} />
         </TouchableOpacity>
         <Text style={styles.title}>Сповіщення</Text>
       </View>
@@ -175,14 +177,14 @@ const saveMetersSettings = async () => {
                 style={styles.settingsBtn}
                 onPress={() => setMetersModalVisible(true)}
               >
-                <Ionicons name="options-outline" size={20} color={Colors.primary} />
+                <Ionicons name="options-outline" size={20} color={colors.primary} />
               </TouchableOpacity>
             )}
             <Switch
               value={isMetersEnabled}
               onValueChange={handleToggleMeters}
-              trackColor={{ false: Colors.surfaceMuted, true: Colors.primary }}
-              thumbColor={Colors.white}
+              trackColor={{ false: colors.surfaceMuted, true: colors.primary }}
+              thumbColor={colors.white}
             />
           </View>
         </View>
@@ -208,7 +210,7 @@ const saveMetersSettings = async () => {
         <View style={styles.modalHeader}>
           <Text style={styles.modalTitle}>Налаштування нагадування</Text>
           <TouchableOpacity onPress={handleCloseModal} style={{ padding: 5 }}>
-            <Ionicons name="close" size={24} color={Colors.textSecondary} />
+            <Ionicons name="close" size={24} color={colors.textSecondary} />
           </TouchableOpacity>
         </View>
 
@@ -243,7 +245,7 @@ const saveMetersSettings = async () => {
           onChangeText={setMeterTime}
           placeholder="Наприклад: 12:00"
           maxLength={5}
-          placeholderTextColor={Colors.textSecondary}
+          placeholderTextColor={colors.textSecondary}
         />
 
         <TouchableOpacity style={styles.saveBtn} onPress={saveMetersSettings}>
@@ -251,7 +253,7 @@ const saveMetersSettings = async () => {
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.saveBtn, { backgroundColor: Colors.accent, marginTop: 0, padding: 12 }]}
+          style={[styles.saveBtn, { backgroundColor: colors.accent, marginTop: 0, padding: 12 }]}
           onPress={testNotification}
         >
           <Text style={styles.saveBtnText}>Перевірити зараз (10 сек)</Text>

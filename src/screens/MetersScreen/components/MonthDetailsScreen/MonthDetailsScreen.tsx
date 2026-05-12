@@ -4,13 +4,13 @@ import React, { useEffect, useState } from 'react';
 import { FlatList, Image, Modal, Text, TouchableOpacity, View } from 'react-native'; // 👈 Додали Image та Modal
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Colors } from '@/src/constants/Colors';
 import { useLoader } from '@/src/context/LoaderContext';
-import { styles } from '@/src/screens/MetersScreen/components/MonthDetailsScreen/MonthDetailsScreen.styles';
+import { useTheme } from '@/src/context/ThemeContext';
 import { appAlert } from '@/src/services/alert';
 import { deleteMeterReading, getMeterColor, Meter, MeterReading, subscribeToMeters, subscribeToReadingsByDate } from '@/src/services/meters';
 import { shareReadingsAsPDF } from '@/src/utils/exportReadings';
 import { EditReadingModal } from '../EditReadingModal/EditReadingModal';
+import { getStyles } from './MonthDetailsScreen.styles';
 
 const formatMonthYear = (dateStr: string) => {
   if (!dateStr) return '';
@@ -25,6 +25,8 @@ export const MonthDetailsScreen = () => {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { showLoader, hideLoader } = useLoader();
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
 
   const [meters, setMeters] = useState<Meter[]>([]);
   const [readings, setReadings] = useState<MeterReading[]>([]);
@@ -91,15 +93,15 @@ export const MonthDetailsScreen = () => {
           
           <View style={[styles.detailActions, { flexDirection: 'row', alignItems: 'center', gap: 4 }]}>
             <TouchableOpacity onPress={() => shareOne(item)} style={{ padding: 6 }}>
-              <Ionicons name="share-outline" size={22} color={Colors.primary} />
+              <Ionicons name="share-outline" size={22} color={colors.primary} />
             </TouchableOpacity>
             
             <TouchableOpacity onPress={() => handleEdit(item)} style={{ padding: 6 }}>
-              <Ionicons name="pencil" size={22} color={Colors.textSecondary} />
+              <Ionicons name="pencil" size={22} color={colors.textSecondary} />
             </TouchableOpacity>
             
             <TouchableOpacity onPress={() => handleDelete(item.id!, meter.name)} style={{ padding: 6 }}>
-              <Ionicons name="trash-outline" size={22} color={Colors.error} />
+              <Ionicons name="trash-outline" size={22} color={colors.error} />
             </TouchableOpacity>
           </View>
         </View>
@@ -112,7 +114,7 @@ export const MonthDetailsScreen = () => {
               <Text style={styles.readingCardValue}>{item.prevValue}</Text>
             </View>
             
-            <Ionicons name="arrow-forward" size={20} color={Colors.textSecondary} />
+            <Ionicons name="arrow-forward" size={20} color={colors.textSecondary} />
             
             <View style={styles.readingCardItem}>
               <Text style={styles.readingLabel}>Новий</Text>
@@ -130,7 +132,7 @@ export const MonthDetailsScreen = () => {
         {/* КОМЕНТАР */}
         {item.comment && (
           <View style={styles.commentBubble}>
-            <Ionicons name="chatbubble-ellipses-outline" size={18} color={Colors.textSecondary} style={{ marginTop: 2 }} />
+            <Ionicons name="chatbubble-ellipses-outline" size={18} color={colors.textSecondary} style={{ marginTop: 2 }} />
             <Text style={styles.commentText}>{item.comment}</Text>
           </View>
         )}
@@ -156,7 +158,7 @@ export const MonthDetailsScreen = () => {
     <View style={[styles.container, { paddingTop: insets.top + 10 }]}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={{ padding: 5 }}>
-          <Ionicons name="arrow-back" size={28} color={Colors.textSecondary} />
+          <Ionicons name="arrow-back" size={28} color={colors.textSecondary} />
         </TouchableOpacity>
         <Text style={styles.title}>{formatMonthYear(id as string)}</Text>
       </View>

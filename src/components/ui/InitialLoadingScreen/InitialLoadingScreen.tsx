@@ -1,11 +1,13 @@
-import { Colors } from '@/src/constants/Colors';
+import { useTheme } from '@/src/context/ThemeContext';
 import React from 'react';
 import { ActivityIndicator, Image, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { styles } from './InitialLoadingScreen.styles';
+import { getStyles } from './InitialLoadingScreen.styles';
 
 export const InitialLoadingScreen = () => {
   const insets = useSafeAreaInsets();
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
 
   return (
     <View style={styles.container}>
@@ -15,7 +17,7 @@ export const InitialLoadingScreen = () => {
           style={styles.logo}
           resizeMode="contain"
         />
-        <ActivityIndicator size="large" color={Colors.primary} style={styles.loader} />
+        <ActivityIndicator size="large" color={colors.primary} style={styles.loader} />
         <Text style={styles.subtitle}>Налаштовуємо ваш простір...</Text>
       </View>
           

@@ -1,4 +1,3 @@
-import { Colors } from '@/src/constants/Colors';
 import { CustomAlertProvider } from '@/src/context/AlertContext';
 import { DataProvider, useGlobalData } from '@/src/context/DataContext';
 import { LoaderProvider } from '@/src/context/LoaderContext';
@@ -14,6 +13,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { InitialLoadingScreen } from '@/src/components/ui/InitialLoadingScreen/InitialLoadingScreen';
 import { SyncQueueBanner } from '@/src/components/ui/SyncQueueBanner/SyncQueueBanner';
 import { auth } from '@/src/config/firebase';
+import { ThemeProvider, useTheme } from '@/src/context/ThemeContext';
 import { initializeUserData } from '@/src/services/setup';
 import { startSync } from '@/src/services/syncEngine';
 import NetInfo from '@react-native-community/netinfo';
@@ -24,6 +24,9 @@ LogBox.ignoreLogs(['InteractionManager has been deprecated']);
 const GlobalSyncBanner = () => {
   const insets = useSafeAreaInsets();
   const actualSyncPendingCount = useSyncPendingCount();
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
+  
   const [displayCount, setDisplayCount] = useState(0);
 
   useEffect(() => {
@@ -61,8 +64,11 @@ const GlobalSyncBanner = () => {
 const AppContent = () => {
   const router = useRouter();
   const segments = useSegments();
-  const [user, setUser] = useState<User | null | undefined>(undefined);
   
+  const { colors, isDarkMode } = useTheme();
+  const styles = getStyles(colors);
+  
+  const [user, setUser] = useState<User | null | undefined>(undefined);
   const { isDataReady } = useGlobalData(); 
 
   useEffect(() => {
@@ -106,12 +112,16 @@ const AppContent = () => {
   }
 
   return (
-    <View style={styles.rootContainer}>
+    <View style={[styles.rootContainer, { backgroundColor: colors.background }]}>
+      
+      <StatusBar style={isDarkMode ? "light" : "dark"} />
+      
       {user && <GlobalSyncBanner />} 
+      
       <Stack
         screenOptions={{
           headerShown: false, 
-          contentStyle: { backgroundColor: Colors.background },
+          contentStyle: { backgroundColor: colors.background },
         }}
       >
         <Stack.Screen name="(tabs)" />
@@ -123,22 +133,23 @@ const AppContent = () => {
 
 export default function RootLayout() {
   return (
-    <GestureHandlerRootView style={{ flex: 1, backgroundColor: Colors.background }}>
-      <StatusBar style="light" />
-      <LoaderProvider>
-        <CustomAlertProvider>
-          <SyncQueueProvider>
-            <DataProvider> 
-              <AppContent />
-            </DataProvider>
-          </SyncQueueProvider>
-        </CustomAlertProvider>
-      </LoaderProvider>
-    </GestureHandlerRootView>
+    <ThemeProvider>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <LoaderProvider>
+          <CustomAlertProvider>
+            <SyncQueueProvider>
+              <DataProvider> 
+                <AppContent />
+              </DataProvider>
+            </SyncQueueProvider>
+          </CustomAlertProvider>
+        </LoaderProvider>
+      </GestureHandlerRootView>
+    </ThemeProvider>
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any) => StyleSheet.create({
   rootContainer: { flex: 1 },
   globalSyncBanner: {
     position: 'absolute',

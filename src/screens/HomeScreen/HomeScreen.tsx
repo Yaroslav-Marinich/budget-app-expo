@@ -8,18 +8,20 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CategoryModal } from "@/src/components/ui/CategoryModal/CategoryModal";
 import { MonthPickerModal } from "@/src/components/ui/MonthPickerModal/MonthPickerModal";
 import { TransactionModal } from "@/src/components/ui/TransactionModal/TransactionModal";
-import { Colors } from "@/src/constants/Colors";
 import { CURRENCIES } from "@/src/constants/Currencies";
 import { useGlobalData } from "@/src/context/DataContext";
-import { styles } from "@/src/screens/HomeScreen/home.styles";
+import { useTheme } from "@/src/context/ThemeContext";
 import { subscribeToMonthlyTransactions } from "@/src/services/transactions";
 import { formatMoney } from "@/src/utils/formatMoney";
+import { getStyles } from "./home.styles";
 
 export const HomeScreen = () => {
 	const insets = useSafeAreaInsets();
 	const router = useRouter();
 	const walletsListRef = useRef<FlatList>(null);
 	const { categories, wallets } = useGlobalData();
+	  const { colors } = useTheme();
+	  const styles = getStyles(colors);
 
 	const { width: screenWidth } = Dimensions.get("window");
 	const cardWidth = screenWidth * 0.75;
@@ -226,8 +228,8 @@ export const HomeScreen = () => {
 						index,
 					})}
 					renderItem={({ item: wallet, index }) => {
-						const cryptoColor = Colors.warningAccent;
-						const accentColor = wallet.isCrypto ? cryptoColor : Colors.accent;
+						const cryptoColor = colors.warningAccent;
+						const accentColor = wallet.isCrypto ? cryptoColor : colors.accent;
 						
 						return (
 							<TouchableOpacity
@@ -240,8 +242,8 @@ export const HomeScreen = () => {
 									},
 									wallet.isArchived && styles.walletCardArchived,
 									wallet.isPending && styles.walletCardPending,
-									selectedWalletId === wallet.id && { borderColor: Colors.primary, borderWidth: 2 },
-									wallet.balance < 0 && { borderColor: Colors.error, borderWidth: 2 },
+									selectedWalletId === wallet.id && { borderColor: colors.primary, borderWidth: 2 },
+									wallet.balance < 0 && { borderColor: colors.error, borderWidth: 2 },
 								]}
 								onPress={() => handleWalletPress(wallet.id, index)}
 							>
@@ -253,7 +255,7 @@ export const HomeScreen = () => {
 
 								{wallet.isPending && (
 									<View style={styles.pendingBadgeHome}>
-										<Ionicons name="time-outline" size={12} color={Colors.background} />
+										<Ionicons name="time-outline" size={12} color={colors.background} />
 										<Text style={styles.pendingBadgeTextHome}>Черга</Text>
 									</View>
 								)}
@@ -262,14 +264,14 @@ export const HomeScreen = () => {
 									<Ionicons
 										name={wallet.icon as any}
 										size={24}
-										color={wallet.isArchived ? Colors.textSecondary : accentColor}
+										color={wallet.isArchived ? colors.textSecondary : accentColor}
 									/>
 									<View>
 										<Text style={styles.walletTitle}>{wallet.title}</Text>
 									</View>
 								</View>
 								<Text style={styles.walletAmount}>
-									{formatMoney(wallet.balance)} <Text style={[styles.currency, { color: wallet.isArchived ? Colors.textSecondary : accentColor }]}>
+									{formatMoney(wallet.balance)} <Text style={[styles.currency, { color: wallet.isArchived ? colors.textSecondary : accentColor }]}>
                     {wallet.currency}
                 </Text>
 								</Text>
@@ -280,7 +282,7 @@ export const HomeScreen = () => {
 
 				<View style={styles.dateSelector}>
 					<TouchableOpacity onPress={handlePrevMonth} style={{ padding: 10 }}>
-						<Ionicons name="chevron-back" size={24} color={Colors.textSecondary} />
+						<Ionicons name="chevron-back" size={24} color={colors.textSecondary} />
 					</TouchableOpacity>
 
 					<TouchableOpacity onPress={() => setMonthPickerVisible(true)}>
@@ -288,7 +290,7 @@ export const HomeScreen = () => {
 					</TouchableOpacity>
 
 					<TouchableOpacity onPress={handleNextMonth} style={{ padding: 10 }}>
-						<Ionicons name="chevron-forward" size={24} color={Colors.textSecondary} />
+						<Ionicons name="chevron-forward" size={24} color={colors.textSecondary} />
 					</TouchableOpacity>
 				</View>
 
@@ -298,7 +300,7 @@ export const HomeScreen = () => {
 							style={[styles.toggleBtn, activeTab === "expense" && styles.toggleBtnActive]}
 							onPress={() => setActiveTab("expense")}
 						>
-							<Text style={[styles.toggleLabel, activeTab === "expense" && { color: Colors.error }]}>Витрати</Text>
+							<Text style={[styles.toggleLabel, activeTab === "expense" && { color: colors.error }]}>Витрати</Text>
 							<Text style={styles.toggleAmount}>{formatMoney(totalExpense)} {selectedWalletCurrencySymbol}</Text>
 						</TouchableOpacity>
 
@@ -306,7 +308,7 @@ export const HomeScreen = () => {
 							style={[styles.toggleBtn, activeTab === "income" && styles.toggleBtnActive]}
 							onPress={() => setActiveTab("income")}
 						>
-							<Text style={[styles.toggleLabel, activeTab === "income" && { color: Colors.primary }]}>Доходи</Text>
+							<Text style={[styles.toggleLabel, activeTab === "income" && { color: colors.primary }]}>Доходи</Text>
 							<Text style={styles.toggleAmount}>{formatMoney(totalIncome)} {selectedWalletCurrencySymbol}</Text>
 						</TouchableOpacity>
 					</View>
@@ -315,7 +317,7 @@ export const HomeScreen = () => {
 						<View style={styles.dividerLine} />
 						{isSelectedWalletArchived && (
 							<View style={styles.lockBadge}>
-								<Ionicons name="lock-closed" size={24} color={Colors.error} />
+								<Ionicons name="lock-closed" size={24} color={colors.error} />
 							</View>
 						)}
 					</View>
@@ -355,7 +357,7 @@ export const HomeScreen = () => {
 										<Ionicons name={category.icon as any} size={22} color={category.color} />
 										{category.hasPending && (
 											<View style={styles.pendingCategoryDot}>
-												<Ionicons name="time-outline" size={10} color={Colors.background} />
+												<Ionicons name="time-outline" size={10} color={colors.background} />
 											</View>
 										)}
 									</View>
@@ -364,7 +366,7 @@ export const HomeScreen = () => {
 											{category.name}
 										</Text>
 										<Text
-											style={[styles.categoryAmount, category.sum === 0 && { color: Colors.textSecondary }]}
+											style={[styles.categoryAmount, category.sum === 0 && { color: colors.textSecondary }]}
 											numberOfLines={1}
 										>
 											{formatMoney(category.sum)} {selectedWalletCurrencySymbol}
@@ -378,11 +380,11 @@ export const HomeScreen = () => {
 							style={[styles.categoryCard, styles.addCategoryCard]}
 							onPress={() => setCategoryModalVisible(true)}
 						>
-								<View style={[styles.iconContainer, { backgroundColor: Colors.surfaceSoft }]}> 
-								<Ionicons name="add" size={24} color={Colors.textSecondary} />
+								<View style={[styles.iconContainer, { backgroundColor: colors.surfaceSoft }]}> 
+								<Ionicons name="add" size={24} color={colors.textSecondary} />
 							</View>
 							<View style={styles.textContainer}>
-								<Text style={[styles.categoryName, { color: Colors.textSecondary }]}>Категорія</Text>
+								<Text style={[styles.categoryName, { color: colors.textSecondary }]}>Категорія</Text>
 								<Text style={styles.categoryAmount}>Нова</Text>
 							</View>
 						</TouchableOpacity>
@@ -399,7 +401,7 @@ onPress={() => router.push({
     } as any)}
                     >
                         <Text style={styles.transactionsListBtnText}>Всі операції</Text>
-                        <Ionicons name="arrow-forward" size={20} color={Colors.primary} />
+                        <Ionicons name="arrow-forward" size={20} color={colors.primary} />
                     </TouchableOpacity>
 				</View>
 			</ScrollView>
@@ -411,6 +413,7 @@ onPress={() => router.push({
 				categoryName={selectedCategory?.name}
 				categoryId={selectedCategory?.id}
 				walletId={selectedWalletId}
+				currencySymbol={selectedWalletCurrencySymbol}
 			/>
 
 			<MonthPickerModal

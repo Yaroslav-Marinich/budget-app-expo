@@ -1,14 +1,13 @@
-import { Colors } from "@/src/constants/Colors";
 import { StyleSheet } from "react-native";
 
-export const styles = StyleSheet.create({
+export const getStyles = (colors: any) => StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: Colors.overlayHeavy,
+    backgroundColor: colors.overlayHeavy,
     justifyContent: 'flex-end',
   },
   modalContent: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     padding: 20,
@@ -24,13 +23,13 @@ export const styles = StyleSheet.create({
   },
   arrowBtn: {
     padding: 10,
-    backgroundColor: Colors.surfaceSubtle,
+    backgroundColor: colors.surfaceSubtle,
     borderRadius: 15,
   },
   yearText: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: Colors.text,
+    color: colors.text,
   },
   // --- Стилі сітки місяців ---
   monthsGrid: {
@@ -41,7 +40,7 @@ export const styles = StyleSheet.create({
   },
   monthBtn: {
     width: '31%',
-    backgroundColor: Colors.surfaceSubtle,
+    backgroundColor: colors.surfaceSubtle,
     paddingVertical: 15,
     borderRadius: 16,
     alignItems: 'center',
@@ -50,16 +49,16 @@ export const styles = StyleSheet.create({
     borderColor: 'transparent',
   },
   monthBtnActive: {
-    backgroundColor: `${Colors.primary}15`,
-    borderColor: Colors.primary,
+    backgroundColor: `${colors.primary}15`,
+    borderColor: colors.primary,
   },
   monthText: {
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     fontSize: 15,
     fontWeight: '600',
   },
   monthTextActive: {
-    color: Colors.primary,
+    color: colors.primary,
     fontWeight: 'bold',
   },
 
@@ -69,13 +68,13 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 15,
-    backgroundColor: `${Colors.primary}15`,
+    backgroundColor: `${colors.primary}15`,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: `${Colors.primary}30`,
+    borderColor: `${colors.primary}30`,
   },
   currentMonthText: {
-    color: Colors.primary,
+    color: colors.primary,
     fontWeight: 'bold',
     fontSize: 16,
   },

@@ -1,22 +1,25 @@
-import { Colors } from '@/src/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { useNetInfo } from '@react-native-community/netinfo';
 import { Tabs } from 'expo-router';
 import { Pressable } from 'react-native';
 
+import { useTheme } from '@/src/context/ThemeContext';
+
 export default function TabLayout() {
   const netInfo = useNetInfo();
   const isOnline = !!netInfo.isConnected && netInfo.isInternetReachable !== false;
+
+  const { colors } = useTheme();
 
   return (
     <Tabs
       screenOptions={{
         headerShown: false, 
-        tabBarActiveTintColor: Colors.accent,
-        tabBarInactiveTintColor: Colors.textSecondary,
+        tabBarActiveTintColor: colors.accent,
+        tabBarInactiveTintColor: colors.textSecondary,
         tabBarStyle: {
-          backgroundColor: Colors.surface, 
-          borderTopColor: Colors.outline,
+          backgroundColor: colors.surface, 
+          borderTopColor: colors.outline,
           height: 60,
           paddingBottom: 10,
         },
@@ -46,7 +49,7 @@ export default function TabLayout() {
             <Ionicons
               name={isOnline ? 'stats-chart-outline' : 'cloud-offline-outline'}
               size={size}
-              color={isOnline ? color : Colors.error}
+              color={isOnline ? color : colors.error}
             />
           ),
         }}

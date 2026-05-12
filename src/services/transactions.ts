@@ -210,7 +210,12 @@ export const subscribeToMonthlyTransactions = (
         ...task.payload,
         isPending: true,
       }))
-      .filter((transaction) => !pendingDeleteIds.has(transaction.id));
+      .filter((transaction) => !pendingDeleteIds.has(transaction.id))
+    .filter((pendingTx) => {
+        return !baseTransactions.some(
+          (baseTx) => baseTx.date === pendingTx.date && baseTx.amount === pendingTx.amount
+        );
+      });
 
     const visibleBaseTransactions = baseTransactions
       .filter((transaction) => !pendingDeleteIds.has(transaction.id))

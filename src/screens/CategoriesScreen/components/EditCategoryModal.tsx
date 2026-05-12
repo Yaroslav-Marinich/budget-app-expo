@@ -3,11 +3,11 @@ import React, { useEffect, useState } from "react";
 import { ScrollView, Switch, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 import { DefaultModal } from "@/src/components/ui/DefaultModal/DefaultModal";
-import { Colors } from "@/src/constants/Colors";
 import { useLoader } from "@/src/context/LoaderContext";
+import { useTheme } from "@/src/context/ThemeContext";
 import { appAlert } from "@/src/services/alert";
 import { addCategory, Category, updateCategory } from "@/src/services/categories";
-import { styles } from "./EditCategoryModal.styles";
+import { getStyles } from "./EditCategoryModal.styles";
 
 // Список іконок для категорій
 const CATEGORY_ICONS = [
@@ -17,8 +17,7 @@ const CATEGORY_ICONS = [
   'paw', 'shirt', 'train', 'musical-notes', 'school'
 ];
 
-// Палітра кольорів
-const CATEGORY_COLORS = Colors.categoryColors;
+
 
 interface Props {
   visible: boolean;
@@ -31,12 +30,19 @@ interface Props {
 export const EditCategoryModal = ({ visible, category, onClose, type, existingCategories }: Props) => {
   const isEdit = !!category;
   const { showLoader, hideLoader } = useLoader();
+    const { colors } = useTheme();
+  const styles = getStyles(colors);
+  
+    // Палітра кольорів
+const CATEGORY_COLORS = colors.categoryColors;
 
   const [name, setName] = useState("");
   const [icon, setIcon] = useState("cart");
   const [color, setColor] = useState(CATEGORY_COLORS[0]);
 
   const [isCryptoCategory, setIsCryptoCategory] = useState(false);
+
+
 
   useEffect(() => {
     if (category) {
@@ -104,7 +110,7 @@ export const EditCategoryModal = ({ visible, category, onClose, type, existingCa
               {isEdit ? "Редагувати категорію" : "Нова категорія"}
             </Text>
             <TouchableOpacity onPress={onClose} style={{ padding: 5 }}>
-              <Ionicons name="close" size={26} color={Colors.textSecondary} />
+              <Ionicons name="close" size={26} color={colors.textSecondary} />
             </TouchableOpacity>
           </View>
 
@@ -115,7 +121,7 @@ export const EditCategoryModal = ({ visible, category, onClose, type, existingCa
                 <Switch 
                   value={isCryptoCategory} 
                   onValueChange={setIsCryptoCategory}
-                  trackColor={{ false: Colors.outline, true: Colors.primary }}
+                  trackColor={{ false: colors.outline, true: colors.primary }}
                 />
               </View>
             )}
@@ -126,7 +132,7 @@ export const EditCategoryModal = ({ visible, category, onClose, type, existingCa
               value={name} 
               onChangeText={setName} 
               placeholder="Наприклад: Продукти"
-              placeholderTextColor={Colors.textSecondary} 
+              placeholderTextColor={colors.textSecondary} 
             />
 
             {/* Колір */}
@@ -142,7 +148,7 @@ export const EditCategoryModal = ({ visible, category, onClose, type, existingCa
                     color === c && styles.colorBoxActive
                   ]}
                 >
-                  {color === c && <Ionicons name="checkmark" size={20} color={Colors.white} />}
+                  {color === c && <Ionicons name="checkmark" size={20} color={colors.white} />}
                 </TouchableOpacity>
               ))}
             </View>
@@ -159,7 +165,7 @@ export const EditCategoryModal = ({ visible, category, onClose, type, existingCa
                   <Ionicons 
                     name={i as any} 
                     size={22} 
-                    color={icon === i ? Colors.primary : Colors.textSecondary} 
+                    color={icon === i ? colors.primary : colors.textSecondary} 
                   />
                 </TouchableOpacity>
               ))}

@@ -7,11 +7,11 @@ import Swipeable from "react-native-gesture-handler/Swipeable";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { DefaultModal } from "@/src/components/ui/DefaultModal/DefaultModal";
-import { Colors } from "@/src/constants/Colors";
 import { useLoader } from "@/src/context/LoaderContext";
+import { useTheme } from "@/src/context/ThemeContext";
 import { appAlert } from "@/src/services/alert";
 import { Category, checkCategoryHasTransactions, deleteAndReassignCategory, deleteCategory, subscribeToCategories, updateCategoriesOrder } from "@/src/services/categories";
-import { styles } from "./CategoriesScreen.styles";
+import { getStyles } from "./CategoriesScreen.styles";
 import { EditCategoryModal } from "./components/EditCategoryModal";
 
 LogBox.ignoreLogs([
@@ -22,6 +22,8 @@ export const CategoriesScreen = () => {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const swipeableRefs = useRef<Map<string, Swipeable>>(new Map());
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
 
   const { showLoader, hideLoader } = useLoader();
 
@@ -193,7 +195,7 @@ export const CategoriesScreen = () => {
         >
           <View style={[
             styles.categoryRow, 
-            isActive && { borderColor: Colors.primary, backgroundColor: Colors.outline }
+            isActive && { borderColor: colors.primary, backgroundColor: colors.outline }
           ]}>
             {/* Бейдж крипти зверху бордера */}
             {item.isCrypto && (
@@ -213,10 +215,10 @@ export const CategoriesScreen = () => {
 
             <View style={styles.actions}>
               <TouchableOpacity style={styles.actionBtn} onPress={() => openEdit(item)}>
-                <Ionicons name="pencil" size={20} color={Colors.textSecondary} />
+                <Ionicons name="pencil" size={20} color={colors.textSecondary} />
               </TouchableOpacity>
               <TouchableOpacity onLongPress={drag} delayLongPress={200} style={styles.actionBtn}>
-                <Ionicons name="menu" size={24} color={Colors.textSecondary} />
+                <Ionicons name="menu" size={24} color={colors.textSecondary} />
               </TouchableOpacity>
             </View>
           </View>
@@ -235,7 +237,7 @@ export const CategoriesScreen = () => {
       <View style={styles.headerRow}>
         <Text style={styles.screenTitle}>Категорії</Text>
         <TouchableOpacity onPress={() => router.back()} style={{ padding: 5 }}>
-           <Ionicons name="close-circle-outline" size={32} color={Colors.textSecondary} />
+           <Ionicons name="close-circle-outline" size={32} color={colors.textSecondary} />
         </TouchableOpacity>
       </View>
 
@@ -244,14 +246,14 @@ export const CategoriesScreen = () => {
           style={[styles.toggleBtn, activeTab === 'expense' && styles.toggleBtnActive]} 
           onPress={() => { setActiveTab('expense'); setOpenedRowId(null); }}
         >
-          <Text style={[styles.toggleLabel, activeTab === 'expense' && { color: Colors.error }]}>Витрати</Text>
+          <Text style={[styles.toggleLabel, activeTab === 'expense' && { color: colors.error }]}>Витрати</Text>
         </TouchableOpacity>
         
         <TouchableOpacity 
           style={[styles.toggleBtn, activeTab === 'income' && styles.toggleBtnActive]} 
           onPress={() => { setActiveTab('income'); setOpenedRowId(null); }}
         >
-          <Text style={[styles.toggleLabel, activeTab === 'income' && { color: Colors.primary }]}>Доходи</Text>
+          <Text style={[styles.toggleLabel, activeTab === 'income' && { color: colors.primary }]}>Доходи</Text>
         </TouchableOpacity>
       </View>
 
@@ -262,7 +264,7 @@ export const CategoriesScreen = () => {
         {fiatCategories.length > 0 && (
           <View style={styles.listWrapper} collapsable={false}>
             <View style={styles.sectionHeader}>
-              <Ionicons name="cash-outline" size={16} color={Colors.textSecondary} />
+              <Ionicons name="cash-outline" size={16} color={colors.textSecondary} />
               <Text style={styles.sectionTitle}>Фіатні категорії</Text>
               <View style={styles.sectionBadge}><Text style={styles.sectionBadgeText}>{fiatCategories.length}</Text></View>
             </View>
@@ -304,7 +306,7 @@ export const CategoriesScreen = () => {
               <View style={styles.modalHeaderSpacer} />
               <Text style={styles.modalTitle}>Видалення: {categoryToDelete?.name}</Text>
               <TouchableOpacity onPress={() => setReassignModalVisible(false)} style={styles.modalCloseBtn}>
-                <Ionicons name="close" size={28} color={Colors.textSecondary} />
+                <Ionicons name="close" size={28} color={colors.textSecondary} />
               </TouchableOpacity>
             </View>
 
@@ -322,7 +324,7 @@ export const CategoriesScreen = () => {
             />
 
             <TouchableOpacity style={styles.cancelBtn} onPress={() => setReassignModalVisible(false)}>
-              <Text style={{color: Colors.error, fontSize: 16, fontWeight: 'bold'}}>Скасувати</Text>
+              <Text style={{color: colors.error, fontSize: 16, fontWeight: 'bold'}}>Скасувати</Text>
             </TouchableOpacity>
       </DefaultModal>
 

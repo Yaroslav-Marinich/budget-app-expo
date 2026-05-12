@@ -1,11 +1,9 @@
 import { StyleSheet } from "react-native";
 
-import { Colors } from "@/src/constants/Colors";
-
-export const styles = StyleSheet.create({
+export const getStyles = (colors: any) => StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: Colors.overlayStrong,
+    backgroundColor: colors.overlayStrong,
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 24,
@@ -13,22 +11,22 @@ export const styles = StyleSheet.create({
   alertBox: {
     width: "100%",
     maxWidth: 420,
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: Colors.outline,
+    borderColor: colors.outline,
     borderRadius: 16,
     paddingTop: 20,
     paddingHorizontal: 18,
     paddingBottom: 14,
   },
   title: {
-    color: Colors.text,
+    color: colors.text,
     fontSize: 20,
     fontWeight: "700",
     marginBottom: 10,
   },
   message: {
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     fontSize: 15,
     lineHeight: 21,
     marginBottom: 18,
@@ -48,34 +46,38 @@ export const styles = StyleSheet.create({
     width: "100%",
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: Colors.outline,
-    backgroundColor: Colors.surfaceOverlay,
+    borderColor: colors.outline,
+    backgroundColor: colors.surfaceOverlay,
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 12,
   },
   buttonCancel: {
     backgroundColor: "transparent",
+    borderColor: colors.outline,
   },
   buttonDestructive: {
-    backgroundColor: Colors.surfaceDanger,
-    borderColor: Colors.error,
+    backgroundColor: colors.surfaceDanger,
+    borderColor: colors.dangerSoft, 
   },
   buttonDefault: {
-    backgroundColor: Colors.primary,
-    borderColor: Colors.primary,
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   buttonText: {
-    color: Colors.text,
+    color: colors.text,
     fontSize: 15,
     fontWeight: "700",
     textAlign: "center",
   },
   buttonTextCancel: {
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
   },
   buttonTextDestructive: {
-    color: Colors.errorLight,
+    color: colors.danger, 
+  },
+  buttonTextDefault: {
+    color: colors.white, 
   },
   rowButton: {
     flex: 1,

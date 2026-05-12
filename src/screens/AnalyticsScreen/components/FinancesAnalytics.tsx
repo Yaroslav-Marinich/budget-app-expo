@@ -1,4 +1,3 @@
-import { Colors } from '@/src/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Dimensions, ScrollView, Text, TouchableOpacity, View } from 'react-native';
@@ -7,6 +6,7 @@ import { PieChart } from "react-native-gifted-charts";
 import { MonthPickerModal } from '@/src/components/ui/MonthPickerModal/MonthPickerModal';
 import { auth, db } from '@/src/config/firebase';
 import { CURRENCIES } from '@/src/constants/Currencies';
+import { useTheme } from "@/src/context/ThemeContext";
 import { subscribeToMonthlyTransactions, TransactionData } from '@/src/services/transactions';
 import { subscribeToWallets, Wallet } from '@/src/services/wallets';
 import { formatMoney } from '@/src/utils/formatMoney';
@@ -15,10 +15,11 @@ import { collection, getDocs, query, where } from 'firebase/firestore';
 
 const screenWidth = Dimensions.get('window').width;
 
-const CATEGORY_COLORS = Colors.analyticsColors;
-const CARD_BG_COLOR = Colors.surfaceMuted;
-
 export const FinancesAnalytics = () => {
+  const { colors } = useTheme();
+  const CATEGORY_COLORS = colors.analyticsColors;
+  const CARD_BG_COLOR = colors.surfaceMuted;
+
   const walletsScrollViewRef = useRef<ScrollView>(null);
 
   const [loading, setLoading] = useState(true);
@@ -208,12 +209,12 @@ export const FinancesAnalytics = () => {
               paddingHorizontal: 16,
               paddingVertical: 10,
               borderRadius: 20,
-              backgroundColor: selectedWalletId === null ? Colors.primary : Colors.surfaceSoft,
+              backgroundColor: selectedWalletId === null ? colors.primary : colors.surfaceSoft,
               flexDirection: 'row',
               alignItems: 'center',
             }}
           >
-            <Text style={{ color: selectedWalletId === null ? Colors.white : Colors.text, fontWeight: selectedWalletId === null ? 'bold' : 'normal' }}>
+            <Text style={{ color: selectedWalletId === null ? colors.white : colors.text, fontWeight: selectedWalletId === null ? 'bold' : 'normal' }}>
               Всі рахунки
             </Text>
           </TouchableOpacity>
@@ -230,18 +231,18 @@ export const FinancesAnalytics = () => {
                   paddingHorizontal: 16,
                   paddingVertical: 10,
                   borderRadius: 20,
-                  backgroundColor: isSelected ? Colors.primary : Colors.surfaceSoft,
+                  backgroundColor: isSelected ? colors.primary : colors.surfaceSoft,
                   flexDirection: 'row',
                   alignItems: 'center',
                   gap: 8,
                   opacity: wallet.isArchived && !isSelected ? 0.6 : 1, 
                   borderWidth: wallet.isArchived ? 1 : 0,
-                  borderColor: wallet.isArchived && !isSelected ? Colors.textSecondary : 'transparent',
+                  borderColor: wallet.isArchived && !isSelected ? colors.textSecondary : 'transparent',
                   borderStyle: wallet.isArchived ? 'dashed' : 'solid',
                 }}
               >
-                <Ionicons name={wallet.icon as any} size={16} color={isSelected ? Colors.white : Colors.textSecondary} />
-                <Text style={{ color: isSelected ? Colors.white : Colors.text, fontWeight: isSelected ? 'bold' : 'normal' }}>
+                <Ionicons name={wallet.icon as any} size={16} color={isSelected ? colors.white : colors.textSecondary} />
+                <Text style={{ color: isSelected ? colors.white : colors.text, fontWeight: isSelected ? 'bold' : 'normal' }}>
                   {wallet.title} {walletCurrencySymbol} {wallet.isArchived ? '(Архів)' : ''}
                 </Text>
               </TouchableOpacity>
@@ -253,7 +254,7 @@ export const FinancesAnalytics = () => {
       {/* Глобальна валюта */}
       {selectedWalletId === null && uniqueCurrencies.length > 1 && (
         <View style={{ paddingHorizontal: 20, marginBottom: 15,marginTop: 10, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-          <Text style={{ color: Colors.textSecondary, fontSize: 13 }}>Звести у валюті:</Text>
+          <Text style={{ color: colors.textSecondary, fontSize: 13 }}>Звести у валюті:</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
             {uniqueCurrencies.map(code => {
               const sym = CURRENCIES.find(c => c.code === code)?.symbol || code;
@@ -266,12 +267,12 @@ export const FinancesAnalytics = () => {
                     paddingHorizontal: 12,
                     paddingVertical: 6,
                     borderRadius: 12,
-                    backgroundColor: isActive ? Colors.surfacePressed : Colors.surfaceMuted,
+                    backgroundColor: isActive ? colors.surfacePressed : colors.surfaceMuted,
                     borderWidth: 1,
-                    borderColor: isActive ? Colors.textSecondary : 'transparent'
+                    borderColor: isActive ? colors.textSecondary : 'transparent'
                   }}
                 >
-                  <Text style={{ color: isActive ? Colors.text : Colors.textSecondary, fontWeight: isActive ? 'bold' : 'normal' }}>
+                  <Text style={{ color: isActive ? colors.text : colors.textSecondary, fontWeight: isActive ? 'bold' : 'normal' }}>
                     {sym} {code}
                   </Text>
                 </TouchableOpacity>
@@ -283,18 +284,18 @@ export const FinancesAnalytics = () => {
 
       {/* Селектор місяця */}
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, marginBottom: 20, marginTop: selectedWalletId === null && uniqueCurrencies.length > 1 ? 5 : 15 }}>
-        <TouchableOpacity onPress={() => changeMonth(-1)} style={{ padding: 10, backgroundColor: Colors.surfaceSoft, borderRadius: 12 }}>
-          <Ionicons name="chevron-back" size={24} color={Colors.text} />
+        <TouchableOpacity onPress={() => changeMonth(-1)} style={{ padding: 10, backgroundColor: colors.surfaceSoft, borderRadius: 12 }}>
+          <Ionicons name="chevron-back" size={24} color={colors.text} />
         </TouchableOpacity>
         
         <TouchableOpacity onPress={() => setMonthPickerVisible(true)} style={{ paddingHorizontal: 10, paddingVertical: 5 }}>
-          <Text style={{ color: Colors.text, fontSize: 18, fontWeight: 'bold' }}>
+          <Text style={{ color: colors.text, fontSize: 18, fontWeight: 'bold' }}>
             {displayMonthStr}
           </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => changeMonth(1)} style={{ padding: 10, backgroundColor: Colors.surfaceSoft, borderRadius: 12 }}>
-          <Ionicons name="chevron-forward" size={24} color={Colors.text} />
+        <TouchableOpacity onPress={() => changeMonth(1)} style={{ padding: 10, backgroundColor: colors.surfaceSoft, borderRadius: 12 }}>
+          <Ionicons name="chevron-forward" size={24} color={colors.text} />
         </TouchableOpacity>
       </View>
 
@@ -302,17 +303,17 @@ export const FinancesAnalytics = () => {
  <View style={{ flexDirection: 'row', paddingHorizontal: 20, gap: 15, marginBottom: 30 }}>
         
         {/* Картка ДОХОДИ (Зелена) */}
-        <View style={{ flex: 1, backgroundColor: 'rgba(46, 125, 50, 0.1)', padding: 15, borderRadius: 16, borderLeftWidth: 4, borderColor: Colors.accent }}>
-          <Text style={{ color: Colors.textSecondary, fontSize: 13, marginBottom: 5 }}>Доходи</Text>
-          <Text style={{ color: Colors.accent, fontSize: 20, fontWeight: 'bold' }}>
+        <View style={{ flex: 1, backgroundColor: 'rgba(46, 125, 50, 0.1)', padding: 15, borderRadius: 16, borderLeftWidth: 4, borderColor: colors.accent }}>
+          <Text style={{ color: colors.textSecondary, fontSize: 13, marginBottom: 5 }}>Доходи</Text>
+          <Text style={{ color: colors.accent, fontSize: 20, fontWeight: 'bold' }}>
             + {formatMoney(totalIncome)} {currencySymbol}
           </Text>
         </View>
 
         {/* Картка ВИТРАТИ (Червона) */}
-        <View style={{ flex: 1, backgroundColor: Colors.errorSoft, padding: 15, borderRadius: 16, borderLeftWidth: 4, borderColor: Colors.errorBright }}>
-          <Text style={{ color: Colors.textSecondary, fontSize: 13, marginBottom: 5 }}>Витрати</Text>
-          <Text style={{ color: Colors.errorBright, fontSize: 20, fontWeight: 'bold' }}>
+        <View style={{ flex: 1, backgroundColor: colors.errorSoft, padding: 15, borderRadius: 16, borderLeftWidth: 4, borderColor: colors.errorBright }}>
+          <Text style={{ color: colors.textSecondary, fontSize: 13, marginBottom: 5 }}>Витрати</Text>
+          <Text style={{ color: colors.errorBright, fontSize: 20, fontWeight: 'bold' }}>
             - {formatMoney(totalExpense)} {currencySymbol}
           </Text>
         </View>
@@ -321,12 +322,12 @@ export const FinancesAnalytics = () => {
 
       {/* Кільцева діаграма */}
       <View style={{ marginHorizontal: 20, backgroundColor: CARD_BG_COLOR, borderRadius: 20, padding: 20, alignItems: 'center' }}>
-        <Text style={{ color: Colors.text, fontSize: 18, fontWeight: 'bold', marginBottom: 20, alignSelf: 'flex-start' }}>
+        <Text style={{ color: colors.text, fontSize: 18, fontWeight: 'bold', marginBottom: 20, alignSelf: 'flex-start' }}>
           Структура витрат
         </Text>
 
         {loading ? (
-          <View style={{ height: 200, justifyContent: 'center' }}><ActivityIndicator color={Colors.primary} /></View>
+          <View style={{ height: 200, justifyContent: 'center' }}><ActivityIndicator color={colors.primary} /></View>
         ) : chartData.length > 0 ? (
           <View style={{ alignItems: 'center', justifyContent: 'center', marginVertical: 10, position: 'relative' }}>
             <PieChart
@@ -334,14 +335,14 @@ export const FinancesAnalytics = () => {
               donut
               radius={screenWidth * 0.3} 
               innerRadius={screenWidth * 0.22} 
-              innerCircleColor={Colors.background} 
+              innerCircleColor={colors.background} 
               innerCircleBorderWidth={1} 
-              innerCircleBorderColor={Colors.outlineSoft}
+              innerCircleBorderColor={colors.outlineSoft}
               centerLabelComponent={() => {
                 return (
                   <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                    <Text style={{ fontSize: 13, color: Colors.textSecondary, marginBottom: 4 }}>Всього</Text>
-                    <Text style={{ fontSize: 22, color: Colors.text, fontWeight: 'bold' }} numberOfLines={1} adjustsFontSizeToFit>
+                    <Text style={{ fontSize: 13, color: colors.textSecondary, marginBottom: 4 }}>Всього</Text>
+                    <Text style={{ fontSize: 22, color: colors.text, fontWeight: 'bold' }} numberOfLines={1} adjustsFontSizeToFit>
                       {formatMoney(totalExpense)} {currencySymbol}
                     </Text>
                   </View>
@@ -351,7 +352,7 @@ export const FinancesAnalytics = () => {
           </View>
         ) : (
           <View style={{ height: 150, justifyContent: 'center' }}>
-            <Text style={{ color: Colors.textSecondary, textAlign: 'center' }}>
+            <Text style={{ color: colors.textSecondary, textAlign: 'center' }}>
               Немає витрат для відображення.
             </Text>
           </View>
@@ -360,18 +361,18 @@ export const FinancesAnalytics = () => {
 
       {/* Легенда */}
       {legendData.length > 0 && !loading && (
-        <View style={{ marginHorizontal: 20, marginTop: 20, backgroundColor: Colors.surfaceMuted, borderRadius: 20, padding: 20 }}>
-          <Text style={{ color: Colors.text, fontSize: 16, fontWeight: 'bold', marginBottom: 15 }}>
+        <View style={{ marginHorizontal: 20, marginTop: 20, backgroundColor: colors.surfaceMuted, borderRadius: 20, padding: 20 }}>
+          <Text style={{ color: colors.text, fontSize: 16, fontWeight: 'bold', marginBottom: 15 }}>
             Топ категорій
           </Text>
           
           {legendData.map((item, index) => (
             <View key={index} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
               <View style={{ width: 14, height: 14, borderRadius: 7, backgroundColor: item.color, marginRight: 12 }} />
-              <Text style={{ flex: 1, color: Colors.text, fontSize: 16 }}>{item.name}</Text>
+              <Text style={{ flex: 1, color: colors.text, fontSize: 16 }}>{item.name}</Text>
               <View style={{ alignItems: 'flex-end' }}>
-                <Text style={{ color: Colors.text, fontSize: 16, fontWeight: 'bold' }}>{formatMoney(item.amount)} {currencySymbol}</Text>
-                <Text style={{ color: Colors.textSecondary, fontSize: 12 }}>{item.percentage}%</Text>
+                <Text style={{ color: colors.text, fontSize: 16, fontWeight: 'bold' }}>{formatMoney(item.amount)} {currencySymbol}</Text>
+                <Text style={{ color: colors.textSecondary, fontSize: 12 }}>{item.percentage}%</Text>
               </View>
             </View>
           ))}

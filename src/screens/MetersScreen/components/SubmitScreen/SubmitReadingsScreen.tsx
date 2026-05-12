@@ -3,34 +3,36 @@ import * as ImagePicker from 'expo-image-picker';
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
-    FlatList,
-    Image,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  FlatList,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { MonthPickerModal } from '@/src/components/ui/MonthPickerModal/MonthPickerModal';
 import { auth } from '@/src/config/firebase';
-import { Colors } from '@/src/constants/Colors';
 import { useLoader } from '@/src/context/LoaderContext';
-import { styles } from '@/src/screens/MetersScreen/components/SubmitScreen/SubmitReadingsScreen.styles';
+import { useTheme } from '@/src/context/ThemeContext';
 import { appAlert } from '@/src/services/alert';
 import { deleteLocalFile, savePhotoLocally } from '@/src/services/fileManager';
 import { getMeterColor, getPreviousMeterReading, Meter, subscribeToMeters } from '@/src/services/meters';
 import { startSync } from '@/src/services/syncEngine';
 import { addToSyncQueue } from '@/src/services/syncManager';
+import { getStyles } from './SubmitReadingsScreen.styles';
 
 export const SubmitReadingsScreen = () => {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { showLoader, hideLoader } = useLoader();
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
 
   const [meters, setMeters] = useState<Meter[]>([]);
   const [step, setStep] = useState<'select' | 'form'>('select');
@@ -203,7 +205,7 @@ export const SubmitReadingsScreen = () => {
             }} 
             style={{ padding: 5 }}
           >
-            <Ionicons name="arrow-back" size={28} color={Colors.textSecondary} />
+            <Ionicons name="arrow-back" size={28} color={colors.textSecondary} />
           </TouchableOpacity>
           <Text style={styles.title}>{step === 'select' ? 'Виберіть лічильник' : 'Внесення даних'}</Text>
         </View>
@@ -223,7 +225,7 @@ export const SubmitReadingsScreen = () => {
                   <Text style={styles.manageName}>{item.name}</Text>
                   <Text style={styles.manageType}>{item.calcType === 'readings' ? 'За показами' : "За об'ємом"}</Text>
                 </View>
-                <Ionicons name="chevron-forward" size={20} color={Colors.textSecondary} />
+                <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
               </TouchableOpacity>
             )}
           />
@@ -239,7 +241,7 @@ export const SubmitReadingsScreen = () => {
             {/* БЛОКИ ДАТИ І ПОКАЗНИКІВ */}
             <View style={styles.dateSelectorContainer}>
               <TouchableOpacity style={styles.dateSelectorBtn} onPress={() => changeMonth(-1)}>
-                <Ionicons name="chevron-back" size={24} color={Colors.textSecondary} />
+                <Ionicons name="chevron-back" size={24} color={colors.textSecondary} />
               </TouchableOpacity>
               <TouchableOpacity style={styles.dateSelectorTextContainer} onPress={() => setMonthPickerVisible(true)}>
                 <Text style={styles.dateSelectorText}>
@@ -247,7 +249,7 @@ export const SubmitReadingsScreen = () => {
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.dateSelectorBtn} onPress={() => changeMonth(1)}>
-                <Ionicons name="chevron-forward" size={24} color={Colors.textSecondary} />
+                <Ionicons name="chevron-forward" size={24} color={colors.textSecondary} />
               </TouchableOpacity>
             </View>
 
@@ -268,7 +270,7 @@ export const SubmitReadingsScreen = () => {
                         style={styles.meterInput}
                         keyboardType="numeric"
                         placeholder="0.0"
-                        placeholderTextColor={Colors.textSecondary}
+                        placeholderTextColor={colors.textSecondary}
                         value={prevValue}
                         onChangeText={(value) => setPrevValue(sanitizeNumber(value))}
                       />
@@ -279,7 +281,7 @@ export const SubmitReadingsScreen = () => {
                         style={styles.meterInput}
                         keyboardType="numeric"
                         placeholder="0.0"
-                        placeholderTextColor={Colors.textSecondary}
+                        placeholderTextColor={colors.textSecondary}
                         value={currValue}
                         onChangeText={(value) => setCurrValue(sanitizeNumber(value))}
                       />
@@ -292,7 +294,7 @@ export const SubmitReadingsScreen = () => {
                       style={styles.meterInput}
                       keyboardType="numeric"
                       placeholder="0.0"
-                      placeholderTextColor={Colors.textSecondary}
+                      placeholderTextColor={colors.textSecondary}
                       value={consumed}
                       onChangeText={(value) => setConsumed(sanitizeNumber(value))}
                     />
@@ -304,7 +306,7 @@ export const SubmitReadingsScreen = () => {
               <TextInput
                 style={styles.commentInput}
                 placeholder="Введіть коментар..."
-                placeholderTextColor={Colors.textSecondary}
+                placeholderTextColor={colors.textSecondary}
                 value={comment}
                 onChangeText={setComment}
                 multiline
@@ -315,7 +317,7 @@ export const SubmitReadingsScreen = () => {
             <View style={styles.photoSectionContainer}>
               {isUploadingPhoto ? (
                 <View style={styles.photoUploadingContainer}>
-                  <ActivityIndicator size="large" color={Colors.primary} />
+                  <ActivityIndicator size="large" color={colors.primary} />
                   <Text style={styles.photoUploadingText}>Обробка фото...</Text>
                 </View>
               ) : photoUrl ? (
@@ -329,7 +331,7 @@ export const SubmitReadingsScreen = () => {
                     style={styles.photoDeleteBtn}
                     onPress={handleDeletePhoto}
                   >
-                    <Ionicons name="trash-outline" size={20} color={Colors.danger} />
+                    <Ionicons name="trash-outline" size={20} color={colors.danger} />
                     <Text style={styles.photoDeleteText}>Видалити фото</Text>
                   </TouchableOpacity>
                 </View>
@@ -338,7 +340,7 @@ export const SubmitReadingsScreen = () => {
                   style={styles.photoAddBtn} 
                   onPress={handleTakePhoto}
                 >
-                  <Ionicons name="camera-outline" size={24} color={Colors.primary} />
+                  <Ionicons name="camera-outline" size={24} color={colors.primary} />
                   <Text style={styles.photoAddText}>
                     Додати фото лічильника
                   </Text>
@@ -348,7 +350,7 @@ export const SubmitReadingsScreen = () => {
             {/* 📸 КІНЕЦЬ БЛОКУ ДЛЯ ФОТО */}
 
             <TouchableOpacity style={styles.formSubmitBtn} onPress={handleSave}>
-              <Ionicons name="checkmark-circle-outline" size={24} color={Colors.white} />
+              <Ionicons name="checkmark-circle-outline" size={24} color={colors.white} />
               <Text style={styles.formSubmitBtnText}>Зберегти показники</Text>
             </TouchableOpacity>
           </ScrollView>

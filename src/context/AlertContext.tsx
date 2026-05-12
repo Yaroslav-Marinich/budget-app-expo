@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { AlertButton, AlertOptions, Modal, Pressable, Text, View } from "react-native";
 
+import { useTheme } from "@/src/context/ThemeContext";
 import { registerAlertHandler } from "@/src/services/alert";
-import { styles } from "./AlertContext.styles";
+import { getStyles } from "./AlertContext.styles";
 
 interface AlertState {
   visible: boolean;
@@ -22,6 +23,9 @@ const initialState: AlertState = {
 const defaultButtons: AlertButton[] = [{ text: "OK" }];
 
 export const CustomAlertProvider = ({ children }: { children: React.ReactNode }) => {
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
+  
   const [state, setState] = useState<AlertState>(initialState);
 
   useEffect(() => {
@@ -101,6 +105,7 @@ export const CustomAlertProvider = ({ children }: { children: React.ReactNode })
                         styles.buttonText,
                         isCancel && styles.buttonTextCancel,
                         isDestructive && styles.buttonTextDestructive,
+                        isDefault && styles.buttonTextDefault, 
                       ]}
                     >
                       {button.text || "OK"}

@@ -3,8 +3,8 @@ import React, { useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { Colors } from "@/src/constants/Colors";
-import { styles } from "./AnalyticsScreen.styles";
+import { useTheme } from "@/src/context/ThemeContext";
+import { getStyles } from "./AnalyticsScreen.styles";
 import { FinancesAnalytics } from "./components/FinancesAnalytics";
 import { MetersAnalytics } from "./components/MetersAnalytics";
 
@@ -13,6 +13,8 @@ type TabType = 'finances' | 'meters';
 export const AnalyticsScreen = () => {
   const insets = useSafeAreaInsets();
   const netInfo = useNetInfo();
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
   const isOnline = !!netInfo.isConnected && netInfo.isInternetReachable !== false;
 
   const [activeTab, setActiveTab] = useState<TabType>('finances');
@@ -27,7 +29,7 @@ export const AnalyticsScreen = () => {
       {!isOnline ? (
         // 📴 Стан без інтернету
         <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-          <Text style={{ color: Colors.textSecondary, marginTop: 10, textAlign: "center", paddingHorizontal: 20 }}>
+          <Text style={{ color: colors.textSecondary, marginTop: 10, textAlign: "center", paddingHorizontal: 20 }}>
             Ця вкладка не працює без інтернету.
           </Text>
         </View>

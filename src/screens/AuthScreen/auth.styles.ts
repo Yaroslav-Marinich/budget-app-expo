@@ -1,10 +1,9 @@
-import { Colors } from "@/src/constants/Colors";
 import { StyleSheet } from "react-native";
 
-export const styles = StyleSheet.create({
+export const getStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
     justifyContent: 'center',
     paddingHorizontal: 30,
   },
@@ -18,14 +17,14 @@ export const styles = StyleSheet.create({
     marginBottom: 20,
   },
   title: {
-    color: Colors.text,
+    color: colors.text,
     fontSize: 32,
     fontWeight: 'bold',
     marginTop: 20,
     textAlign: 'center',
   },
   subtitle: {
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     fontSize: 16,
     textAlign: 'center',
     marginTop: 10,
@@ -56,11 +55,11 @@ export const styles = StyleSheet.create({
     paddingVertical: 16,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: Colors.outline,
+    borderColor: colors.outline,
     gap: 10,
   },
   anonymousBtnText: {
-    color: Colors.text,
+    color: colors.text,
     fontSize: 16,
     fontWeight: 'bold',
   },

@@ -1,10 +1,9 @@
-import { Colors } from '@/src/constants/Colors';
 import { StyleSheet } from 'react-native';
 
-export const styles = StyleSheet.create({
+export const getStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
   },
   header: {
     paddingHorizontal: 20,
@@ -15,7 +14,7 @@ export const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: Colors.text,
+    color: colors.text,
     marginLeft: 15,
   },
   listContent: {
@@ -23,18 +22,18 @@ export const styles = StyleSheet.create({
     paddingBottom: 120,
   },
   emptyText: {
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
     marginTop: 40,
     fontSize: 16,
   },
   detailCard: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderRadius: 20,
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: Colors.outline,
+    borderColor: colors.outline,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
@@ -54,7 +53,7 @@ export const styles = StyleSheet.create({
   detailMeterName: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: Colors.text,
+    color: colors.text,
     marginLeft: 10,
   },
   detailActions: {
@@ -65,7 +64,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: Colors.outline,
+    backgroundColor: colors.outline,
     borderRadius: 16,
     padding: 12,
     marginBottom: 12,
@@ -76,7 +75,7 @@ export const styles = StyleSheet.create({
   },
   readingLabel: {
     fontSize: 11,
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     textTransform: 'uppercase',
     fontWeight: 'bold',
     marginBottom: 4,
@@ -84,40 +83,40 @@ export const styles = StyleSheet.create({
   readingCardValue: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: Colors.text,
+    color: colors.text,
   },
   consumedHighlightBox: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: `${Colors.primary}50`,
+    backgroundColor: `${colors.primary}50`,
     borderRadius: 16,
     paddingVertical: 14,
     paddingHorizontal: 16,
   },
   consumedHighlightLabel: {
-    color: Colors.primary,
+    color: colors.primary,
     fontSize: 15,
     fontWeight: '700',
   },
   consumedHighlightValue: {
-    color: Colors.primary,
+    color: colors.primary,
     fontSize: 24,
     fontWeight: '900',
   },
   commentBubble: {
     flexDirection: 'row',
-    backgroundColor: Colors.outline,
+    backgroundColor: colors.outline,
     padding: 12,
     borderRadius: 12,
     marginTop: 12,
     alignItems: 'center',
     gap: 8,
     borderLeftWidth: 3,
-    borderLeftColor: Colors.outline,
+    borderLeftColor: colors.outline,
   },
   commentText: {
-    color: Colors.text,
+    color: colors.text,
     fontSize: 14,
     lineHeight: 20,
     flex: 1,

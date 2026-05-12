@@ -1,18 +1,17 @@
-import { Colors } from "@/src/constants/Colors";
 import { StyleSheet } from "react-native";
 
-export const styles = StyleSheet.create({
+export const getStyles = (colors: any) => StyleSheet.create({
   // =======================
   // Overlay / Modal
   // =======================
   overlay: {
     flex: 1,
-    backgroundColor: Colors.overlayHeavy,
+    backgroundColor: colors.overlayHeavy,
     justifyContent: "flex-end",
   },
 
   modalContent: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     paddingHorizontal: 20,
@@ -30,7 +29,7 @@ export const styles = StyleSheet.create({
   },
 
   modalTitle: {
-    color: Colors.text,
+    color: colors.text,
     fontSize: 20,
     fontWeight: "bold",
   },
@@ -39,7 +38,7 @@ export const styles = StyleSheet.create({
   // Inputs
   // =======================
   label: {
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     fontSize: 13,
     marginBottom: 8,
     marginLeft: 5,
@@ -47,13 +46,13 @@ export const styles = StyleSheet.create({
   },
 
   input: {
-    backgroundColor: Colors.background,
-    color: Colors.text,
+    backgroundColor: colors.background,
+    color: colors.text,
     padding: 15,
     borderRadius: 15,
     fontSize: 16,
     borderWidth: 1,
-    borderColor: Colors.outline,
+    borderColor: colors.outline,
   },
 
   // =======================
@@ -69,7 +68,7 @@ export const styles = StyleSheet.create({
     width: "30%",
     borderRadius: 18,
     paddingVertical: 12,
-    backgroundColor: Colors.outline,
+    backgroundColor: colors.outline,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 2,
@@ -87,32 +86,32 @@ export const styles = StyleSheet.create({
 
   toggleBtn: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
     padding: 15,
     borderRadius: 15,
     borderWidth: 1,
-    borderColor: Colors.outline,
+    borderColor: colors.outline,
     alignItems: "center",
   },
 
   toggleBtnActive: {
-    borderColor: Colors.primary,
-    backgroundColor: `${Colors.primary}10`,
+    borderColor: colors.primary,
+    backgroundColor: `${colors.primary}10`,
   },
 
   toggleText: {
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     fontSize: 16,
     fontWeight: "bold",
     marginBottom: 4,
   },
 
   toggleTextActive: {
-    color: Colors.primary,
+    color: colors.primary,
   },
 
   toggleSubtext: {
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     fontSize: 11,
     textAlign: "center",
   },
@@ -121,7 +120,7 @@ export const styles = StyleSheet.create({
   // Button
   // =======================
   saveBtn: {
-    backgroundColor: Colors.primary,
+    backgroundColor: colors.primary,
     padding: 18,
     borderRadius: 20,
     alignItems: "center",
@@ -130,7 +129,7 @@ export const styles = StyleSheet.create({
   },
 
   saveBtnText: {
-    color: Colors.white,
+    color: colors.white,
     fontWeight: "bold",
     fontSize: 16,
   },

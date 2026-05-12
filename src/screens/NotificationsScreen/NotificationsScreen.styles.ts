@@ -1,10 +1,9 @@
-import { Colors } from '@/src/constants/Colors';
 import { StyleSheet } from 'react-native';
 
-export const styles = StyleSheet.create({
+export const getStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
   },
   header: {
     paddingHorizontal: 20,
@@ -15,14 +14,14 @@ export const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: Colors.text,
+    color: colors.text,
     marginLeft: 15,
   },
   listContainer: {
     paddingBottom: 40,
   },
   card: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderRadius: 20,
     padding: 16,
     marginHorizontal: 20,
@@ -31,20 +30,20 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     borderWidth: 1,
-    borderColor: Colors.outline,
+    borderColor: colors.outline,
   },
   cardInfo: {
     flex: 1,
     marginRight: 15,
   },
   cardTitle: {
-    color: Colors.text,
+    color: colors.text,
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 4,
   },
   cardDesc: {
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     fontSize: 13,
     lineHeight: 18,
   },
@@ -55,7 +54,7 @@ export const styles = StyleSheet.create({
   },
   settingsBtn: {
     padding: 8,
-    backgroundColor: Colors.surfaceMuted,
+    backgroundColor: colors.surfaceMuted,
     borderRadius: 12,
   },
   
@@ -67,25 +66,25 @@ export const styles = StyleSheet.create({
     marginBottom: 20,
   },
   modalTitle: {
-    color: Colors.text,
+    color: colors.text,
     fontSize: 20,
     fontWeight: 'bold',
   },
   label: {
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     fontSize: 14,
     marginBottom: 8,
     marginTop: 15,
     marginLeft: 5,
   },
   input: {
-    backgroundColor: Colors.background,
-    color: Colors.text,
+    backgroundColor: colors.background,
+    color: colors.text,
     padding: 15,
     borderRadius: 15,
     fontSize: 16,
     borderWidth: 1,
-    borderColor: Colors.outline,
+    borderColor: colors.outline,
     },
   chipContainer: {
     flexDirection: 'row',
@@ -99,24 +98,24 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 15,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: Colors.outline,
-    backgroundColor: Colors.background,
+    borderColor: colors.outline,
+    backgroundColor: colors.background,
   },
   chipActive: {
-    backgroundColor: Colors.primary,
-    borderColor: Colors.primary,
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   chipText: {
-    color: Colors.text,
+    color: colors.text,
     fontSize: 14,
     textAlign: 'center',
   },
   chipTextActive: {
-    color: Colors.white,
+    color: colors.white,
     fontWeight: 'bold',
   },
   saveBtn: {
-    backgroundColor: Colors.primary,
+    backgroundColor: colors.primary,
     padding: 18,
     borderRadius: 20,
     alignItems: 'center',
@@ -124,7 +123,7 @@ export const styles = StyleSheet.create({
     marginBottom: 10,
   },
   saveBtnText: {
-    color: Colors.white,
+    color: colors.white,
     fontWeight: 'bold',
     fontSize: 16,
   },

@@ -1,26 +1,25 @@
-import { Colors } from "@/src/constants/Colors";
 import { StyleSheet } from "react-native";
 
-export const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
+export const getStyles = (colors: any) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
   listContent: { padding: 20 },
 
   primaryBorder: {
-    borderColor: Colors.primary,
+    borderColor: colors.primary,
     borderWidth: 2,
   },
   primaryBadge: {
     position: 'absolute',
     top: 0,
     left: 20, 
-    backgroundColor: Colors.primary,
+    backgroundColor: colors.primary,
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 12,
     zIndex: 10,
   },
   primaryBadgeText: {
-    color: Colors.white,
+    color: colors.white,
     fontSize: 10,
     fontWeight: 'bold',
     textTransform: 'uppercase',
@@ -29,12 +28,12 @@ export const styles = StyleSheet.create({
   
   walletCard: {
     flexDirection: 'column', 
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     paddingVertical: 12, 
     paddingHorizontal: 15,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: Colors.outline,
+    borderColor: colors.outline,
   },
   
   walletTopRow: {
@@ -50,10 +49,10 @@ export const styles = StyleSheet.create({
     marginTop: 8,   
     paddingTop: 8,   
     borderTopWidth: 1,
-    borderTopColor: Colors.outlineSoft, 
+    borderTopColor: colors.outlineSoft, 
   },
   excludeText: {
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     fontSize: 14,  
     flex: 1, 
     paddingRight: 10,
@@ -65,7 +64,7 @@ export const styles = StyleSheet.create({
     paddingTop: 10,
   },
   deleteAction: {
-    backgroundColor: Colors.error,
+    backgroundColor: colors.error,
     justifyContent: 'center',
     alignItems: 'flex-end',
     paddingRight: 20,
@@ -73,7 +72,7 @@ export const styles = StyleSheet.create({
     width: 100,
     height: '100%',
     borderWidth: 1,
-    borderColor: Colors.outline,
+    borderColor: colors.outline,
     borderLeftWidth: 0,
     marginLeft: -40,
   },
@@ -81,14 +80,14 @@ export const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 12,
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
   },
   infoBox: { flex: 1 },
-  title: { color: Colors.text, fontSize: 16, fontWeight: 'bold' },
-  balance: { color: Colors.textSecondary, fontSize: 14, marginTop: 2 },
+  title: { color: colors.text, fontSize: 16, fontWeight: 'bold' },
+  balance: { color: colors.textSecondary, fontSize: 14, marginTop: 2 },
   
   actions: { 
     flexDirection: 'row', 
@@ -104,10 +103,10 @@ export const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: Colors.primary,
+    backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: Colors.shadow,
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 4.65,
@@ -121,26 +120,26 @@ export const styles = StyleSheet.create({
     paddingBottom: 15,
   },
   screenTitle: {
-    color: Colors.text,
+    color: colors.text,
     fontSize: 28,
     fontWeight: 'bold',
   },
   archivedRow: {
     opacity: 0.6,
-    backgroundColor: Colors.outlineSubtle,
+    backgroundColor: colors.outlineSubtle,
   },
   archivedBadge: {
     position: 'absolute',
     top: 0,
     right: 60,
-    backgroundColor: Colors.textSecondary,
+    backgroundColor: colors.textSecondary,
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 8,
     zIndex: 10,
   },
   archivedBadgeText: {
-    color: Colors.background,
+    color: colors.background,
     fontSize: 9,
     fontWeight: 'bold',
     textTransform: 'uppercase',
@@ -149,7 +148,7 @@ export const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     right: 120,
-    backgroundColor: Colors.warning,
+    backgroundColor: colors.warning,
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 8,
@@ -159,33 +158,33 @@ export const styles = StyleSheet.create({
     gap: 3,
   },
   pendingBadgeText: {
-    color: Colors.background,
+    color: colors.background,
     fontSize: 9,
     fontWeight: 'bold',
     textTransform: 'uppercase',
   },
   pendingRow: {
-    borderColor: Colors.warning,
+    borderColor: colors.warning,
     borderStyle: 'dashed',
   },
 
   // Модалка
   modalContent: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     padding: 20,
     maxHeight: '90%',
   },
-  inputLabel: { color: Colors.textSecondary, fontSize: 12, marginBottom: 8, marginTop: 15, marginLeft: 5 },
+  inputLabel: { color: colors.textSecondary, fontSize: 12, marginBottom: 8, marginTop: 15, marginLeft: 5 },
   input: {
-    backgroundColor: Colors.background,
-    color: Colors.text,
+    backgroundColor: colors.background,
+    color: colors.text,
     padding: 15,
     borderRadius: 15,
     fontSize: 16,
     borderWidth: 1,
-    borderColor: Colors.outline,
+    borderColor: colors.outline,
   },
   
   // Пошук валют
@@ -194,8 +193,8 @@ export const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 15,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.outline,
+    borderBottomColor: colors.outline,
   },
-  currencyCode: { color: Colors.accent, fontWeight: 'bold' },
-  currencyName: { color: Colors.textSecondary, fontSize: 13 },
+  currencyCode: { color: colors.accent, fontWeight: 'bold' },
+  currencyName: { color: colors.textSecondary, fontSize: 13 },
 });

@@ -1,7 +1,6 @@
-import { Colors } from "@/src/constants/Colors";
 import { StyleSheet } from "react-native";
 
-export const styles = StyleSheet.create({
+export const getStyles = (colors: any) => StyleSheet.create({
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -26,19 +25,19 @@ export const styles = StyleSheet.create({
     minHeight: 200, 
   },
   inputLabel: {
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     fontSize: 14,
     marginBottom: 10,
     marginLeft: 5,
   },
   commentInput: {
-    backgroundColor: Colors.background,
-    color: Colors.text,
+    backgroundColor: colors.background,
+    color: colors.text,
     padding: 18,
     borderRadius: 20,
     fontSize: 16,
     borderWidth: 1,
-    borderColor: Colors.outline,
+    borderColor: colors.outline,
     minHeight: 100,
     textAlignVertical: 'top',
   },
@@ -50,7 +49,7 @@ export const styles = StyleSheet.create({
   },
   closeBtn: { 
     flex: 1,
-    backgroundColor: Colors.outline, 
+    backgroundColor: colors.outline, 
     padding: 16, 
     borderRadius: 16, 
     alignItems: 'center' 

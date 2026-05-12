@@ -1,14 +1,13 @@
-import { Colors } from "@/src/constants/Colors";
 import { StyleSheet } from "react-native";
 
-export const styles = StyleSheet.create({
+export const getStyles = (colors: any) => StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: Colors.overlayHeavy,
+    backgroundColor: colors.overlayHeavy,
     justifyContent: 'flex-end',
   },
 modalContent: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     padding: 20,
@@ -21,7 +20,7 @@ modalContent: {
     marginBottom: 20,
   },
   title: {
-    color: Colors.text,
+    color: colors.text,
     fontSize: 20,
     fontWeight: 'bold',
   },
@@ -29,19 +28,19 @@ modalContent: {
     padding: 4,
   },
   label: {
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     fontSize: 12,
     marginBottom: 8,
     marginLeft: 5,
   },
   input: {
-    backgroundColor: Colors.background,
-    color: Colors.text,
+    backgroundColor: colors.background,
+    color: colors.text,
     padding: 15,
     borderRadius: 15,
     fontSize: 16,
     borderWidth: 1,
-    borderColor: Colors.outline,
+    borderColor: colors.outline,
     marginBottom: 20,
   },
   iconsGrid: {
@@ -54,7 +53,7 @@ modalContent: {
     width: '18%', 
     aspectRatio: 1,
     borderRadius: 16,
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
     alignItems: 'center',
       justifyContent: 'center',
     marginBottom: 12,
@@ -62,18 +61,18 @@ modalContent: {
     borderColor: 'transparent',
   },
   iconBoxActive: {
-    borderColor: Colors.primary,
-    backgroundColor: `${Colors.primary}15`,
+    borderColor: colors.primary,
+    backgroundColor: `${colors.primary}15`,
   },
   saveBtn: {
-    backgroundColor: Colors.primary,
+    backgroundColor: colors.primary,
     padding: 18,
     borderRadius: 20,
     alignItems: 'center',
     marginBottom: 20,
   },
   saveBtnText: {
-    color: Colors.white,
+    color: colors.white,
     fontWeight: 'bold',
     fontSize: 16,
   },

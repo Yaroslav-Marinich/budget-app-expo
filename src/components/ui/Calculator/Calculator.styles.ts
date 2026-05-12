@@ -1,7 +1,6 @@
-import { Colors } from "@/src/constants/Colors";
 import { StyleSheet } from "react-native";
 
-export const styles = StyleSheet.create({
+export const getStyles = (colors: any) => StyleSheet.create({
   amountContainer: { 
     flexDirection: 'row', 
     alignItems: 'flex-end', 
@@ -9,10 +8,10 @@ export const styles = StyleSheet.create({
     paddingBottom: 20, 
     marginBottom: 20, 
     borderBottomWidth: 1,
-    borderBottomColor: Colors.outline,
+    borderBottomColor: colors.outline,
   },
-  amountText: { color: Colors.text, fontSize: 56, fontWeight: 'bold' },
-  currencyLabel: { color: Colors.accent, fontSize: 24, marginLeft: 10, marginBottom: 10, fontWeight: '600' },
+  amountText: { color: colors.text, fontSize: 56, fontWeight: 'bold' },
+  currencyLabel: { color: colors.accent, fontSize: 24, marginLeft: 10, marginBottom: 10, fontWeight: '600' },
   
   keyboard: { width: '100%', marginBottom: 10 },
   keyboardRow: { 
@@ -27,9 +26,9 @@ export const styles = StyleSheet.create({
     justifyContent: 'center', 
     alignItems: 'center',
     borderWidth: 1, 
-    borderColor: Colors.outline,
+    borderColor: colors.outline,
     borderRadius: 20, 
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
   },
-  keyText: { color: Colors.text, fontSize: 32, fontWeight: '500' },
+  keyText: { color: colors.text, fontSize: 32, fontWeight: '500' },
 });

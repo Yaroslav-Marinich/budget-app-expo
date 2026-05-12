@@ -1,9 +1,9 @@
-import { Colors } from "@/src/constants/Colors";
+import { useTheme } from "@/src/context/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import { DefaultModal } from "../DefaultModal/DefaultModal";
-import { styles } from "./MonthPickerModal.styles";
+import { getStyles } from "./MonthPickerModal.styles";
 
 interface MonthPickerModalProps {
   visible: boolean;
@@ -27,6 +27,9 @@ export const MonthPickerModal: React.FC<MonthPickerModalProps> = ({
   onSelect,
   activeMonths = [] 
 }) => {
+    const { colors } = useTheme();
+  const styles = getStyles(colors);
+  
   const [viewYear, setViewYear] = useState(currentDate.getFullYear());
 
   useEffect(() => {
@@ -62,13 +65,13 @@ export const MonthPickerModal: React.FC<MonthPickerModalProps> = ({
 
           <View style={styles.yearSelector}>
             <TouchableOpacity onPress={() => changeYear(-1)} style={styles.arrowBtn}>
-              <Ionicons name="chevron-back" size={28} color={Colors.textSecondary} />
+              <Ionicons name="chevron-back" size={28} color={colors.textSecondary} />
             </TouchableOpacity>
             
             <Text style={styles.yearText}>{viewYear}</Text>
             
             <TouchableOpacity onPress={() => changeYear(1)} style={styles.arrowBtn}>
-              <Ionicons name="chevron-forward" size={28} color={Colors.textSecondary} />
+              <Ionicons name="chevron-forward" size={28} color={colors.textSecondary} />
             </TouchableOpacity>
           </View>
 
@@ -98,7 +101,7 @@ export const MonthPickerModal: React.FC<MonthPickerModalProps> = ({
                       width: 6, 
                       height: 6, 
                       borderRadius: 3, 
-                      backgroundColor: isActive ? Colors.primary : Colors.textSecondary 
+                      backgroundColor: isActive ? colors.primary : colors.textSecondary 
                     }} />
                   )}
                 </TouchableOpacity>
@@ -107,7 +110,7 @@ export const MonthPickerModal: React.FC<MonthPickerModalProps> = ({
           </View>
 
           <TouchableOpacity style={styles.currentMonthBtn} onPress={handleGoToCurrentMonth}>
-            <Ionicons name="calendar-outline" size={20} color={Colors.primary} style={{ marginRight: 8 }} />
+            <Ionicons name="calendar-outline" size={20} color={colors.primary} style={{ marginRight: 8 }} />
             <Text style={styles.currentMonthText}>На поточний місяць</Text>
           </TouchableOpacity>
 

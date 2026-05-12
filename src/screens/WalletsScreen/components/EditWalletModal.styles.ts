@@ -1,10 +1,9 @@
-import { Colors } from "@/src/constants/Colors";
 import { StyleSheet } from "react-native";
 
-export const styles = StyleSheet.create({
+export const getStyles = (colors: any) => StyleSheet.create({
   modalOverlay: {
     flex: 1,
-    backgroundColor: Colors.overlayHeavy,
+    backgroundColor: colors.overlayHeavy,
     justifyContent: 'flex-end',
   },
   modalHeader: {
@@ -14,14 +13,14 @@ export const styles = StyleSheet.create({
     marginBottom: 20,
   },
   modalContent: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     padding: 20,
     maxHeight: '90%',
   },
 modalTitle: {
-    color: Colors.text,
+    color: colors.text,
     fontSize: 20,
     fontWeight: 'bold',
   },
@@ -31,40 +30,40 @@ modalTitle: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: Colors.surfaceMuted,
+    backgroundColor: colors.surfaceMuted,
     padding: 15,
     borderRadius: 15,
     marginTop: 15,
     borderWidth: 1,
-    borderColor: Colors.outline,
+    borderColor: colors.outline,
   },
   switchLabel: {
-    color: Colors.text,
+    color: colors.text,
     fontSize: 16,
     fontWeight: '600',
   },
   switchSubLabel: {
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     fontSize: 12,
     marginTop: 4,
   },
   
   // Поля вводу
   inputLabel: {
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     fontSize: 12,
     marginBottom: 8,
     marginTop: 15,
     marginLeft: 5,
   },
   input: {
-    backgroundColor: Colors.background,
-    color: Colors.text,
+    backgroundColor: colors.background,
+    color: colors.text,
     padding: 15,
     borderRadius: 15,
     fontSize: 16,
     borderWidth: 1,
-    borderColor: Colors.outline,
+    borderColor: colors.outline,
   },
   
   // Іконки
@@ -77,30 +76,30 @@ modalTitle: {
     width: 44,
     height: 44,
     borderRadius: 12,
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
   iconBoxActive: {
-    borderColor: Colors.primary,
+    borderColor: colors.primary,
     borderWidth: 2,
   },
   
   // Валюта
   currencyText: {
-    color: Colors.text,
+    color: colors.text,
   },
   
   // Кнопка збереження
   saveBtn: {
-    backgroundColor: Colors.primary,
+    backgroundColor: colors.primary,
     padding: 18,
     borderRadius: 20,
     marginTop: 30,
     alignItems: 'center',
   },
   saveBtnText: {
-    color: Colors.white,
+    color: colors.white,
     fontWeight: 'bold',
     fontSize: 16,
   },
@@ -108,7 +107,7 @@ modalTitle: {
   // Внутрішня модалка пошуку валют
   currencyPickerContainer: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     padding: 20,
     borderRadius: 30,
   },
@@ -124,7 +123,7 @@ modalTitle: {
     marginLeft: 15,
   },
   closeBtnText: {
-    color: Colors.error,
+    color: colors.error,
   },
   
   // Елемент списку валют
@@ -133,14 +132,14 @@ modalTitle: {
     justifyContent: 'space-between',
     padding: 15,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.outline,
+    borderBottomColor: colors.outline,
   },
   currencyCode: {
-    color: Colors.accent,
+    color: colors.accent,
     fontWeight: 'bold',
   },
   currencyName: {
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     fontSize: 13,
   },
 });

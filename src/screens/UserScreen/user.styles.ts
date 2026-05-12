@@ -1,8 +1,7 @@
-import { Colors } from "@/src/constants/Colors";
 import { StyleSheet } from "react-native";
 
-export const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
+export const getStyles = (colors: any) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
   
   // Хедер профілю
   header: {
@@ -10,13 +9,13 @@ export const styles = StyleSheet.create({
     paddingVertical: 30,
     alignItems: 'center',
     borderBottomWidth: 1,
-    borderBottomColor: Colors.outline,
+    borderBottomColor: colors.outline,
   },
 avatarPlaceholder: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 15,
@@ -27,24 +26,24 @@ avatarPlaceholder: {
     borderRadius: 40,
     marginBottom: 15,
   },
-  userName: { color: Colors.text, fontSize: 22, fontWeight: 'bold' },
-  userEmail: { color: Colors.textSecondary, fontSize: 14, marginTop: 4 },
+  userName: { color: colors.text, fontSize: 22, fontWeight: 'bold' },
+  userEmail: { color: colors.textSecondary, fontSize: 14, marginTop: 4 },
 
   // Кнопка прив'язки акаунту
   syncBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     marginHorizontal: 20,
     marginTop: 20,
     padding: 16,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: Colors.outline,
+    borderColor: colors.outline,
   },
   syncBtnText: {
-    color: Colors.text,
+    color: colors.text,
     fontSize: 16,
     fontWeight: '600',
     marginLeft: 10,
@@ -53,7 +52,7 @@ avatarPlaceholder: {
   // Секції налаштувань
   section: { marginTop: 25 },
   sectionTitle: { 
-    color: Colors.accent, 
+    color: colors.accent, 
     fontSize: 13, 
     fontWeight: '600', 
     textTransform: 'uppercase', 
@@ -61,7 +60,7 @@ avatarPlaceholder: {
     marginBottom: 10 
   },
   menuBlock: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     marginHorizontal: 20,
     borderRadius: 20,
     overflow: 'hidden',
@@ -71,7 +70,7 @@ avatarPlaceholder: {
     alignItems: 'center',
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.outlineSoft,
+    borderBottomColor: colors.outlineSoft,
   },
   menuIcon: {
     width: 36,
@@ -81,7 +80,7 @@ avatarPlaceholder: {
     justifyContent: 'center',
     marginRight: 15,
   },
-  menuText: { flex: 1, color: Colors.text, fontSize: 16, fontWeight: '500' },
+  menuText: { flex: 1, color: colors.text, fontSize: 16, fontWeight: '500' },
   
   // Кнопка виходу
   logoutBtn: {
@@ -89,9 +88,9 @@ avatarPlaceholder: {
     marginHorizontal: 20,
     padding: 18,
     borderRadius: 20,
-    backgroundColor: Colors.errorSoft,
+    backgroundColor: colors.errorSoft,
     alignItems: 'center',
     marginBottom: 40
   },
-  logoutText: { color: Colors.error, fontWeight: 'bold', fontSize: 16 }
+  logoutText: { color: colors.error, fontWeight: 'bold', fontSize: 16 }
 });

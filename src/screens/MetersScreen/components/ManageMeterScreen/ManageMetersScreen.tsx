@@ -4,16 +4,18 @@ import React, { useCallback, useState } from 'react';
 import { FlatList, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Colors } from '@/src/constants/Colors';
 import { useLoader } from '@/src/context/LoaderContext';
+import { useTheme } from '@/src/context/ThemeContext';
 import { AddMeterModal } from '@/src/screens/MetersScreen/components/AddMeterModal/AddMeterModal';
-import { styles } from '@/src/screens/MetersScreen/components/ManageMeterScreen/ManageMetersScreen.styles';
 import { appAlert } from '@/src/services/alert';
 import { deleteMeter, getMeterColor, Meter, subscribeToMeters } from '@/src/services/meters';
+import { getStyles } from './ManageMetersScreen.styles';
 
 export const ManageMetersScreen = () => {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
 
   const { showLoader, hideLoader } = useLoader();
   const [meters, setMeters] = useState<Meter[]>([]);
@@ -74,7 +76,7 @@ useFocusEffect(
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
           <Text style={styles.manageName}>{item.name}</Text>
           {item.isPending && (
-            <Ionicons name="time-outline" size={16} color={Colors.warning} />
+            <Ionicons name="time-outline" size={16} color={colors.warning} />
           )}
         </View>
         <Text style={styles.manageType}>{item.calcType === 'readings' ? 'За показами' : "За об'ємом"}</Text>
@@ -89,14 +91,14 @@ useFocusEffect(
             setModalVisible(true);
           }}
         >
-          <Ionicons name="pencil" size={20} color={Colors.textSecondary} />
+          <Ionicons name="pencil" size={20} color={colors.textSecondary} />
         </TouchableOpacity>
         <TouchableOpacity 
           style={[styles.actionBtn, item.isPending && { opacity: 0.3 }]} 
           disabled={item.isPending} 
           onPress={() => handleDelete(item)}
         >
-          <Ionicons name="trash-outline" size={22} color={Colors.error} />
+          <Ionicons name="trash-outline" size={22} color={colors.error} />
         </TouchableOpacity>
       </View>
     </View>
@@ -106,7 +108,7 @@ useFocusEffect(
     <View style={[styles.container, { paddingTop: insets.top + 10 }]}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={{ padding: 5 }}>
-          <Ionicons name="arrow-back" size={28} color={Colors.textSecondary} />
+          <Ionicons name="arrow-back" size={28} color={colors.textSecondary} />
         </TouchableOpacity>
         <Text style={styles.title}>Лічильники</Text>
       </View>
@@ -126,7 +128,7 @@ useFocusEffect(
           setModalVisible(true);
         }}
       >
-        <Ionicons name="add" size={24} color={Colors.white} />
+        <Ionicons name="add" size={24} color={colors.white} />
         <Text style={styles.fabText}>Новий лічильник</Text>
       </TouchableOpacity>
 

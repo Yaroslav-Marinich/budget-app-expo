@@ -3,16 +3,18 @@ import React, { useEffect, useState } from "react";
 import { FlatList, Switch, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 import { DefaultModal } from "@/src/components/ui/DefaultModal/DefaultModal";
-import { Colors } from "@/src/constants/Colors";
 import { CURRENCIES } from "@/src/constants/Currencies";
 import { WALLET_ICONS } from "@/src/constants/Icons";
 import { useLoader } from "@/src/context/LoaderContext";
+import { useTheme } from "@/src/context/ThemeContext";
 import { createWallet, updateWallet } from "@/src/services/wallets";
+import { getStyles } from "./EditWalletModal.styles";
 
-import { styles } from "./EditWalletModal.styles";
 
 export const EditWalletModal = ({ visible, wallet, onClose }: any) => {
   const isEdit = !!wallet;
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
 
   const { showLoader, hideLoader } = useLoader();
   const [title, setTitle] = useState(wallet?.title || "");
@@ -84,7 +86,7 @@ const handleSave = async () => {
               {isEdit ? "Редагувати рахунок" : "Новий рахунок"}
             </Text>
             <TouchableOpacity onPress={onClose} style={{ padding: 5 }}>
-              <Ionicons name="close" size={26} color={Colors.textSecondary} />
+              <Ionicons name="close" size={26} color={colors.textSecondary} />
             </TouchableOpacity>
           </View>
 
@@ -97,7 +99,7 @@ const handleSave = async () => {
               <Switch 
                 value={isCrypto} 
                 onValueChange={handleCryptoToggle}
-                trackColor={{ false: Colors.outline, true: Colors.primary }}
+                trackColor={{ false: colors.outline, true: colors.primary }}
               />
             </View>
           )}
@@ -110,7 +112,7 @@ const handleSave = async () => {
                 onPress={() => setIcon(i.iconName)}
                 style={[styles.iconBox, icon === i.iconName && styles.iconBoxActive]}
               >
-                <Ionicons name={i.iconName as any} size={20} color={icon === i.iconName ? Colors.primary : Colors.textSecondary} />
+                <Ionicons name={i.iconName as any} size={20} color={icon === i.iconName ? colors.primary : colors.textSecondary} />
               </TouchableOpacity>
             ))}
           </View>
@@ -121,7 +123,7 @@ const handleSave = async () => {
             style={styles.input} 
             value={title} 
             onChangeText={setTitle} 
-            placeholderTextColor={Colors.textSecondary} 
+            placeholderTextColor={colors.textSecondary} 
           />
 
           {/* Валюта */}

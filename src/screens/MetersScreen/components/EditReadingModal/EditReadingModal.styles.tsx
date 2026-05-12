@@ -1,27 +1,26 @@
-import { Colors } from "@/src/constants/Colors";
 import { StyleSheet } from "react-native";
 
-export const styles = StyleSheet.create({
+export const getStyles = (colors: any) => StyleSheet.create({
   // Базові стилі модалки
-  overlay: { flex: 1, backgroundColor: Colors.overlayHeavy, justifyContent: 'flex-end' },
+  overlay: { flex: 1, backgroundColor: colors.overlayHeavy, justifyContent: 'flex-end' },
   modalContent: { 
-    backgroundColor: Colors.surface, 
+    backgroundColor: colors.surface, 
     borderTopLeftRadius: 30, 
     borderTopRightRadius: 30, 
     padding: 20, 
     maxHeight: '90%' 
   },
   headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
-  modalTitle: { color: Colors.text, fontSize: 20, fontWeight: 'bold' },
+  modalTitle: { color: colors.text, fontSize: 20, fontWeight: 'bold' },
 
   // Стилі форми вводу
   submitCard: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     padding: 15,
     borderRadius: 20,
     marginBottom: 15,
     borderWidth: 1,
-    borderColor: Colors.outline,
+    borderColor: colors.outline,
   },
   submitHeader: {
     flexDirection: 'row',
@@ -38,7 +37,7 @@ export const styles = StyleSheet.create({
   manageName: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: Colors.text,
+    color: colors.text,
     marginLeft: 12,
   },
   submitInputsRow: {
@@ -49,33 +48,33 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   inputLabel: {
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     fontSize: 12,
     marginBottom: 6,
     marginLeft: 4,
   },
   meterInput: {
-    backgroundColor: Colors.background,
-    color: Colors.text,
+    backgroundColor: colors.background,
+    color: colors.text,
     padding: 12,
     borderRadius: 12,
     fontSize: 16,
     borderWidth: 1,
-    borderColor: Colors.outline,
+    borderColor: colors.outline,
   },
   commentInput: {
-    backgroundColor: Colors.background,
-    color: Colors.text,
+    backgroundColor: colors.background,
+    color: colors.text,
     padding: 15,
     borderRadius: 15,
     fontSize: 16,
     borderWidth: 1,
-    borderColor: Colors.outline,
+    borderColor: colors.outline,
     minHeight: 100,
     textAlignVertical: 'top',
   },
   formSubmitBtn: {
-    backgroundColor: Colors.primary,
+    backgroundColor: colors.primary,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -84,7 +83,7 @@ export const styles = StyleSheet.create({
     marginTop: 10,
   },
   formSubmitBtnText: {
-    color: Colors.white,
+    color: colors.white,
     fontWeight: 'bold',
     fontSize: 16,
     marginLeft: 8,
@@ -99,7 +98,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   photoUploadingText: {
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     marginTop: 10,
   },
   photoPreviewContainer: {
@@ -116,12 +115,12 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: Colors.dangerSoft,
+    backgroundColor: colors.dangerSoft,
     padding: 10,
     borderRadius: 12,
   },
   photoDeleteText: {
-    color: Colors.danger,
+    color: colors.danger,
     marginLeft: 5,
     fontWeight: '600',
     fontSize: 14,
@@ -130,15 +129,15 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: `${Colors.primary}15`,
+    backgroundColor: `${colors.primary}15`,
     padding: 15,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: `${Colors.primary}30`,
+    borderColor: `${colors.primary}30`,
     borderStyle: 'dashed',
   },
   photoAddText: {
-    color: Colors.primary,
+    color: colors.primary,
     marginLeft: 10,
     fontWeight: '600',
     fontSize: 16,

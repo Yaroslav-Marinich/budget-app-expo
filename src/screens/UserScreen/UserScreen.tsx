@@ -5,20 +5,20 @@ import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { auth } from "@/src/config/firebase";
-import { Colors } from "@/src/constants/Colors";
 import { useLoader } from "@/src/context/LoaderContext";
-import { styles } from "@/src/screens/UserScreen/user.styles";
 import { appAlert } from "@/src/services/alert";
 
-// 🟢 Імпортуємо функції для прив'язки та конфліктів
+import { useTheme } from "@/src/context/ThemeContext";
 import { linkWithGoogle, logoutUser, resolveAuthConflict } from "@/src/services/auth";
+import { getStyles } from "./user.styles";
 
 export const UserScreen = () => {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { showLoader, hideLoader } = useLoader();
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
-  // Додаємо локальний стан, щоб екран миттєво оновився після успішної прив'язки
   const [user, setUser] = useState(auth.currentUser);
   const isAnonymous = user?.isAnonymous || false;
 
@@ -28,23 +28,20 @@ export const UserScreen = () => {
         <Ionicons name={icon as any} size={20} color={color} />
       </View>
       <Text style={styles.menuText}>{title}</Text>
-      <Ionicons name="chevron-forward" size={18} color={Colors.textSecondary} />
+      <Ionicons name="chevron-forward" size={18} color={colors.textSecondary} />
     </TouchableOpacity>
   );
 
-  // 🟢 Логіка прив'язки Google
   const handleLinkGoogle = async () => {
     showLoader();
     try {
       const result = await linkWithGoogle();
 
       if (result.success) {
-        // Успішна прив'язка без конфліктів
-        setUser(auth.currentUser); // Оновлюємо стан, щоб зникла кнопка і з'явилося ім'я
+        setUser(auth.currentUser);
         appAlert("Успіх", "Ваш прогрес успішно збережено в хмарі!");
       } 
       else if (result.conflict) {
-        // Конфлікт: такий Google акаунт вже існує
         appAlert(
           "Акаунт вже існує",
           "Цей Google акаунт вже містить збережені дані. Які дані ви хочете залишити?",
@@ -135,7 +132,7 @@ export const UserScreen = () => {
             <Image source={{ uri: user.photoURL }} style={styles.avatarImage} />
           ) : (
             <View style={styles.avatarPlaceholder}>
-              <Ionicons name="person" size={40} color={Colors.textSecondary} />
+              <Ionicons name="person" size={40} color={colors.textSecondary} />
             </View>
           )}
           
@@ -150,7 +147,7 @@ export const UserScreen = () => {
         {/* 🟢 Кнопка прив'язки (видима ТІЛЬКИ для анонімів) */}
         {isAnonymous && (
           <TouchableOpacity style={styles.syncBtn} onPress={handleLinkGoogle}>
-            <Ionicons name="logo-google" size={20} color={Colors.text} />
+            <Ionicons name="logo-google" size={20} color={colors.text} />
             <Text style={styles.syncBtnText}>Зберегти прогрес (Google)</Text>
           </TouchableOpacity>
         )}
@@ -158,17 +155,17 @@ export const UserScreen = () => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Управління фінансами</Text>
           <View style={styles.menuBlock}>
-            {renderMenuItem("card", Colors.primary, "Мої рахунки", () => { router.push("/wallets"); })}
-            {renderMenuItem("grid", Colors.accent, "Категорії витрат", () => { router.push("/categories"); })}
+            {renderMenuItem("card", colors.primary, "Мої рахунки", () => { router.push("/wallets"); })}
+            {renderMenuItem("grid", colors.accent, "Категорії витрат", () => { router.push("/categories"); })}
           </View>
         </View>
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Налаштування</Text>
           <View style={styles.menuBlock}>
-            {renderMenuItem("notifications", Colors.warning, "Сповіщення", () => { router.push("/notifications"); })}
-            {renderMenuItem("color-palette", "#AF52DE", "Тема застосунку", () => {})}
-            {/* {renderMenuItem("shield-checkmark", Colors.success, "Безпека", () => {})} */}
+            {renderMenuItem("notifications", colors.warning, "Сповіщення", () => { router.push("/notifications"); })}
+            {renderMenuItem("color-palette", "#AF52DE", "Тема застосунку", () => { router.push("/theme"); })}
+            {/* {renderMenuItem("shield-checkmark", colors.success, "Безпека", () => {})} */}
           </View>
         </View>
 

@@ -4,8 +4,8 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { FlatList, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Colors } from '@/src/constants/Colors';
-import { styles } from '@/src/screens/MetersScreen/MetersScreen.styles';
+import { useTheme } from '@/src/context/ThemeContext';
+import { getStyles } from '@/src/screens/MetersScreen/MetersScreen.styles';
 import { getMeterColor, Meter, MeterReading, subscribeToMeterReadings, subscribeToMeters } from '@/src/services/meters';
 import { getSyncQueue } from '@/src/services/syncManager';
 import { shareReadingsAsPDF } from '@/src/utils/exportReadings';
@@ -22,6 +22,8 @@ type UIMeterReading = MeterReading & { isPending?: boolean };
 export const MetersScreen = () => {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
 
   const [meters, setMeters] = useState<Meter[]>([]);
   const [readings, setReadings] = useState<UIMeterReading[]>([]);
@@ -125,10 +127,10 @@ export const MetersScreen = () => {
           <Text style={styles.monthTitle}>{item.title}</Text>
           {/* 🕒 Показуємо іконку годинника, якщо дані ще не в хмарі */}
           {item.hasPending && (
-            <Ionicons name="time-outline" size={18} color={Colors.warning} />
+            <Ionicons name="time-outline" size={18} color={colors.warning} />
           )}
         </View>
-        <Ionicons name="chevron-forward" size={20} color={Colors.textSecondary} />
+        <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
       </View>
 
       <View style={styles.readingsPreview}>
@@ -142,7 +144,7 @@ export const MetersScreen = () => {
             <View 
               key={index} 
               // Робимо офлайн-показники трохи прозорими
-              style={[styles.readingItem, reading.isPending && { opacity: 0.6, borderColor: Colors.warning, borderWidth: 1 }]}
+              style={[styles.readingItem, reading.isPending && { opacity: 0.6, borderColor: colors.warning, borderWidth: 1 }]}
             >
               <Ionicons name={meter.icon as any} size={16} color={getMeterColor(meter.icon)} />
               <Text style={styles.readingValue}>{reading.consumedValue}</Text>
@@ -156,12 +158,12 @@ export const MetersScreen = () => {
         position: 'absolute',
         right: 15,
         bottom: 15,
-        backgroundColor: Colors.surfaceSoft,
+        backgroundColor: colors.surfaceSoft,
         padding: 8,
         borderRadius: 10,
       }}
     >
-      <Ionicons name="share-outline" size={22} color={Colors.textSecondary} />
+      <Ionicons name="share-outline" size={22} color={colors.textSecondary} />
     </TouchableOpacity>
     </TouchableOpacity>
   );
@@ -170,7 +172,7 @@ export const MetersScreen = () => {
     <View style={[styles.container, { paddingTop: insets.top + 10 }]}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={{ padding: 5 }}>
-          <Ionicons name="arrow-back" size={28} color={Colors.textSecondary} />
+          <Ionicons name="arrow-back" size={28} color={colors.textSecondary} />
         </TouchableOpacity>
         <Text style={styles.title}>Показники</Text>
       </View>
@@ -181,7 +183,7 @@ export const MetersScreen = () => {
         renderItem={renderMonthCard}
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={
-          <Text style={{ textAlign: 'center', color: Colors.textSecondary, marginTop: 40 }}>
+          <Text style={{ textAlign: 'center', color: colors.textSecondary, marginTop: 40 }}>
             Ви ще не вносили показники.
           </Text>
         }
@@ -192,7 +194,7 @@ export const MetersScreen = () => {
         activeOpacity={0.9}
         onPress={() => router.push('/meters/submit')}
       >
-        <Ionicons name="add" size={24} color={Colors.white} />
+        <Ionicons name="add" size={24} color={colors.white} />
         <Text style={styles.fabText}>Внести показники</Text>
       </TouchableOpacity>
 
@@ -202,10 +204,10 @@ export const MetersScreen = () => {
         onPress={() => router.push('/meters/manage')}
       >
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Ionicons name="settings-outline" size={24} color={Colors.textSecondary} />
+          <Ionicons name="settings-outline" size={24} color={colors.textSecondary} />
           <Text style={styles.bottomMenuText}>Управління лічильниками</Text>
         </View>
-        <Ionicons name="chevron-forward" size={20} color={Colors.textSecondary} />
+        <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
       </TouchableOpacity>
     </View>
   );

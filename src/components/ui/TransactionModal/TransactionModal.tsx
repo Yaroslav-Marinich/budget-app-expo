@@ -1,5 +1,5 @@
-import { Colors } from "@/src/constants/Colors";
 import { useLoader } from "@/src/context/LoaderContext";
+import { useTheme } from "@/src/context/ThemeContext";
 import { appAlert } from "@/src/services/alert";
 import { addTransaction, updateTransaction } from "@/src/services/transactions";
 import { parseAmountInput } from "@/src/utils/formatMoney";
@@ -8,7 +8,7 @@ import React, { useEffect, useState } from "react";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
 import { Calculator } from "../Calculator/Calculator";
 import { DefaultModal } from "../DefaultModal/DefaultModal";
-import { styles } from "./TransactionModal.styles";
+import { getStyles } from "./TransactionModal.styles";
 
 interface TransactionModalProps {
   visible: boolean;
@@ -17,6 +17,7 @@ interface TransactionModalProps {
   categoryId?: string; 
   categoryName?: string; 
   walletId: string | null;
+  currencySymbol?: string;
   editingTransaction?: {
     id: string;
     amount: number;
@@ -38,8 +39,11 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
   categoryName,
   walletId,
   editingTransaction,
+  currencySymbol,
 }) => {
   const isEditMode = Boolean(editingTransaction);
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
 
   const { showLoader, hideLoader } = useLoader();
   const [amount, setAmount] = useState("0");
@@ -117,28 +121,28 @@ return (
       {/* Хедер Модалки */}
       <View style={styles.headerRow}>
         <View style={styles.headerSpacer} />
-        <Text style={[styles.modalTitle, { color: type === 'income' ? Colors.accent : Colors.error }]}>
+        <Text style={[styles.modalTitle, { color: type === 'income' ? colors.accent : colors.error }]}>
           {isEditMode ? 'Редагування' : type === 'income' ? 'Дохід' : 'Витрата'} в {categoryName}
         </Text>
         <TouchableOpacity onPress={onClose} style={styles.headerCloseBtn}>
-          <Ionicons name="close" size={28} color={Colors.textSecondary} />
+          <Ionicons name="close" size={28} color={colors.textSecondary} />
         </TouchableOpacity>
       </View>
 
       {/* --- КРОК 1: КАЛЬКУЛЯТОР --- */}
       {step === 'amount' && (
         <>
-          <Calculator amount={amount} setAmount={setAmount} />
+          <Calculator amount={amount} setAmount={setAmount} currencySymbol={currencySymbol}/>
           <View style={styles.modalActionsRow}>
             <TouchableOpacity onPress={onClose} style={styles.closeBtn} disabled={isSaving}>
-              <Text style={{color: Colors.white, fontWeight: 'bold'}}>Скасувати</Text>
+              <Text style={{color: colors.white, fontWeight: 'bold'}}>Скасувати</Text>
             </TouchableOpacity>
             
             <TouchableOpacity 
               onPress={handleNext}
-              style={[styles.saveBtn, { backgroundColor: Colors.primary }]}
+              style={[styles.saveBtn, { backgroundColor: colors.primary }]}
             >
-              <Text style={{color: Colors.white, fontWeight: 'bold'}}>Далі</Text>
+              <Text style={{color: colors.white, fontWeight: 'bold'}}>Далі</Text>
             </TouchableOpacity>
           </View>
         </>
@@ -151,7 +155,7 @@ return (
           <TextInput 
             style={styles.commentInput}
             placeholder="Наприклад: Обід з колегами..."
-            placeholderTextColor={Colors.textSecondary}
+            placeholderTextColor={colors.textSecondary}
             value={comment}
             onChangeText={setComment}
             multiline
@@ -160,7 +164,7 @@ return (
           
           <View style={[styles.modalActionsRow, { marginTop: 30 }]}>
             <TouchableOpacity onPress={() => setStep('amount')} style={styles.closeBtn} disabled={isSaving}>
-              <Text style={{color: Colors.white, fontWeight: 'bold'}}>Назад</Text>
+              <Text style={{color: colors.white, fontWeight: 'bold'}}>Назад</Text>
             </TouchableOpacity>
             
             <TouchableOpacity 
@@ -168,11 +172,11 @@ return (
               disabled={isSaving} 
               style={[
                 styles.saveBtn, 
-                { backgroundColor: Colors.primary },
+                { backgroundColor: colors.primary },
                 isSaving && { opacity: 0.7 }
               ]}
             >
-              <Text style={{color: Colors.white, fontWeight: 'bold'}}>
+              <Text style={{color: colors.white, fontWeight: 'bold'}}>
                 {isSaving ? (isEditMode ? 'Оновлення...' : 'Збереження...') : (isEditMode ? 'Оновити' : 'Зберегти')}
               </Text>
             </TouchableOpacity>

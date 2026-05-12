@@ -1,11 +1,9 @@
-import { Colors } from "@/src/constants/Colors";
 import { StyleSheet } from "react-native";
 
-export const styles = StyleSheet.create({
+export const getStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
-    // Центруємо вміст
+    backgroundColor: colors.background,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -21,7 +19,7 @@ export const styles = StyleSheet.create({
     marginBottom: 15,
   },
   subtitle: {
-    color: Colors.textSecondary || '#aaa',
+    color: colors.textSecondary || '#aaa',
     fontSize: 17,
     fontWeight: '500',
   },

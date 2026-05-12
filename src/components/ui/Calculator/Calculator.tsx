@@ -1,15 +1,23 @@
-import { Colors } from "@/src/constants/Colors";
+import { useTheme } from "@/src/context/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
-import { styles } from "./Calculator.styles";
+import { getStyles } from "./Calculator.styles";
 
 interface CalculatorProps {
   amount: string;
   setAmount: (val: string | ((prev: string) => string)) => void;
+  currencySymbol?: string; 
 }
 
-export const Calculator: React.FC<CalculatorProps> = ({ amount, setAmount }) => {
+export const Calculator: React.FC<CalculatorProps> = ({ 
+  amount, 
+  setAmount, 
+  currencySymbol = "₴" 
+}) => {
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
+  
   const handleKeyPress = (val: string) => {
     setAmount((prev) => {
       if (prev === "0" && val !== ".") return val;
@@ -29,7 +37,7 @@ export const Calculator: React.FC<CalculatorProps> = ({ amount, setAmount }) => 
     <View>
       <View style={styles.amountContainer}>
         <Text style={styles.amountText}>{amount}</Text>
-        <Text style={styles.currencyLabel}>UAH</Text>
+        <Text style={styles.currencyLabel}>{currencySymbol}</Text>
       </View>
 
       <View style={styles.keyboard}>
@@ -42,7 +50,7 @@ export const Calculator: React.FC<CalculatorProps> = ({ amount, setAmount }) => 
                 onPress={() => key === "delete" ? handleBackspace() : handleKeyPress(key)}
               >
                 {key === "delete" ? (
-                  <Ionicons name="backspace-outline" size={32} color={Colors.text} />
+                  <Ionicons name="backspace-outline" size={32} color={colors.text} />
                 ) : (
                   <Text style={styles.keyText}>{key}</Text>
                 )}

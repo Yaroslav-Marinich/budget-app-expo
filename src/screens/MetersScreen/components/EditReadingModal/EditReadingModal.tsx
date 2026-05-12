@@ -1,22 +1,22 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
-    Image,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Image,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 import { DefaultModal } from '@/src/components/ui/DefaultModal/DefaultModal';
-import { Colors } from '@/src/constants/Colors';
 import { useLoader } from '@/src/context/LoaderContext';
+import { useTheme } from '@/src/context/ThemeContext';
 import { appAlert } from '@/src/services/alert';
 import { getMeterColor, Meter, MeterReading, updateMeterReading } from '@/src/services/meters';
 import { deleteMeterPhoto, takeAndUploadMeterPhoto } from '@/src/services/storage';
-import { styles } from './EditReadingModal.styles';
+import { getStyles } from './EditReadingModal.styles';
 
 interface EditReadingModalProps {
   visible: boolean;
@@ -27,6 +27,8 @@ interface EditReadingModalProps {
 
 export const EditReadingModal: React.FC<EditReadingModalProps> = ({ visible, onClose, reading, meter }) => {
   const { showLoader, hideLoader } = useLoader();
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
 
   const [prevValue, setPrevValue] = useState("");
   const [currValue, setCurrValue] = useState("");
@@ -121,7 +123,7 @@ const handleChangePhoto = async () => {
             <View style={styles.headerRow}>
               <Text style={styles.modalTitle}>Редагування</Text>
               <TouchableOpacity onPress={onClose} style={{ padding: 5 }}>
-                <Ionicons name="close" size={26} color={Colors.textSecondary} />
+                <Ionicons name="close" size={26} color={colors.textSecondary} />
               </TouchableOpacity>
             </View>
 
@@ -186,7 +188,7 @@ const handleChangePhoto = async () => {
               <View style={styles.photoSectionContainer}>
                 {isUploadingPhoto ? (
                   <View style={styles.photoUploadingContainer}>
-                    <ActivityIndicator size="large" color={Colors.primary} />
+                    <ActivityIndicator size="large" color={colors.primary} />
                     <Text style={styles.photoUploadingText}>Завантаження фото...</Text>
                   </View>
                 ) : photoUrl ? (
@@ -202,7 +204,7 @@ const handleChangePhoto = async () => {
                         style={[styles.photoAddBtn, { flex: 1, borderStyle: 'solid', padding: 10 }]} 
                         onPress={handleChangePhoto}
                       >
-                        <Ionicons name="camera-outline" size={20} color={Colors.primary} />
+                        <Ionicons name="camera-outline" size={20} color={colors.primary} />
                         <Text style={[styles.photoAddText, { fontSize: 14 }]}>Змінити</Text>
                       </TouchableOpacity>
                       
@@ -211,7 +213,7 @@ const handleChangePhoto = async () => {
                         style={styles.photoDeleteBtn}
                         onPress={() => setPhotoUrl(null)}
                       >
-                        <Ionicons name="trash-outline" size={20} color={Colors.danger} />
+                        <Ionicons name="trash-outline" size={20} color={colors.danger} />
                         <Text style={styles.photoDeleteText}>Видалити</Text>
                       </TouchableOpacity>
                     </View>
@@ -221,7 +223,7 @@ const handleChangePhoto = async () => {
                     style={styles.photoAddBtn} 
                     onPress={handleChangePhoto}
                   >
-                    <Ionicons name="camera-outline" size={24} color={Colors.primary} />
+                    <Ionicons name="camera-outline" size={24} color={colors.primary} />
                     <Text style={styles.photoAddText}>
                       Додати фото лічильника
                     </Text>
@@ -231,7 +233,7 @@ const handleChangePhoto = async () => {
               {/* 📸 КІНЕЦЬ БЛОКУ ФОТО */}
 
               <TouchableOpacity style={styles.formSubmitBtn} onPress={handleSave}>
-                <Ionicons name="checkmark-circle-outline" size={24} color={Colors.white} />
+                <Ionicons name="checkmark-circle-outline" size={24} color={colors.white} />
                 <Text style={styles.formSubmitBtnText}>Зберегти зміни</Text>
               </TouchableOpacity>
             </ScrollView>

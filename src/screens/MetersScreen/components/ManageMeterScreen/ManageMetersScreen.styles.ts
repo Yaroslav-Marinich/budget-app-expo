@@ -1,10 +1,9 @@
-import { Colors } from '@/src/constants/Colors';
 import { StyleSheet } from 'react-native';
 
-export const styles = StyleSheet.create({
+export const getStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
   },
   header: {
     paddingHorizontal: 20,
@@ -15,7 +14,7 @@ export const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: Colors.text,
+    color: colors.text,
     marginLeft: 15,
   },
   listContent: {
@@ -25,18 +24,18 @@ export const styles = StyleSheet.create({
   manageCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     padding: 15,
     borderRadius: 20,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: Colors.outline,
+    borderColor: colors.outline,
   },
   manageIconBox: {
     width: 48,
     height: 48,
     borderRadius: 16,
-    backgroundColor: `${Colors.primary}15`,
+    backgroundColor: `${colors.primary}15`,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 15,
@@ -45,13 +44,13 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   manageName: {
-    color: Colors.text,
+    color: colors.text,
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 4,
   },
   manageType: {
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     fontSize: 13,
   },
   manageActions: {
@@ -62,7 +61,7 @@ export const styles = StyleSheet.create({
     padding: 8,
   },
   emptyText: {
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
     marginTop: 40,
     fontSize: 16,
@@ -70,20 +69,20 @@ export const styles = StyleSheet.create({
   fab: {
     position: 'absolute',
     right: 20,
-    backgroundColor: Colors.primary,
+    backgroundColor: colors.primary,
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 15,
     paddingHorizontal: 20,
     borderRadius: 30,
-    shadowColor: Colors.primary,
+    shadowColor: colors.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 5,
     elevation: 5,
   },
   fabText: {
-    color: Colors.white,
+    color: colors.white,
     fontWeight: 'bold',
     marginLeft: 8,
     fontSize: 16,

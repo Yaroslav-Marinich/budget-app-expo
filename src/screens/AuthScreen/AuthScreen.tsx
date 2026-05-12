@@ -3,13 +3,16 @@ import React, { useState } from "react";
 import { ActivityIndicator, Image, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { Colors } from "@/src/constants/Colors";
+import { useTheme } from "@/src/context/ThemeContext";
 import { appAlert } from "@/src/services/alert";
 import { loginAnonymously, loginWithGoogle } from "@/src/services/auth";
-import { styles } from "./auth.styles";
+import { getStyles } from "./auth.styles";
 
 export const AuthScreen = () => {
   const insets = useSafeAreaInsets();
+    const { colors } = useTheme();
+  const styles = getStyles(colors);
+  
   const [isLoading, setIsLoading] = useState(false);
 
   const handleGoogleLogin = async () => {
@@ -62,7 +65,7 @@ export const AuthScreen = () => {
 
       <View style={styles.buttonsContainer}>
         {isLoading ? (
-          <ActivityIndicator size="large" color={Colors.primary} style={{ marginVertical: 20 }} />
+          <ActivityIndicator size="large" color={colors.primary} style={{ marginVertical: 20 }} />
         ) : (
           <>
             <TouchableOpacity 
@@ -79,7 +82,7 @@ export const AuthScreen = () => {
               onPress={handleAnonymousLogin}
               activeOpacity={0.8}
             >
-              <Ionicons name="person-outline" size={22} color={Colors.text} />
+              <Ionicons name="person-outline" size={22} color={colors.text} />
               <Text style={styles.anonymousBtnText}>Продовжити як гість</Text>
             </TouchableOpacity>
           </>

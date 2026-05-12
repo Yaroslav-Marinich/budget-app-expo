@@ -1,5 +1,5 @@
-import { Colors } from "@/src/constants/Colors";
 import { useLoader } from "@/src/context/LoaderContext";
+import { useTheme } from "@/src/context/ThemeContext";
 import { appAlert } from "@/src/services/alert";
 import { archiveWallet, permanentDeleteWallet, subscribeToWallets, updateWallet, updateWalletsOrder, Wallet } from "@/src/services/wallets";
 import { formatMoney } from "@/src/utils/formatMoney";
@@ -10,13 +10,15 @@ import { Switch, Text, TouchableOpacity, View } from "react-native";
 import DraggableFlatList, { RenderItemParams, ScaleDecorator } from "react-native-draggable-flatlist";
 import Swipeable from "react-native-gesture-handler/Swipeable";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { styles } from "./WalletsScreen.styles";
+import { getStyles } from "./WalletsScreen.styles";
 import { EditWalletModal } from "./components/EditWalletModal";
 
 export const WalletsScreen = () => {
   const insets = useSafeAreaInsets();
   const swipeableRefs = useRef<Map<string, Swipeable>>(new Map());
   const router = useRouter();
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
 
   const { showLoader, hideLoader } = useLoader();
   const [wallets, setWallets] = useState<Wallet[]>([]);
@@ -133,7 +135,7 @@ useEffect(() => {
       onPress={() => confirmArchive(item)}
       activeOpacity={0.8}
     >
-      <Ionicons name="trash-outline" size={24} color={Colors.white} />
+      <Ionicons name="trash-outline" size={24} color={colors.white} />
     </TouchableOpacity>
   );
 
@@ -160,7 +162,7 @@ useEffect(() => {
 
           {isPending && (
             <View style={styles.pendingBadge}>
-              <Ionicons name="time-outline" size={12} color={Colors.background} />
+              <Ionicons name="time-outline" size={12} color={colors.background} />
               <Text style={styles.pendingBadgeText}>Черга</Text>
             </View>
           )}
@@ -182,13 +184,13 @@ useEffect(() => {
               isPrimary && !isArchived && styles.primaryBorder,
               isArchived && styles.archivedRow,
               isPending && styles.pendingRow,
-              isActive && { borderColor: Colors.primary, backgroundColor: Colors.outline }
+              isActive && { borderColor: colors.primary, backgroundColor: colors.outline }
             ]}>
 
               {/* ВЕРХНЯ ЧАСТИНА */}
               <View style={styles.walletTopRow}>
                 <View style={styles.iconBox}>
-                  <Ionicons name={item.icon as any} size={22} color={isArchived ? Colors.textSecondary : Colors.accent} />
+                  <Ionicons name={item.icon as any} size={22} color={isArchived ? colors.textSecondary : colors.accent} />
                 </View>
                 
                 <View style={styles.infoBox}>
@@ -204,10 +206,10 @@ useEffect(() => {
                           swipeableRefs.current.get(item.id)?.close();
                           openEdit(item);
                         }} disabled={isPending}>
-                        <Ionicons name="pencil" size={20} color={Colors.textSecondary} />
+                        <Ionicons name="pencil" size={20} color={colors.textSecondary} />
                       </TouchableOpacity>
                       <TouchableOpacity onLongPress={drag} delayLongPress={200} style={styles.actionBtn} disabled={isPending}>
-                        <Ionicons name="menu" size={24} color={Colors.textSecondary} />
+                        <Ionicons name="menu" size={24} color={colors.textSecondary} />
                       </TouchableOpacity>
                     </>
                   ) : (
@@ -215,7 +217,7 @@ useEffect(() => {
                       style={styles.actionBtn} 
                       onPress={() => confirmPermanentDelete(item)}
                     >
-                      <Ionicons name="trash" size={22} color={Colors.error} />
+                      <Ionicons name="trash" size={22} color={colors.error} />
                     </TouchableOpacity>
                   )}
                 </View>
@@ -227,8 +229,8 @@ useEffect(() => {
                 <Switch
                   value={!item.excludeFromTotal}
                   onValueChange={(val) => toggleExcludeFromTotal(item, !val)}
-                  trackColor={{ false: Colors.error, true: Colors.primary }}
-                  thumbColor={Colors.outline}
+                  trackColor={{ false: colors.error, true: colors.primary }}
+                  thumbColor={colors.outline}
                   disabled={isPending || isArchived} 
                 />
               </View> */}
@@ -238,8 +240,8 @@ useEffect(() => {
     <Switch
       value={!item.excludeFromTotal}
       onValueChange={(val) => toggleExcludeFromTotal(item, !val)}
-      trackColor={{ false: Colors.error, true: Colors.primary }}
-      thumbColor={Colors.outline}
+      trackColor={{ false: colors.error, true: colors.primary }}
+      thumbColor={colors.outline}
       disabled={isPending} 
     />
   </View>
@@ -248,7 +250,7 @@ useEffect(() => {
 {/* 👈 ОПЦІОНАЛЬНО: Можна додати інфо-плашку для крипти, щоб юзер розумів, чому там немає світчера */}
 {item.isCrypto && (
   <View style={[styles.excludeContainer, { borderTopWidth: 0, marginTop: 4 }]}>
-    <Text style={[styles.excludeText, { fontStyle: 'italic', color: Colors.warningAccent }]}>
+    <Text style={[styles.excludeText, { fontStyle: 'italic', color: colors.warningAccent }]}>
       Криптовалюта (тільки індивідуальна аналітика)
     </Text>
   </View>
@@ -266,7 +268,7 @@ useEffect(() => {
       <View style={styles.headerRow}>
         <Text style={styles.screenTitle}>Рахунки</Text>
         <TouchableOpacity onPress={() => router.back()} style={{ padding: 5 }}>
-           <Ionicons name="close-circle-outline" size={32} color={Colors.textSecondary} />
+           <Ionicons name="close-circle-outline" size={32} color={colors.textSecondary} />
         </TouchableOpacity>
       </View>
 
@@ -279,7 +281,7 @@ useEffect(() => {
       />
 
       <TouchableOpacity style={[styles.fab, { bottom: insets.bottom + 20 }]} onPress={openCreate}>
-                      <Ionicons name="add" size={32} color={Colors.white} />
+                      <Ionicons name="add" size={32} color={colors.white} />
       </TouchableOpacity>
 
       <EditWalletModal 

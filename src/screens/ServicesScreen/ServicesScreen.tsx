@@ -4,12 +4,14 @@ import React from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { Colors } from "@/src/constants/Colors";
-import { styles } from "@/src/screens/ServicesScreen/service.styles";
+import { useTheme } from "@/src/context/ThemeContext";
+import { getStyles } from "@/src/screens/ServicesScreen/service.styles";
 
 export const ServicesScreen = () => {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
 
   return (
     <View style={[styles.container, { paddingTop: insets.top + 10 }]}>
@@ -22,7 +24,7 @@ export const ServicesScreen = () => {
           onPress={() => router.push("/meters" as Href)}
         >
           <View style={styles.iconBox}>
-            <Ionicons name="speedometer-outline" size={28} color={Colors.primary} />
+            <Ionicons name="speedometer-outline" size={28} color={colors.primary} />
           </View>
 
           <View style={styles.infoBox}>
@@ -32,7 +34,7 @@ export const ServicesScreen = () => {
             </Text>
           </View>
 
-          <Ionicons name="chevron-forward" size={24} color={Colors.textSecondary} />
+          <Ionicons name="chevron-forward" size={24} color={colors.textSecondary} />
         </TouchableOpacity>
       </ScrollView>
     </View>

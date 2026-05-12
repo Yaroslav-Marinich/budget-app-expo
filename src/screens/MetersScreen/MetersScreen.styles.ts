@@ -1,10 +1,9 @@
-import { Colors } from '@/src/constants/Colors';
 import { StyleSheet } from 'react-native';
 
-export const styles = StyleSheet.create({
+export const getStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
   },
   header: {
     paddingHorizontal: 20,
@@ -15,7 +14,7 @@ export const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: Colors.text,
+    color: colors.text,
     marginLeft: 15,
   },
   listContent: {
@@ -23,23 +22,23 @@ export const styles = StyleSheet.create({
     paddingBottom: 120,
   },
   monthCard: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderRadius: 20,
     padding: 20,
     marginBottom: 15,
     borderWidth: 1,
-    borderColor: Colors.outline,
+    borderColor: colors.outline,
   },
   monthHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 15,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.outline,
+    borderBottomColor: colors.outline,
     paddingBottom: 10,
   },
   monthTitle: {
-    color: Colors.text,
+    color: colors.text,
     fontSize: 18,
     fontWeight: 'bold',
   },
@@ -51,13 +50,13 @@ export const styles = StyleSheet.create({
   readingItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 12,
   },
   readingValue: {
-    color: Colors.text,
+    color: colors.text,
     fontWeight: '600',
     marginLeft: 6,
   },
@@ -66,16 +65,16 @@ export const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     padding: 20,
     borderTopWidth: 1,
-    borderTopColor: Colors.outline,
+    borderTopColor: colors.outline,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
   bottomMenuText: {
-    color: Colors.text,
+    color: colors.text,
     fontSize: 16,
     fontWeight: 'bold',
     marginLeft: 10,
@@ -84,20 +83,20 @@ export const styles = StyleSheet.create({
     position: 'absolute',
     right: 20,
     bottom: 90,
-    backgroundColor: Colors.primary,
+    backgroundColor: colors.primary,
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 15,
     paddingHorizontal: 20,
     borderRadius: 30,
-    shadowColor: Colors.primary,
+    shadowColor: colors.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 5,
     elevation: 5,
   },
   fabText: {
-    color: Colors.white,
+    color: colors.white,
     fontWeight: 'bold',
     marginLeft: 8,
     fontSize: 16,

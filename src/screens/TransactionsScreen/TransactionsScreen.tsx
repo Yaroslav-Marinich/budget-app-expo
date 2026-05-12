@@ -9,7 +9,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MonthPickerModal } from '@/src/components/ui/MonthPickerModal/MonthPickerModal';
 import { TransactionModal } from '@/src/components/ui/TransactionModal/TransactionModal';
 import { auth, db } from '@/src/config/firebase';
-import { Colors } from '@/src/constants/Colors';
 import { CURRENCIES } from '@/src/constants/Currencies';
 import { useLoader } from '@/src/context/LoaderContext';
 import { appAlert } from '@/src/services/alert';
@@ -18,7 +17,8 @@ import { deleteTransaction, subscribeToMonthlyTransactions, TransactionData } fr
 import { subscribeToWallets, Wallet } from '@/src/services/wallets';
 import { formatMoney } from '@/src/utils/formatMoney';
 
-import { styles } from './TransactionsScreen.styles';
+import { useTheme } from '@/src/context/ThemeContext';
+import { getStyles } from './TransactionsScreen.styles';
 
 type UITransaction = TransactionData & { id: string };
 
@@ -28,6 +28,8 @@ export const TransactionsScreen = () => {
   const { showLoader, hideLoader } = useLoader();
   const swipeableRefs = useRef<Map<string, Swipeable>>(new Map());
   const walletsListRef = useRef<FlatList>(null);
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
   
   const {
     initialWalletId,
@@ -134,7 +136,7 @@ export const TransactionsScreen = () => {
   }, [wallets, selectedWalletId]);
 
   const selectedWalletTitle = selectedWallet?.title || 'Рахунок';
-  const cryptoColor = Colors.warningAccent;
+  const cryptoColor = colors.warningAccent;
 
   const groupedTransactions = useMemo(() => {
     const filtered = transactions.filter((transaction) => {
@@ -205,7 +207,7 @@ export const TransactionsScreen = () => {
       onPress={() => confirmDelete(item)}
       activeOpacity={0.8}
     >
-      <Ionicons name="trash-outline" size={24} color={Colors.white} />
+      <Ionicons name="trash-outline" size={24} color={colors.white} />
     </TouchableOpacity>
   );
 
@@ -232,8 +234,8 @@ export const TransactionsScreen = () => {
             onPress={() => handleEdit(item)}
             style={styles.transactionCard}
           >
-            <View style={[styles.iconBox, { backgroundColor: `${category?.color || Colors.primary}15` }]}>
-              <Ionicons name={(category?.icon as any) || 'help'} size={24} color={category?.color || Colors.primary} />
+            <View style={[styles.iconBox, { backgroundColor: `${category?.color || colors.primary}15` }]}>
+              <Ionicons name={(category?.icon as any) || 'help'} size={24} color={category?.color || colors.primary} />
             </View>
             
             <View style={styles.transactionInfo}>
@@ -247,7 +249,7 @@ export const TransactionsScreen = () => {
               <Text style={[styles.amountText, isIncome ? styles.incomeText : styles.expenseText]}>
                 {isIncome ? '+' : '-'}{formatMoney(item.amount)} {selectedWalletCurrencySymbol}
               </Text>
-              {item.isPending && <Ionicons name="time-outline" size={14} color={Colors.warning} style={{ marginTop: 2 }} />}
+              {item.isPending && <Ionicons name="time-outline" size={14} color={colors.warning} style={{ marginTop: 2 }} />}
             </View>
           </TouchableOpacity>
         </Swipeable>
@@ -259,7 +261,7 @@ export const TransactionsScreen = () => {
     <View style={[styles.container, { paddingTop: insets.top + 10 }]}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-          <Ionicons name="arrow-back" size={28} color={Colors.textSecondary} />
+          <Ionicons name="arrow-back" size={28} color={colors.textSecondary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Операції</Text>
       </View>
@@ -268,19 +270,19 @@ export const TransactionsScreen = () => {
         <View style={[styles.lockedWalletCard, selectedWallet?.isCrypto && { borderColor: cryptoColor }]}>
           <View style={styles.lockedWalletHeader}>
             <View style={styles.lockedIconBox}>
-              <Ionicons name={(selectedWallet?.icon as any) || 'wallet-outline'} size={24} color={selectedWallet?.isCrypto ? cryptoColor : Colors.accent} />
+              <Ionicons name={(selectedWallet?.icon as any) || 'wallet-outline'} size={24} color={selectedWallet?.isCrypto ? cryptoColor : colors.accent} />
             </View>
             <View style={styles.lockedWalletInfo}>
               <Text style={styles.lockedWalletTitle}>{selectedWalletTitle}</Text>
               <Text style={styles.lockedWalletCurrency}>Валюта: {selectedWallet?.currency || '...'} ({selectedWalletCurrencySymbol})</Text>
             </View>
             <View style={styles.lockIconContainer}>
-              <Ionicons name="lock-closed" size={18} color={Colors.textSecondary} />
+              <Ionicons name="lock-closed" size={18} color={colors.textSecondary} />
             </View>
           </View>
           
           <View style={styles.lockedPeriodContainer}>
-            <Ionicons name="calendar-outline" size={18} color={Colors.textSecondary} />
+            <Ionicons name="calendar-outline" size={18} color={colors.textSecondary} />
             <Text style={styles.lockedPeriodText}>{getFormattedDate(currentDate)}</Text>
           </View>
         </View>
@@ -304,7 +306,7 @@ export const TransactionsScreen = () => {
                 const isSelected = selectedWalletId === wallet.id;
                 const walletCurrencySymbol = CURRENCIES.find(c => c.code === wallet.currency)?.symbol || wallet.currency;
                 
-                const activeColor = wallet.isCrypto ? cryptoColor : Colors.primary;
+                const activeColor = wallet.isCrypto ? cryptoColor : colors.primary;
 
                 return (
                   <TouchableOpacity
@@ -318,8 +320,8 @@ export const TransactionsScreen = () => {
                       wallet.isArchived && !isSelected && { opacity: 0.6 },
                     ]}
                   >
-                    <Ionicons name={wallet.icon as any} size={16} color={isSelected ? Colors.white : Colors.textSecondary} />
-                    <Text style={[styles.walletPillText, isSelected && { color: Colors.white, fontWeight: 'bold' }]}>
+                    <Ionicons name={wallet.icon as any} size={16} color={isSelected ? colors.white : colors.textSecondary} />
+                    <Text style={[styles.walletPillText, isSelected && { color: colors.white, fontWeight: 'bold' }]}>
                       {wallet.title} {walletCurrencySymbol} {wallet.isArchived ? '(Архів)' : ''}
                     </Text>
                   </TouchableOpacity>
@@ -330,13 +332,13 @@ export const TransactionsScreen = () => {
 
           <View style={styles.dateSelector}>
             <TouchableOpacity onPress={() => changeMonth(-1)} style={styles.dateArrow}>
-              <Ionicons name="chevron-back" size={24} color={Colors.textSecondary} />
+              <Ionicons name="chevron-back" size={24} color={colors.textSecondary} />
             </TouchableOpacity>
             <TouchableOpacity onPress={() => setMonthPickerVisible(true)} style={styles.dateCenter}>
               <Text style={styles.dateText}>{getFormattedDate(currentDate)}</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => changeMonth(1)} style={styles.dateArrow}>
-              <Ionicons name="chevron-forward" size={24} color={Colors.textSecondary} />
+              <Ionicons name="chevron-forward" size={24} color={colors.textSecondary} />
             </TouchableOpacity>
           </View>
         </>
@@ -355,7 +357,7 @@ export const TransactionsScreen = () => {
         stickySectionHeadersEnabled={false}
         ListEmptyComponent={
           <View style={styles.emptyBox}>
-            <Ionicons name="receipt-outline" size={64} color={Colors.outline} />
+            <Ionicons name="receipt-outline" size={64} color={colors.outline} />
             <Text style={styles.emptyText}>
               {isLockedFiltersMode ? 'Немає операцій у цій категорії за обраний період' : 'У цьому місяці немає операцій'}
             </Text>

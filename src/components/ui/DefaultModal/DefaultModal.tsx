@@ -1,16 +1,17 @@
-import { Colors } from "@/src/constants/Colors";
+import { useTheme } from "@/src/context/ThemeContext";
 import React, { useEffect, useRef, useState } from "react";
 import {
-    Keyboard // 🟢 ДОДАЛИ імпорт Keyboard
-    ,
-    Modal,
-    ModalProps,
-    Platform,
-    Pressable,
-    StyleProp,
-    StyleSheet,
-    View,
-    ViewStyle
+  Keyboard // 🟢 ДОДАЛИ імпорт Keyboard
+  ,
+
+  Modal,
+  ModalProps,
+  Platform,
+  Pressable,
+  StyleProp,
+  StyleSheet,
+  View,
+  ViewStyle
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -35,6 +36,8 @@ export const DefaultModal: React.FC<DefaultModalProps> = ({
 }) => {
   const insets = useSafeAreaInsets();
   const touchY = useRef(0);
+    const { colors } = useTheme();
+    const styles = getStyles(colors);
   
   // 🟢 НОВИЙ СТАН: Зберігаємо реальну висоту клавіатури
   const [keyboardHeight, setKeyboardHeight] = useState(0);
@@ -92,14 +95,14 @@ export const DefaultModal: React.FC<DefaultModalProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any) => StyleSheet.create({
   modalOverlay: {
     flex: 1,
-    backgroundColor: Colors.overlayMax || 'rgba(0,0,0,0.5)', 
+    backgroundColor: colors.overlayMax || 'rgba(0,0,0,0.5)', 
     justifyContent: 'flex-end',
   },
   modalContent: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     paddingHorizontal: 20,
@@ -108,7 +111,7 @@ const styles = StyleSheet.create({
   dragIndicator: {
     width: 40,
     height: 5,
-    backgroundColor: Colors.outline,
+    backgroundColor: colors.outline,
     borderRadius: 3,
     alignSelf: 'center',
     marginBottom: 20,

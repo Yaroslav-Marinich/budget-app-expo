@@ -1,14 +1,13 @@
-import { Colors } from "@/src/constants/Colors";
 import { StyleSheet } from "react-native";
 
-export const styles = StyleSheet.create({
+export const getStyles = (colors: any) => StyleSheet.create({
   modalOverlay: {
     flex: 1,
-    backgroundColor: Colors.overlayHeavy,
+    backgroundColor: colors.overlayHeavy,
     justifyContent: 'flex-end',
   },
   modalContent: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     padding: 20,
@@ -21,7 +20,7 @@ export const styles = StyleSheet.create({
     marginBottom: 20,
   },
   modalTitle: {
-    color: Colors.text,
+    color: colors.text,
     fontSize: 20,
     fontWeight: 'bold',
   },
@@ -31,36 +30,36 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: Colors.surfaceMuted,
+    backgroundColor: colors.surfaceMuted,
     padding: 15,
     borderRadius: 15,
     marginTop: 15,
     marginBottom: 5,
     borderWidth: 1,
-    borderColor: Colors.outline,
+    borderColor: colors.outline,
   },
   switchLabel: {
-    color: Colors.text,
+    color: colors.text,
     fontSize: 14,
     fontWeight: '600',
   },
   
   // --- Поля вводу ---
   inputLabel: {
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     fontSize: 12,
     marginBottom: 8,
     marginTop: 15,
     marginLeft: 5,
   },
   input: {
-    backgroundColor: Colors.background,
-    color: Colors.text,
+    backgroundColor: colors.background,
+    color: colors.text,
     padding: 15,
     borderRadius: 15,
     fontSize: 16,
     borderWidth: 1,
-    borderColor: Colors.outline,
+    borderColor: colors.outline,
   },
 
   // --- НОВЕ: Сітка кольорів ---
@@ -82,7 +81,7 @@ export const styles = StyleSheet.create({
   },
   colorBoxActive: {
     transform: [{ scale: 1.1 }],
-    borderColor: Colors.text, 
+    borderColor: colors.text, 
   },
 
   // --- ОНОВЛЕНО: Сітка іконок ---
@@ -96,7 +95,7 @@ export const styles = StyleSheet.create({
     width: '18%', 
     aspectRatio: 1, 
     borderRadius: 16,
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 12,
@@ -104,13 +103,13 @@ export const styles = StyleSheet.create({
     borderColor: 'transparent',
   },
   iconBoxActive: {
-    borderColor: Colors.primary,
-    backgroundColor: `${Colors.primary}15`,
+    borderColor: colors.primary,
+    backgroundColor: `${colors.primary}15`,
   },
   
   // --- Кнопка збереження ---
   saveBtn: {
-    backgroundColor: Colors.primary,
+    backgroundColor: colors.primary,
     padding: 18,
     borderRadius: 20,
     // marginTop: 20,
@@ -118,7 +117,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   saveBtnText: {
-    color: Colors.white,
+    color: colors.white,
     fontWeight: 'bold',
     fontSize: 16,
   },
