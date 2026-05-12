@@ -7,10 +7,6 @@ export default {
     version: "1.0.0",
     orientation: "portrait",
     icon: "./src/assets/images/icon.png",
-    notification: {
-      icon: "./src/assets/images/notification-icon.png",
-      color: "#1B5E20"
-    },
     scheme: "budget-app",
     userInterfaceStyle: "automatic",
     newArchEnabled: true,
@@ -41,7 +37,7 @@ export default {
           "image": "./src/assets/images/logo.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
+          "backgroundColor": "#121212",
           "dark": {
             "backgroundColor": "#121212"
           }
@@ -51,7 +47,14 @@ export default {
       "expo-image",
       "expo-web-browser",
       "expo-sharing",
-      "@react-native-google-signin/google-signin"
+      "@react-native-google-signin/google-signin",
+      [
+        "expo-notifications",
+        {
+          icon: "./src/assets/images/notification-icon.png",
+          color: "#1B5E20"
+        }
+      ]
     ],
     experiments: {
       typedRoutes: true,

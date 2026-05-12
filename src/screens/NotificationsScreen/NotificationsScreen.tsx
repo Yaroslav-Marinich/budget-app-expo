@@ -1,5 +1,4 @@
 import { Ionicons } from '@expo/vector-icons';
-import * as Notifications from 'expo-notifications';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ScrollView, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -132,22 +131,29 @@ const saveMetersSettings = async () => {
     }
   };
 
-  const testNotification = async () => {
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: '⏳ Час передати показники!',
-        body: 'Не забудьте зайти в додаток і внести актуальні показники лічильників.',
-        sound: true,
-        data: { url: '/meters' },
-      },
-      trigger: {
-        type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-        seconds: 10,
-      },
-    });
+// const testNotification = async () => {
+//   const hasPermission = await requestNotificationPermissions();
+  
+//   if (!hasPermission) {
+//     appAlert('Помилка', 'Немає дозволу на сповіщення в системі!');
+//     return;
+//   }
 
-    appAlert('Тест запущено', 'Швидше згортай додаток! Справжнє сповіщення прилетить через 10 секунд.');
-  };
+//   await Notifications.scheduleNotificationAsync({
+//     content: {
+//       title: '⏳ Час передати показники!',
+//       body: 'Не забудьте зайти в додаток і внести актуальні показники лічильників.',
+//       sound: true,
+//       data: { url: '/meters' },
+//     },
+//     trigger: {
+//       type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+//       seconds: 10,
+//     },
+//   });
+
+//   appAlert('Тест запущено', 'Швидше згортай додаток! Справжнє сповіщення прилетить через 10 секунд.');
+// };
 
   return (
     <View style={[styles.container, { paddingTop: insets.top + 10 }]}>
@@ -252,12 +258,12 @@ const saveMetersSettings = async () => {
           <Text style={styles.saveBtnText}>Зберегти</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
+        {/*<TouchableOpacity
           style={[styles.saveBtn, { backgroundColor: colors.accent, marginTop: 0, padding: 12 }]}
           onPress={testNotification}
         >
           <Text style={styles.saveBtnText}>Перевірити зараз (10 сек)</Text>
-        </TouchableOpacity>
+        </TouchableOpacity>*/}
       </DefaultModal>
     </View>
   );

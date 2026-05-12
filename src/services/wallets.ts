@@ -152,7 +152,6 @@ export const subscribeToWallets = (onUpdate: (wallets: Wallet[]) => void) => {
 export const updateWalletBalance = async (walletId: string, amount: number) => {
   const user = auth.currentUser;
   if (!user) {
-    // console.error("Користувач не авторизований");
     return false;
   }
 
@@ -175,7 +174,6 @@ export const updateWalletBalance = async (walletId: string, amount: number) => {
 export const updateWallet = async (walletId: string, updates: UpdateWalletInput) => {
   const user = auth.currentUser;
   if (!user) {
-    // console.error("Користувач не авторизований");
     return false;
   }
 
@@ -191,7 +189,6 @@ export const updateWallet = async (walletId: string, updates: UpdateWalletInput)
 export const updateWalletsOrder = async (orderedWallets: Wallet[]) => {
   const user = auth.currentUser;
   if (!user) {
-    // console.error("Користувач не авторизований");
     return false;
   }
 
@@ -219,7 +216,6 @@ export const createWallet = async (walletData: CreateWalletInput) => {
   try {
     const user = auth.currentUser;
     if (!user) {
-      // console.error("Користувач не авторизований");
       return false;
     }
 
@@ -244,7 +240,6 @@ export const archiveWallet = async (walletId: string) => {
   try {
     const user = auth.currentUser;
     if (!user) {
-      // console.error("Користувач не авторизований");
       return false;
     }
 

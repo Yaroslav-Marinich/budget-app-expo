@@ -20,8 +20,8 @@ export const HomeScreen = () => {
 	const router = useRouter();
 	const walletsListRef = useRef<FlatList>(null);
 	const { categories, wallets } = useGlobalData();
-	  const { colors } = useTheme();
-	  const styles = getStyles(colors);
+	const { colors } = useTheme();
+	const styles = getStyles(colors);
 
 	const { width: screenWidth } = Dimensions.get("window");
 	const cardWidth = screenWidth * 0.75;
@@ -134,6 +134,14 @@ export const HomeScreen = () => {
 		return selectedWallet?.isArchived || false;
 	}, [wallets, selectedWalletId]);
 
+	const mainWalletId = useMemo(() => {
+		const activeWallets = wallets
+			.filter((wallet) => !wallet.isArchived)
+			.sort((left, right) => (left.order ?? Number.MAX_SAFE_INTEGER) - (right.order ?? Number.MAX_SAFE_INTEGER));
+
+		return activeWallets.length > 0 ? activeWallets[0].id : null;
+	}, [wallets]);
+
 	const selectedWalletCurrencySymbol = useMemo(() => {
 		const selectedWallet = wallets.find((wallet) => wallet.id === selectedWalletId);
 		const currency = CURRENCIES.find((c) => c.code === selectedWallet?.currency);
@@ -154,21 +162,21 @@ export const HomeScreen = () => {
 	}, [currentDate]);
 
 	useEffect(() => {
-  if (!wallets.length) return;
+		if (!wallets.length) return;
 
-  const sortedActive = wallets
-    .filter((wallet) => !wallet.isArchived)
-    .sort((left, right) => (left.order ?? Number.MAX_SAFE_INTEGER) - (right.order ?? Number.MAX_SAFE_INTEGER));
+		const sortedActive = wallets
+			.filter((wallet) => !wallet.isArchived)
+			.sort((left, right) => (left.order ?? Number.MAX_SAFE_INTEGER) - (right.order ?? Number.MAX_SAFE_INTEGER));
 
-  setSelectedWalletId((currentSelectedId) => {
-    if (sortedActive.length === 0) return null;
-    const selectedStillActive = sortedActive.some((wallet) => wallet.id === currentSelectedId);
-    if (!currentSelectedId || !selectedStillActive) {
-      return sortedActive[0].id;
-    }
-    return currentSelectedId;
-  });
-}, [wallets]);
+		setSelectedWalletId((currentSelectedId) => {
+			if (sortedActive.length === 0) return null;
+			const selectedStillActive = sortedActive.some((wallet) => wallet.id === currentSelectedId);
+			if (!currentSelectedId || !selectedStillActive) {
+				return sortedActive[0].id;
+			}
+			return currentSelectedId;
+		});
+	}, [wallets]);
 
 	// useEffect(() => {
 	// 	const unsubscribeWallets = subscribeToWallets((data) => {
@@ -230,7 +238,7 @@ export const HomeScreen = () => {
 					renderItem={({ item: wallet, index }) => {
 						const cryptoColor = colors.warningAccent;
 						const accentColor = wallet.isCrypto ? cryptoColor : colors.accent;
-						
+
 						return (
 							<TouchableOpacity
 								activeOpacity={0.9}
@@ -253,6 +261,13 @@ export const HomeScreen = () => {
 									</View>
 								)}
 
+								{wallet.id === mainWalletId && !wallet.isArchived && (
+									<View style={styles.mainBadgeHome}>
+										<Ionicons name="star" size={10} color={colors.background} />
+										<Text style={styles.mainBadgeTextHome}>Основний</Text>
+									</View>
+								)}
+
 								{wallet.isPending && (
 									<View style={styles.pendingBadgeHome}>
 										<Ionicons name="time-outline" size={12} color={colors.background} />
@@ -272,8 +287,8 @@ export const HomeScreen = () => {
 								</View>
 								<Text style={styles.walletAmount}>
 									{formatMoney(wallet.balance)} <Text style={[styles.currency, { color: wallet.isArchived ? colors.textSecondary : accentColor }]}>
-                    {wallet.currency}
-                </Text>
+										{wallet.currency}
+									</Text>
 								</Text>
 							</TouchableOpacity>
 						)
@@ -380,7 +395,7 @@ export const HomeScreen = () => {
 							style={[styles.categoryCard, styles.addCategoryCard]}
 							onPress={() => setCategoryModalVisible(true)}
 						>
-								<View style={[styles.iconContainer, { backgroundColor: colors.surfaceSoft }]}> 
+							<View style={[styles.iconContainer, { backgroundColor: colors.surfaceSoft }]}>
 								<Ionicons name="add" size={24} color={colors.textSecondary} />
 							</View>
 							<View style={styles.textContainer}>
@@ -390,19 +405,19 @@ export const HomeScreen = () => {
 						</TouchableOpacity>
 					</View>
 
-					<TouchableOpacity 
-                        style={styles.transactionsListBtn}
-onPress={() => router.push({
-        pathname: '/transactions',
-        params: { 
-            initialWalletId: selectedWalletId, 
-            initialDate: currentDate.toISOString() 
-        }
-    } as any)}
-                    >
-                        <Text style={styles.transactionsListBtnText}>Всі операції</Text>
-                        <Ionicons name="arrow-forward" size={20} color={colors.primary} />
-                    </TouchableOpacity>
+					<TouchableOpacity
+						style={styles.transactionsListBtn}
+						onPress={() => router.push({
+							pathname: '/transactions',
+							params: {
+								initialWalletId: selectedWalletId,
+								initialDate: currentDate.toISOString()
+							}
+						} as any)}
+					>
+						<Text style={styles.transactionsListBtnText}>Всі операції</Text>
+						<Ionicons name="arrow-forward" size={20} color={colors.primary} />
+					</TouchableOpacity>
 				</View>
 			</ScrollView>
 

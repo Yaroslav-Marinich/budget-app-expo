@@ -25,10 +25,8 @@ export const getStyles = (colors: any) => StyleSheet.create({
 
   walletCard: {
     backgroundColor: colors.surface,
-    // width: 240,
     padding: 20,
     borderRadius: 24,
-    // marginRight: 16,
     borderWidth: 1,
     borderColor: colors.outline,
   },
@@ -38,7 +36,7 @@ export const getStyles = (colors: any) => StyleSheet.create({
     borderStyle: 'dashed',
   },
 
-walletCardArchived: {
+  walletCardArchived: {
     opacity: 0.6,
     backgroundColor: colors.surfaceMuted,
     borderColor: colors.outline,
@@ -47,8 +45,8 @@ walletCardArchived: {
   },
   archiveBadgeHome: {
     position: 'absolute',
-    top: -1, 
-    right: 25, 
+    top: -1,
+    right: 25,
     backgroundColor: colors.textSecondary,
     paddingHorizontal: 12,
     paddingVertical: 4,
@@ -57,6 +55,27 @@ walletCardArchived: {
     zIndex: 2,
   },
   archiveBadgeTextHome: {
+    color: colors.background,
+    fontSize: 9,
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  mainBadgeHome: {
+    position: 'absolute',
+    top: -1,
+    right: 25,
+    backgroundColor: colors.primary,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10,
+    zIndex: 2,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  mainBadgeTextHome: {
     color: colors.background,
     fontSize: 9,
     fontWeight: 'bold',
@@ -128,7 +147,7 @@ walletCardArchived: {
 
   // --- ГОЛОВНИЙ БЛОК (ОСТРІВ) ---
   transactionsBoard: {
-    backgroundColor: colors.surface, 
+    backgroundColor: colors.surface,
     marginHorizontal: 20,
     borderRadius: 32,
     paddingTop: 20,
@@ -139,24 +158,24 @@ walletCardArchived: {
   // =======================
   // Перемикач Витрати / Доходи
   // =======================
-toggleContainer: { 
-    flexDirection: 'row', 
+  toggleContainer: {
+    flexDirection: 'row',
     paddingHorizontal: 15,
-    gap: 15, 
+    gap: 15,
     // marginBottom: 20 
   },
 
-toggleBtn: { 
-    flex: 1, 
-    padding: 16, 
-    borderRadius: 20, 
+  toggleBtn: {
+    flex: 1,
+    padding: 16,
+    borderRadius: 20,
     backgroundColor: 'transparent',
-    borderWidth: 1, 
+    borderWidth: 1,
     borderColor: 'transparent'
   },
 
-toggleBtnActive: { 
-    backgroundColor: colors.background, 
+  toggleBtnActive: {
+    backgroundColor: colors.background,
     borderColor: colors.outline,
     shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 2 },
@@ -175,9 +194,9 @@ toggleBtnActive: {
   //   marginBottom: 20,
   // },
   // --- РОЗДІЛЮВАЧ ІЗ ЗАМКОМ ---
-dividerContainer: {
+  dividerContainer: {
     position: 'relative',
-    height: 24, 
+    height: 24,
     justifyContent: 'center',
     alignItems: 'center',
     marginVertical: 15,
@@ -189,38 +208,38 @@ dividerContainer: {
     backgroundColor: colors.outline,
   },
   lockBadge: {
-    backgroundColor: colors.surface, 
-    paddingHorizontal: 10, 
+    backgroundColor: colors.surface,
+    paddingHorizontal: 10,
   },
 
   // =======================
   // Список категорій
   // =======================
-categoriesContainer: { 
-    flexDirection: 'row', 
-    flexWrap: 'wrap', 
-    justifyContent: 'space-between', 
+  categoriesContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
     paddingHorizontal: 15,
   },
-  categoryCard: { 
+  categoryCard: {
     backgroundColor: colors.surfaceSubtle,
-    width: '48%', 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    padding: 8, 
-    borderRadius: 16, 
+    width: '48%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 8,
+    borderRadius: 16,
     marginBottom: 15,
     borderWidth: 1,
     borderColor: colors.outlineSoft
   },
-  iconContainer: { 
+  iconContainer: {
     position: 'relative',
     width: 44,
-    height: 44, 
-    borderRadius: 12, 
-    alignItems: 'center', 
-    justifyContent: 'center', 
-    marginRight: 10 
+    height: 44,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 10
   },
   pendingCategoryDot: {
     position: 'absolute',
@@ -234,19 +253,19 @@ categoriesContainer: {
     justifyContent: 'center',
   },
   textContainer: {
-    flex: 1, 
+    flex: 1,
     justifyContent: 'center',
   },
-  categoryName: { 
-    color: colors.textSecondary, 
+  categoryName: {
+    color: colors.textSecondary,
     fontSize: 12,
-    fontWeight: '500', 
-    marginBottom: 2, 
+    fontWeight: '500',
+    marginBottom: 2,
   },
-  categoryAmount: { 
-    color: colors.text, 
+  categoryAmount: {
+    color: colors.text,
     fontSize: 14,
-    fontWeight: 'bold', 
+    fontWeight: 'bold',
   },
   addCategoryCard: {
     backgroundColor: 'transparent',
