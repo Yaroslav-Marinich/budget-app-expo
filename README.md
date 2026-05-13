@@ -60,9 +60,9 @@ cd ..
 ./gradlew clean
 ```
 
-### Оновлення додатку через ОТА (Заміни preview на production, якщо ти оновлюєш Prod-версію додатка)
+### Оновлення додатку через ОТА
 ```bash
-eas update --branch preview --message "Виправив баг на головному екрані"
+eas update --branch production --message "Виправив баг на головному екрані"
 ```
 
 ### Оновлення додатку при нативних змінах
