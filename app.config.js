@@ -48,6 +48,7 @@ export default {
       "expo-web-browser",
       "expo-sharing",
       "@react-native-google-signin/google-signin",
+      "@react-native-community/datetimepicker",
       [
         "expo-notifications",
         {

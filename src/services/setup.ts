@@ -7,6 +7,12 @@ export interface MeterNotificationSettings {
   time: string;
 }
 
+export interface SubNotificationSettings {
+  enabled: boolean;
+  offsetDays: number;
+  time: string;
+}
+
 export interface ThemeSettings {
   isDarkMode: boolean;
   customBackground: string | null;
@@ -21,7 +27,7 @@ export const initializeUserData = async () => {
     const settingsSnap = await getDoc(settingsRef);
 
     if (settingsSnap.exists() && settingsSnap.data().isInitialDataCreated) {
-      return; 
+      return;
     }
 
     const batch = writeBatch(db);
@@ -57,7 +63,7 @@ export const initializeUserData = async () => {
 export const saveNotificationSettings = async (userId: string, settings: MeterNotificationSettings) => {
   const settingsRef = doc(db, "userSettings", userId);
   try {
-    await setDoc(settingsRef, { 
+    await setDoc(settingsRef, {
       notifications: {
         meters: settings
       }
@@ -93,7 +99,7 @@ export const deleteMeterSettingsFromDB = async (userId: string) => {
   const settingsRef = doc(db, "userSettings", userId);
   try {
     await updateDoc(settingsRef, {
-      "notifications.meters": deleteField() 
+      "notifications.meters": deleteField()
     });
     console.log("✅ Дані про лічильники видалено з БД");
   } catch (error) {
@@ -122,5 +128,55 @@ export const getThemeSettings = async (userId: string): Promise<ThemeSettings | 
     return null;
   } catch (error) {
     return null;
+  }
+};
+
+/**
+ * Зберігає налаштування сповіщень для ПІДПИСОК
+ */
+export const saveSubNotificationSettings = async (userId: string, settings: SubNotificationSettings) => {
+  const settingsRef = doc(db, "userSettings", userId);
+  try {
+    await setDoc(settingsRef, {
+      notifications: {
+        subscriptions: settings
+      }
+    }, { merge: true });
+    console.log("✅ Налаштування сповіщень підписок збережено в БД");
+  } catch (error) {
+    console.error("❌ Помилка при збереженні налаштувань підписок:", error);
+    throw error;
+  }
+};
+
+/**
+ * Отримує налаштування сповіщень ПІДПИСОК
+ */
+export const getSubNotificationSettings = async (userId: string): Promise<SubNotificationSettings | null> => {
+  const settingsRef = doc(db, "userSettings", userId);
+  try {
+    const snap = await getDoc(settingsRef);
+    if (snap.exists() && snap.data().notifications?.subscriptions) {
+      return snap.data().notifications.subscriptions;
+    }
+    return null;
+  } catch (error) {
+    console.error("❌ Помилка при отриманні налаштувань підписок:", error);
+    return null;
+  }
+};
+
+/**
+ * Повністю видаляє налаштування сповіщень про підписки з БД
+ */
+export const deleteSubSettingsFromDB = async (userId: string) => {
+  const settingsRef = doc(db, "userSettings", userId);
+  try {
+    await updateDoc(settingsRef, {
+      "notifications.subscriptions": deleteField()
+    });
+    console.log("✅ Дані про сповіщення підписок видалено з БД");
+  } catch (error) {
+    console.error("❌ Помилка видалення сповіщень підписок з БД:", error);
   }
 };

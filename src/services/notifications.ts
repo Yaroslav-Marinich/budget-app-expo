@@ -1,12 +1,13 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
+import { Subscription } from './subscriptions';
 
 // 1. Налаштовуємо поведінку сповіщень
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
-    shouldShowAlert: true,  
-    shouldShowBanner: true, 
-    shouldShowList: true,  
+    shouldShowAlert: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
     shouldPlaySound: true,
     shouldSetBadge: false,
   } as any),
@@ -42,14 +43,14 @@ export async function requestNotificationPermissions(): Promise<boolean> {
       name: 'default',
       importance: Notifications.AndroidImportance.MAX,
       vibrationPattern: [0, 250, 250, 250],
-      lightColor: '#1B5E20', 
+      lightColor: '#1B5E20',
     });
   }
 
   const permissions = await Notifications.getPermissionsAsync();
-  
+
   let isGranted = isNotificationPermissionGranted(permissions);
-  
+
   if (!isGranted) {
     const request = await Notifications.requestPermissionsAsync({
       ios: {
@@ -60,7 +61,7 @@ export async function requestNotificationPermissions(): Promise<boolean> {
     });
     isGranted = isNotificationPermissionGranted(request);
   }
-  
+
   return !!isGranted;
 }
 
@@ -89,7 +90,7 @@ export async function scheduleMeterNotification(dayType: 'first' | 'second_last'
           title: '⏳ Час передати показники!',
           body: 'Не забудьте зайти в додаток і внести актуальні показники лічильників.',
           sound: true,
-          data: { type: 'meters', url: '/meters' }, 
+          data: { type: 'meters', url: '/meters' },
         },
         trigger: {
           type: Notifications.SchedulableTriggerInputTypes.DATE,
@@ -102,20 +103,76 @@ export async function scheduleMeterNotification(dayType: 'first' | 'second_last'
   console.log(`✅ Заплановано сповіщень про лічильники: ${scheduledCount}`);
 }
 
-export async function cancelMeterNotifications() {
+export async function scheduleSubscriptionNotifications(
+  subscriptions: Subscription[],
+  offsetDays: number,
+  hour: number,
+  minute: number
+) {
+  await cancelSubscriptionNotifications();
+
+  const now = new Date();
+  let scheduledCount = 0;
+
+  for (const sub of subscriptions) {
+    if (!sub.isActive) continue;
+
+    let tempDate = new Date(sub.nextPaymentDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    while (tempDate < today) {
+      if (sub.billingCycle === 'monthly') tempDate.setMonth(tempDate.getMonth() + 1);
+      else if (sub.billingCycle === 'yearly') tempDate.setFullYear(tempDate.getFullYear() + 1);
+      else if (sub.billingCycle === 'days' && sub.customDays) tempDate.setDate(tempDate.getDate() + sub.customDays);
+      else { tempDate.setMonth(tempDate.getMonth() + 1); break; }
+    }
+
+    for (let i = 0; i < 3; i++) {
+      const notifyDate = new Date(tempDate);
+      notifyDate.setDate(notifyDate.getDate() - offsetDays);
+      notifyDate.setHours(hour, minute, 0, 0);
+
+      if (notifyDate > now) {
+        let periodText = offsetDays === 0 ? 'сьогодні' : offsetDays === 1 ? 'завтра' : offsetDays === 3 ? 'через 3 дні' : 'через тиждень';
+
+        await Notifications.scheduleNotificationAsync({
+          content: {
+            title: `💸 Оплата: ${sub.name}`,
+            body: `Нагадуємо, що ${periodText} спишеться ${sub.amount} ${sub.currency} за ${sub.name}.`,
+            sound: true,
+            data: { type: 'subscriptions', url: '/home' },
+          },
+          trigger: {
+            type: Notifications.SchedulableTriggerInputTypes.DATE,
+            date: notifyDate,
+          },
+        });
+        scheduledCount++;
+      }
+
+      if (sub.billingCycle === 'monthly') tempDate.setMonth(tempDate.getMonth() + 1);
+      else if (sub.billingCycle === 'yearly') tempDate.setFullYear(tempDate.getFullYear() + 1);
+      else if (sub.billingCycle === 'days' && sub.customDays) tempDate.setDate(tempDate.getDate() + sub.customDays);
+      else { tempDate.setMonth(tempDate.getMonth() + 1); }
+    }
+  }
+
+  console.log(`✅ Заплановано сповіщень про підписки: ${scheduledCount}`);
+}
+
+// Універсальна функція для скасування конкретного типу сповіщень
+export async function cancelNotificationsByType(type: 'meters' | 'subscriptions') {
   const scheduled = await Notifications.getAllScheduledNotificationsAsync();
-  
-  const toCancel = scheduled.filter(notif => notif.content.data?.type === 'meters');
-  
+
+  const toCancel = scheduled.filter(notif => notif.content.data?.type === type);
+
   for (const notif of toCancel) {
     await Notifications.cancelScheduledNotificationAsync(notif.identifier);
   }
-  
-  console.log(`🗑 Видалено сповіщень про лічильники: ${toCancel.length}`);
+
+  console.log(`🗑 Видалено сповіщень типу "${type}": ${toCancel.length}`);
 }
 
-//  Функція для скасування всіх нагадувань
-export async function cancelAllNotifications() {
-  await Notifications.cancelAllScheduledNotificationsAsync();
-  console.log('🗑 Всі заплановані сповіщення скасовано');
-}
+export const cancelMeterNotifications = () => cancelNotificationsByType('meters');
+export const cancelSubscriptionNotifications = () => cancelNotificationsByType('subscriptions');

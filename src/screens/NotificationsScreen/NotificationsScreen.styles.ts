@@ -57,7 +57,7 @@ export const getStyles = (colors: any) => StyleSheet.create({
     backgroundColor: colors.surfaceMuted,
     borderRadius: 12,
   },
-  
+
   // --- Стилі для модалки ---
   modalHeader: {
     flexDirection: 'row',
@@ -85,7 +85,7 @@ export const getStyles = (colors: any) => StyleSheet.create({
     fontSize: 16,
     borderWidth: 1,
     borderColor: colors.outline,
-    },
+  },
   chipContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -126,5 +126,27 @@ export const getStyles = (colors: any) => StyleSheet.create({
     color: colors.white,
     fontWeight: 'bold',
     fontSize: 16,
+  },
+  timeSelector: {
+    backgroundColor: colors.surfaceMuted,
+    paddingVertical: 15,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: colors.outlineSoft || colors.outline,
+    marginVertical: 10,
+  },
+  timeSelectorText: {
+    color: colors.text,
+    fontSize: 26,
+    fontWeight: 'bold',
+    letterSpacing: 2,
+  },
+  iosPickerContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 120,
+    marginVertical: 10,
   },
 });
