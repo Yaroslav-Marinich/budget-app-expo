@@ -19,7 +19,7 @@ export const getStyles = (colors: any) => StyleSheet.create({
     padding: 20,
     maxHeight: '90%',
   },
-modalTitle: {
+  modalTitle: {
     color: colors.text,
     fontSize: 20,
     fontWeight: 'bold',
@@ -47,7 +47,7 @@ modalTitle: {
     fontSize: 12,
     marginTop: 4,
   },
-  
+
   // Поля вводу
   inputLabel: {
     color: colors.textSecondary,
@@ -65,7 +65,7 @@ modalTitle: {
     borderWidth: 1,
     borderColor: colors.outline,
   },
-  
+
   // Іконки
   iconsContainer: {
     flexDirection: 'row',
@@ -84,12 +84,12 @@ modalTitle: {
     borderColor: colors.primary,
     borderWidth: 2,
   },
-  
+
   // Валюта
   currencyText: {
     color: colors.text,
   },
-  
+
   // Кнопка збереження
   saveBtn: {
     backgroundColor: colors.primary,
@@ -102,44 +102,5 @@ modalTitle: {
     color: colors.white,
     fontWeight: 'bold',
     fontSize: 16,
-  },
-  
-  // Внутрішня модалка пошуку валют
-  currencyPickerContainer: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: colors.surface,
-    padding: 20,
-    borderRadius: 30,
-  },
-  searchHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  searchInput: {
-    flex: 1,
-  },
-  closeBtn: {
-    marginLeft: 15,
-  },
-  closeBtnText: {
-    color: colors.error,
-  },
-  
-  // Елемент списку валют
-  currencyItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    padding: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.outline,
-  },
-  currencyCode: {
-    color: colors.accent,
-    fontWeight: 'bold',
-  },
-  currencyName: {
-    color: colors.textSecondary,
-    fontSize: 13,
   },
 });

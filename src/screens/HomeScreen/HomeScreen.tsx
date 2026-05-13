@@ -8,6 +8,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CategoryModal } from "@/src/components/ui/CategoryModal/CategoryModal";
 import { MonthPickerModal } from "@/src/components/ui/MonthPickerModal/MonthPickerModal";
 import { TransactionModal } from "@/src/components/ui/TransactionModal/TransactionModal";
+import { UpcomingSubscriptionsWidget } from "@/src/components/ui/Widget/UpcomingSubscriptionsWidget";
 import { CURRENCIES } from "@/src/constants/Currencies";
 import { useGlobalData } from "@/src/context/DataContext";
 import { useTheme } from "@/src/context/ThemeContext";
@@ -445,6 +446,8 @@ export const HomeScreen = () => {
 				existingCategories={categories}
 				isCryptoWallet={isCryptoWallet}
 			/>
+
+			<UpcomingSubscriptionsWidget />
 		</View>
 	);
 };

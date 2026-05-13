@@ -10,14 +10,15 @@ import { getStyles } from "@/src/screens/ServicesScreen/service.styles";
 export const ServicesScreen = () => {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   return (
     <View style={[styles.container, { paddingTop: insets.top + 10 }]}>
       <Text style={styles.screenTitle}>Сервіси</Text>
 
       <ScrollView showsVerticalScrollIndicator={false}>
+        {/* Картка: Лічильники */}
         <TouchableOpacity
           style={styles.serviceCard}
           activeOpacity={0.8}
@@ -31,6 +32,26 @@ export const ServicesScreen = () => {
             <Text style={styles.serviceTitle}>Лічильники</Text>
             <Text style={styles.serviceDescription}>
               Облік електроенергії, води, газу та інших побутових послуг
+            </Text>
+          </View>
+
+          <Ionicons name="chevron-forward" size={24} color={colors.textSecondary} />
+        </TouchableOpacity>
+
+        {/* Картка: Підписки */}
+        <TouchableOpacity
+          style={styles.serviceCard}
+          activeOpacity={0.8}
+          onPress={() => router.push("/subscriptions" as Href)}
+        >
+          <View style={styles.iconBox}>
+            <Ionicons name="infinite-outline" size={28} color={colors.primary} />
+          </View>
+
+          <View style={styles.infoBox}>
+            <Text style={styles.serviceTitle}>Підписки</Text>
+            <Text style={styles.serviceDescription}>
+              Трекінг регулярних платежів та нагадування про списання коштів
             </Text>
           </View>
 

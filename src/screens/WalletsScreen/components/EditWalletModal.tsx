@@ -1,9 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
-import { FlatList, Switch, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Switch, Text, TextInput, TouchableOpacity, View } from "react-native";
 
+import { CurrencyPickerModal } from "@/src/components/ui/CurrencyPickerModal/CurrencyPickerModal";
 import { DefaultModal } from "@/src/components/ui/DefaultModal/DefaultModal";
-import { CURRENCIES } from "@/src/constants/Currencies";
 import { WALLET_ICONS } from "@/src/constants/Icons";
 import { useLoader } from "@/src/context/LoaderContext";
 import { useTheme } from "@/src/context/ThemeContext";
@@ -13,16 +13,15 @@ import { getStyles } from "./EditWalletModal.styles";
 
 export const EditWalletModal = ({ visible, wallet, onClose }: any) => {
   const isEdit = !!wallet;
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const { showLoader, hideLoader } = useLoader();
   const [title, setTitle] = useState(wallet?.title || "");
   const [icon, setIcon] = useState(wallet?.icon || "card-outline");
   const [currency, setCurrency] = useState(wallet?.currency || "UAH");
-  const [search, setSearch] = useState("");
   const [showCurrencyPicker, setShowCurrencyPicker] = useState(false);
-  
+
   const [isCrypto, setIsCrypto] = useState(wallet?.isCrypto || false);
 
   useEffect(() => {
@@ -39,33 +38,26 @@ export const EditWalletModal = ({ visible, wallet, onClose }: any) => {
     }
   }, [wallet, visible]);
 
-  const filteredCurrencies = CURRENCIES.filter(c => 
-    c.type === (isCrypto ? 'crypto' : 'fiat') &&
-    (c.name.toLowerCase().includes(search.toLowerCase()) || 
-    c.country.toLowerCase().includes(search.toLowerCase()) ||
-    c.code.toLowerCase().includes(search.toLowerCase()))
-  );
-
   const handleCryptoToggle = (val: boolean) => {
     setIsCrypto(val);
     setCurrency(val ? 'USDT' : 'UAH');
   };
 
-const handleSave = async () => {
+  const handleSave = async () => {
     if (!title.trim()) return;
 
-    const data: any = { 
-      title, 
-      icon, 
-      currency, 
-      isCrypto 
+    const data: any = {
+      title,
+      icon,
+      currency,
+      isCrypto
     };
 
     if (isCrypto) {
       data.excludeFromTotal = true;
     }
 
-    showLoader(); 
+    showLoader();
     try {
       if (isEdit) {
         await updateWallet(wallet.id, data);
@@ -76,102 +68,75 @@ const handleSave = async () => {
     } catch (error) {
       console.error(error);
     } finally {
-      hideLoader(); 
+      hideLoader();
     }
   };
   return (
     <DefaultModal visible={visible} onClose={onClose} overlayStyle={styles.modalOverlay} contentStyle={styles.modalContent}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>
-              {isEdit ? "Редагувати рахунок" : "Новий рахунок"}
-            </Text>
-            <TouchableOpacity onPress={onClose} style={{ padding: 5 }}>
-              <Ionicons name="close" size={26} color={colors.textSecondary} />
-            </TouchableOpacity>
+      <View style={styles.modalHeader}>
+        <Text style={styles.modalTitle}>
+          {isEdit ? "Редагувати рахунок" : "Новий рахунок"}
+        </Text>
+        <TouchableOpacity onPress={onClose} style={{ padding: 5 }}>
+          <Ionicons name="close" size={26} color={colors.textSecondary} />
+        </TouchableOpacity>
+      </View>
+
+      {!isEdit && (
+        <View style={styles.switchRow}>
+          <View>
+            <Text style={styles.switchLabel}>Криптовалютний рахунок</Text>
+            <Text style={styles.switchSubLabel}>Власні категорії, ігнорується в аналітиці</Text>
           </View>
-
-          {!isEdit && (
-            <View style={styles.switchRow}>
-              <View>
-                <Text style={styles.switchLabel}>Криптовалютний рахунок</Text>
-                <Text style={styles.switchSubLabel}>Власні категорії, ігнорується в аналітиці</Text>
-              </View>
-              <Switch 
-                value={isCrypto} 
-                onValueChange={handleCryptoToggle}
-                trackColor={{ false: colors.outline, true: colors.primary }}
-              />
-            </View>
-          )}
-
-          <Text style={styles.inputLabel}>Іконка</Text>
-          <View style={styles.iconsContainer}>
-            {WALLET_ICONS.map(i => (
-              <TouchableOpacity 
-                key={i.id} 
-                onPress={() => setIcon(i.iconName)}
-                style={[styles.iconBox, icon === i.iconName && styles.iconBoxActive]}
-              >
-                <Ionicons name={i.iconName as any} size={20} color={icon === i.iconName ? colors.primary : colors.textSecondary} />
-              </TouchableOpacity>
-            ))}
-          </View>
-
-          {/* Назва */}
-          <Text style={styles.inputLabel}>Назва рахунку</Text>
-          <TextInput 
-            style={styles.input} 
-            value={title} 
-            onChangeText={setTitle} 
-            placeholderTextColor={colors.textSecondary} 
+          <Switch
+            value={isCrypto}
+            onValueChange={handleCryptoToggle}
+            trackColor={{ false: colors.outline, true: colors.primary }}
           />
+        </View>
+      )}
 
-          {/* Валюта */}
-          <Text style={styles.inputLabel}>Валюта</Text>
-          <TouchableOpacity style={styles.input} onPress={() => setShowCurrencyPicker(true)}>
-            <Text style={styles.currencyText}>{currency}</Text>
+      <Text style={styles.inputLabel}>Іконка</Text>
+      <View style={styles.iconsContainer}>
+        {WALLET_ICONS.map(i => (
+          <TouchableOpacity
+            key={i.id}
+            onPress={() => setIcon(i.iconName)}
+            style={[styles.iconBox, icon === i.iconName && styles.iconBoxActive]}
+          >
+            <Ionicons name={i.iconName as any} size={20} color={icon === i.iconName ? colors.primary : colors.textSecondary} />
           </TouchableOpacity>
+        ))}
+      </View>
 
-          {/* Кнопка збереження */}
-          <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
-            <Text style={styles.saveBtnText}>
-              {isEdit ? "Зберегти зміни" : "Створити рахунок"}
-            </Text>
-          </TouchableOpacity>
+      {/* Назва */}
+      <Text style={styles.inputLabel}>Назва рахунку</Text>
+      <TextInput
+        style={styles.input}
+        value={title}
+        onChangeText={setTitle}
+        placeholderTextColor={colors.textSecondary}
+      />
 
-          {/* Вкладена сторінка для пошуку валюти */}
-          {showCurrencyPicker && (
-            <View style={styles.currencyPickerContainer}>
-              <View style={styles.searchHeader}>
-                <TextInput 
-                  style={[styles.input, styles.searchInput]} 
-                  placeholder="Пошук валюти або країни..." 
-                  value={search} 
-                  onChangeText={setSearch}
-                  autoFocus
-                />
-                <TouchableOpacity onPress={() => setShowCurrencyPicker(false)} style={styles.closeBtn}>
-                  <Text style={styles.closeBtnText}>Закрити</Text>
-                </TouchableOpacity>
-              </View>
-              
-              <FlatList 
-                data={filteredCurrencies}
-                keyExtractor={item => item.code}
-                renderItem={({item}) => (
-                  <TouchableOpacity 
-                    style={styles.currencyItem} 
-                    onPress={() => { setCurrency(item.code); setShowCurrencyPicker(false); }}
-                  >
-                    <View>
-                      <Text style={styles.currencyCode}>{item.code} - {item.symbol}</Text>
-                      <Text style={styles.currencyName}>{item.name} ({item.country})</Text>
-                    </View>
-                  </TouchableOpacity>
-                )}
-              />
-            </View>
-          )}
+      {/* Валюта */}
+      <Text style={styles.inputLabel}>Валюта</Text>
+      <TouchableOpacity style={styles.input} onPress={() => setShowCurrencyPicker(true)}>
+        <Text style={styles.currencyText}>{currency}</Text>
+      </TouchableOpacity>
+
+      {/* Кнопка збереження */}
+      <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
+        <Text style={styles.saveBtnText}>
+          {isEdit ? "Зберегти зміни" : "Створити рахунок"}
+        </Text>
+      </TouchableOpacity>
+
+      <CurrencyPickerModal
+        visible={showCurrencyPicker}
+        onClose={() => setShowCurrencyPicker(false)}
+        onSelect={(code) => setCurrency(code)}
+        currencyType={isCrypto ? "crypto" : "fiat"}
+      />
     </DefaultModal>
   );
 };
