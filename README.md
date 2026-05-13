@@ -49,7 +49,7 @@ EAS_BUILD_PROFILE=production npx expo prebuild -p android --clean
 
 # 3. Заходимо в папку android і збираємо релізний (Release) білд
 cd android
-./gradlew assembleRelease
+./gradlew assembleRelease --no-configuration-cache
 
 # 4. Повертаємося в корінь проєкту після збірки
 cd ..
@@ -73,3 +73,16 @@ android: {
   version: "1.0.1", // Візуальна версія (була 1.0.0)
 ```
 далі перезбірка 
+
+### Що робити, якщо збірка "впала" (Troubleshooting)
+Повне очищення кешу C++:
+```bash
+cd android
+rm -rf app/.cxx
+rm -rf .gradle
+./gradlew clean
+```
+Примусове оновлення нативних модулів:
+```bash
+./gradlew :app:preReleaseBuild --no-configuration-cache
+```
