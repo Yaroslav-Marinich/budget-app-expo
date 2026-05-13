@@ -42,6 +42,28 @@ const SubscriptionItem = ({ sub, wallets, colors, styles, getNextDate }: any) =>
         transform: [{ rotate: `${interpolate(animation.value, [0, 1], [0, 180])}deg` }],
     }));
 
+    const getDisplayDate = (paymentDate: Date) => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const tomorrow = new Date(today);
+        tomorrow.setDate(today.getDate() + 1);
+
+        const target = new Date(paymentDate);
+        target.setHours(0, 0, 0, 0);
+
+        if (target.getTime() === today.getTime()) {
+            return "Сьогодні";
+        } else if (target.getTime() === tomorrow.getTime()) {
+            return "Завтра";
+        } else {
+            return target.toLocaleDateString('uk-UA', { day: 'numeric', month: 'long' });
+        }
+    };
+
+    const displayDateString = getDisplayDate(date);
+    // const isUrgent = displayDateString === "Сьогодні" || displayDateString === "Завтра";
+
     return (
         <TouchableOpacity
             activeOpacity={0.9}
@@ -52,8 +74,11 @@ const SubscriptionItem = ({ sub, wallets, colors, styles, getNextDate }: any) =>
                 <Image source={logo} style={styles.subItemLogo} contentFit="contain" />
                 <View style={styles.subItemInfo}>
                     <Text style={styles.subItemName}>{sub.name}</Text>
-                    <Text style={styles.subItemDate}>
-                        {date.toLocaleDateString('uk-UA', { day: 'numeric', month: 'long' })}
+                    <Text style={[
+                        styles.subItemDate,
+                        // isUrgent && { color: displayDateString === "Сьогодні" ? colors.error : colors.primary, fontWeight: 'bold' }
+                    ]}>
+                        {displayDateString}
                     </Text>
                 </View>
                 <Text style={styles.subItemAmount}>{sub.amount} {sub.currency}</Text>
@@ -99,8 +124,11 @@ export const UpcomingSubscriptionsWidget = () => {
 
     const getNextActualPaymentDate = (startDate: string, cycle: string, customDays?: number | null) => {
         let nextDate = new Date(startDate);
+        nextDate.setHours(0, 0, 0, 0);
+
         const today = new Date();
         today.setHours(0, 0, 0, 0);
+
         while (nextDate < today) {
             if (cycle === 'monthly') nextDate.setMonth(nextDate.getMonth() + 1);
             else if (cycle === 'yearly') nextDate.setFullYear(nextDate.getFullYear() + 1);
@@ -157,8 +185,12 @@ export const UpcomingSubscriptionsWidget = () => {
 
     const upcomingSubs = useMemo(() => {
         const today = new Date();
-        const nextWeek = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const nextWeek = new Date(today);
         nextWeek.setDate(today.getDate() + 7);
+        nextWeek.setHours(23, 59, 59, 999);
+
         return subscriptions.filter(sub => {
             const actualDate = getNextActualPaymentDate(sub.nextPaymentDate, sub.billingCycle, sub.customDays);
             return actualDate >= today && actualDate <= nextWeek;
