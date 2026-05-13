@@ -10,6 +10,12 @@ export default {
     scheme: "budget-app",
     userInterfaceStyle: "automatic",
     newArchEnabled: true,
+    updates: {
+      url: "https://u.expo.dev/b9d31e56-5bcd-4454-a1ec-c4f23749b423"
+    },
+    runtimeVersion: {
+      policy: "appVersion"
+    },
     ios: {
       supportsTablet: true
     },
@@ -48,6 +54,7 @@ export default {
       "expo-sharing",
       "@react-native-google-signin/google-signin",
       "@react-native-community/datetimepicker",
+      "./plugins/withJvmArgs",
       [
         "expo-notifications",
         {
