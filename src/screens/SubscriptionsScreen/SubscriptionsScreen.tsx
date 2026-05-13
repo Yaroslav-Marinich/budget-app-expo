@@ -229,7 +229,7 @@ export const SubscriptionsScreen = () => {
                 <FlatList
                     data={subscriptions}
                     keyExtractor={(item) => item.id || Math.random().toString()}
-                    contentContainerStyle={styles.listContainer}
+                    contentContainerStyle={[styles.listContainer, { paddingBottom: insets.bottom + 80 }]}
                     renderItem={renderItem}
                     ListEmptyComponent={renderEmptyState}
                     showsVerticalScrollIndicator={false}
@@ -237,7 +237,7 @@ export const SubscriptionsScreen = () => {
             )}
 
             <TouchableOpacity
-                style={styles.fab}
+                style={[styles.fab, { bottom: insets.bottom + 20 }]}
                 activeOpacity={0.8}
                 onPress={() => router.push('/subscriptions/add' as Href)}
             >

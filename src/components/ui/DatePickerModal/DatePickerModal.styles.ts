@@ -1,18 +1,18 @@
 import { StyleSheet } from "react-native";
 
 export const getStyles = (colors: any) => StyleSheet.create({
-    overlay: {
-        flex: 1,
-        backgroundColor: colors.overlayHeavy,
-        justifyContent: 'flex-end',
-    },
-    modalContent: {
-        backgroundColor: colors.surface,
-        borderTopLeftRadius: 30,
-        borderTopRightRadius: 30,
-        padding: 20,
-        paddingBottom: 40,
-    },
+    // overlay: {
+    //     flex: 1,
+    //     backgroundColor: colors.overlayHeavy,
+    //     justifyContent: 'flex-end',
+    // },
+    // modalContent: {
+    //     backgroundColor: colors.surface,
+    //     borderTopLeftRadius: 30,
+    //     borderTopRightRadius: 30,
+    //     padding: 20,
+    //     paddingBottom: 40,
+    // },
     monthSelector: {
         flexDirection: 'row',
         justifyContent: 'space-between',

@@ -4,29 +4,30 @@ import { Tabs } from 'expo-router';
 import { Pressable } from 'react-native';
 
 import { useTheme } from '@/src/context/ThemeContext';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function TabLayout() {
   const netInfo = useNetInfo();
   const isOnline = !!netInfo.isConnected && netInfo.isInternetReachable !== false;
-
+  const insets = useSafeAreaInsets();
   const { colors } = useTheme();
 
   return (
     <Tabs
       screenOptions={{
-        headerShown: false, 
+        headerShown: false,
         tabBarActiveTintColor: colors.accent,
         tabBarInactiveTintColor: colors.textSecondary,
         tabBarStyle: {
-          backgroundColor: colors.surface, 
+          backgroundColor: colors.surface,
           borderTopColor: colors.outline,
-          height: 60,
-          paddingBottom: 10,
+          height: 60 + insets.bottom,
+          paddingBottom: 10 + insets.bottom,
         },
       }}
     >
       <Tabs.Screen
-        name="home/index" 
+        name="home/index"
         options={{
           title: 'Головна',
           tabBarIcon: ({ color, size }) => (
@@ -35,7 +36,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="analytics/index" 
+        name="analytics/index"
         options={{
           title: 'Аналітика',
           tabBarButton: ({ style, ref: _ignoredRef, ...restProps }) => (

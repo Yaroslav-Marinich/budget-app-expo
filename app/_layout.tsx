@@ -8,7 +8,7 @@ import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
 import { AppState, LogBox, StyleSheet, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { InitialLoadingScreen } from '@/src/components/ui/InitialLoadingScreen/InitialLoadingScreen';
 import { SyncQueueBanner } from '@/src/components/ui/SyncQueueBanner/SyncQueueBanner';
@@ -166,19 +166,21 @@ const AppContent = () => {
 
 export default function RootLayout() {
   return (
-    <ThemeProvider>
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <LoaderProvider>
-          <CustomAlertProvider>
-            <SyncQueueProvider>
-              <DataProvider>
-                <AppContent />
-              </DataProvider>
-            </SyncQueueProvider>
-          </CustomAlertProvider>
-        </LoaderProvider>
-      </GestureHandlerRootView>
-    </ThemeProvider>
+    <SafeAreaProvider>
+      <ThemeProvider>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <LoaderProvider>
+            <CustomAlertProvider>
+              <SyncQueueProvider>
+                <DataProvider>
+                  <AppContent />
+                </DataProvider>
+              </SyncQueueProvider>
+            </CustomAlertProvider>
+          </LoaderProvider>
+        </GestureHandlerRootView>
+      </ThemeProvider>
+    </SafeAreaProvider>
   );
 }
 

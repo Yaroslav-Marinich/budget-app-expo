@@ -4,6 +4,7 @@ import { Text, TouchableOpacity, View } from "react-native";
 
 import { DefaultModal } from "@/src/components/ui/DefaultModal/DefaultModal";
 import { useTheme } from "@/src/context/ThemeContext";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { getStyles } from "./DatePickerModal.styles";
 
 interface Props {
@@ -20,6 +21,7 @@ const MONTHS = [
 ];
 
 export const DatePickerModal = ({ visible, onClose, currentDate, onSelect }: Props) => {
+    const insets = useSafeAreaInsets();
     const { colors } = useTheme();
     const styles = getStyles(colors);
 
@@ -36,10 +38,8 @@ export const DatePickerModal = ({ visible, onClose, currentDate, onSelect }: Pro
         setViewDate(newDate);
     };
 
-    // Розрахунок днів для сітки
     const daysInMonth = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0).getDate();
 
-    // Визначаємо, з якого дня тижня починається місяць (0 - Пн, 6 - Нд)
     const getFirstDayOfMonth = (year: number, month: number) => {
         let day = new Date(year, month, 1).getDay();
         return day === 0 ? 6 : day - 1;
@@ -47,7 +47,6 @@ export const DatePickerModal = ({ visible, onClose, currentDate, onSelect }: Pro
 
     const firstDay = getFirstDayOfMonth(viewDate.getFullYear(), viewDate.getMonth());
 
-    // Масиви для рендеру
     const emptyCells = Array.from({ length: firstDay }, (_, i) => i);
     const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
 
@@ -64,7 +63,7 @@ export const DatePickerModal = ({ visible, onClose, currentDate, onSelect }: Pro
     };
 
     return (
-        <DefaultModal visible={visible} onClose={onClose} overlayStyle={styles.overlay} contentStyle={styles.modalContent}>
+        <DefaultModal visible={visible} onClose={onClose}>
 
             <View style={styles.monthSelector}>
                 <TouchableOpacity onPress={() => changeMonth(-1)} style={styles.arrowBtn}>

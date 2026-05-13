@@ -22,7 +22,6 @@ export default {
         foregroundImage: "./src/assets/images/icon.png",
         backgroundColor: "#ffffff"
       },
-      edgeToEdgeEnabled: true,
       predictiveBackGestureEnabled: false
     },
     web: {

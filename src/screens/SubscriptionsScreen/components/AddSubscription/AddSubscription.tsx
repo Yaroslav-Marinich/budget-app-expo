@@ -164,7 +164,7 @@ export const AddSubscription = () => {
     const selectedWallet = wallets.find(w => w.id === walletId);
 
     return (
-        <View style={[styles.container, { paddingTop: insets.top + 10 }]}>
+        <View style={[styles.container, { paddingTop: insets.top + 10, paddingBottom: insets.bottom > 0 ? insets.bottom : 20 }]}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => router.back()} style={{ padding: 5 }}>
                     <Ionicons name="arrow-back" size={28} color={colors.textSecondary} />

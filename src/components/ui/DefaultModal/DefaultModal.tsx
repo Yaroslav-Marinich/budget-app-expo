@@ -1,9 +1,7 @@
 import { useTheme } from "@/src/context/ThemeContext";
 import React, { useEffect, useRef, useState } from "react";
 import {
-  Keyboard // 🟢 ДОДАЛИ імпорт Keyboard
-  ,
-
+  Keyboard,
   Modal,
   ModalProps,
   Platform,
@@ -36,22 +34,19 @@ export const DefaultModal: React.FC<DefaultModalProps> = ({
 }) => {
   const insets = useSafeAreaInsets();
   const touchY = useRef(0);
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
-  
-  // 🟢 НОВИЙ СТАН: Зберігаємо реальну висоту клавіатури
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
+
   const [keyboardHeight, setKeyboardHeight] = useState(0);
 
-  // 🟢 РУЧНИЙ СЛУХАЧ КЛАВІАТУРИ
   useEffect(() => {
-    // iOS використовує WillShow для плавності, Android - DidShow для точності
     const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
     const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
 
     const showSub = Keyboard.addListener(showEvent, (e) => {
       setKeyboardHeight(e.endCoordinates.height);
     });
-    
+
     const hideSub = Keyboard.addListener(hideEvent, () => {
       setKeyboardHeight(0);
     });
@@ -63,25 +58,24 @@ export const DefaultModal: React.FC<DefaultModalProps> = ({
   }, []);
 
   return (
-    <Modal 
-      animationType={animationType} 
-      transparent 
-      visible={visible} 
+    <Modal
+      animationType={animationType}
+      transparent
+      visible={visible}
       onRequestClose={onClose}
-      statusBarTranslucent={true} 
+      statusBarTranslucent={true}
     >
-      {/* 🟢 Прибрали KeyboardAvoidingView. Передаємо висоту клавіатури прямо в paddingBottom оверлею! */}
-      <Pressable 
-        style={[styles.modalOverlay, overlayStyle, { paddingBottom: keyboardHeight }]} 
+      <Pressable
+        style={[styles.modalOverlay, overlayStyle, { paddingBottom: keyboardHeight }]}
         onPress={onClose}
       >
         <Pressable
           style={[
-            styles.modalContent, 
-            { paddingBottom: insets.bottom + 20 }, 
-            contentStyle
+            styles.modalContent,
+            contentStyle,
+            { paddingBottom: Math.max(insets.bottom, 20) + 20 }
           ]}
-          onPress={(e) => e.stopPropagation()} 
+          onPress={(e) => e.stopPropagation()}
           onTouchStart={(e) => (touchY.current = e.nativeEvent.pageY)}
           onTouchEnd={(e) => {
             if (e.nativeEvent.pageY - touchY.current > 50) onClose();
@@ -98,7 +92,7 @@ export const DefaultModal: React.FC<DefaultModalProps> = ({
 const getStyles = (colors: any) => StyleSheet.create({
   modalOverlay: {
     flex: 1,
-    backgroundColor: colors.overlayMax || 'rgba(0,0,0,0.5)', 
+    backgroundColor: colors.overlayMax || 'rgba(0,0,0,0.5)',
     justifyContent: 'flex-end',
   },
   modalContent: {

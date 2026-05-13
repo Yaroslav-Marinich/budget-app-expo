@@ -66,7 +66,8 @@ export const getStyles = (colors: any) => StyleSheet.create({
     left: 0,
     right: 0,
     backgroundColor: colors.surface,
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingTop: 15,
     borderTopWidth: 1,
     borderTopColor: colors.outline,
     flexDirection: 'row',
@@ -82,7 +83,6 @@ export const getStyles = (colors: any) => StyleSheet.create({
   fab: {
     position: 'absolute',
     right: 20,
-    bottom: 90,
     backgroundColor: colors.primary,
     flexDirection: 'row',
     alignItems: 'center',

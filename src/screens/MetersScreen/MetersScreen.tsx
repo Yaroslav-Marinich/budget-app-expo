@@ -22,8 +22,8 @@ type UIMeterReading = MeterReading & { isPending?: boolean };
 export const MetersScreen = () => {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const [meters, setMeters] = useState<Meter[]>([]);
   const [readings, setReadings] = useState<UIMeterReading[]>([]);
@@ -45,8 +45,8 @@ export const MetersScreen = () => {
       .filter((task) => task.type === 'METER_READING' && (task.status === 'PENDING' || task.status === 'SYNCING'))
       .map((task) => ({
         ...task.payload,
-        id: task.id, 
-        isPending: true, 
+        id: task.id,
+        isPending: true,
       }))
       .filter((reading) => !!reading?.date && !!reading?.meterId);
     setPendingReadings(pendingMeters);
@@ -62,11 +62,10 @@ export const MetersScreen = () => {
     fetchPendingQueue();
   }, [readings]);
 
- const groupedMonths = useMemo(() => {
+  const groupedMonths = useMemo(() => {
     const groups: { [date: string]: UIMeterReading[] } = {};
-   const existingMeterIds = new Set(meters.map((meter) => meter.id));
+    const existingMeterIds = new Set(meters.map((meter) => meter.id));
 
-    // Крок 1: Додаємо всі "офіційні" дані з Firebase
     readings.forEach((reading) => {
       if (!groups[reading.date]) {
         groups[reading.date] = [];
@@ -74,29 +73,26 @@ export const MetersScreen = () => {
       groups[reading.date].push(reading);
     });
 
-    // Крок 2: Додаємо "офлайн" дані ТІЛЬКИ якщо їх ще немає в базі
     pendingReadings.forEach((pendingReading) => {
       if (!groups[pendingReading.date]) {
         groups[pendingReading.date] = [];
       }
 
-      // Перевіряємо, чи є вже такий офіційний запис (по meterId)
       const isAlreadyInFirebase = groups[pendingReading.date].some(
         (r) => r.meterId === pendingReading.meterId && !r.isPending
       );
 
-      // Якщо Firebase ще не знає про нього - показуємо напівпрозорим
       if (!isAlreadyInFirebase) {
         groups[pendingReading.date].push(pendingReading);
       }
     });
 
     return Object.keys(groups)
-    .map((date) => {
-      const visibleItems = groups[date].filter((reading) => existingMeterIds.has(reading.meterId));
-      return { date, visibleItems };
-    })
-    .filter(({ visibleItems }) => visibleItems.length > 0)
+      .map((date) => {
+        const visibleItems = groups[date].filter((reading) => existingMeterIds.has(reading.meterId));
+        return { date, visibleItems };
+      })
+      .filter(({ visibleItems }) => visibleItems.length > 0)
       .sort((left, right) => right.date.localeCompare(left.date))
       .map(({ date, visibleItems }) => {
         const hasPending = visibleItems.some((r) => r.isPending);
@@ -109,12 +105,12 @@ export const MetersScreen = () => {
           hasPending,
         };
       });
- }, [readings, pendingReadings, meters]);
-  
+  }, [readings, pendingReadings, meters]);
+
   const handleShareAll = (e: any, item: any) => {
-  e.stopPropagation(); 
-  shareReadingsAsPDF(item.title, item.items, meters);
-};
+    e.stopPropagation();
+    shareReadingsAsPDF(item.title, item.items, meters);
+  };
 
   const renderMonthCard = ({ item }: { item: (typeof groupedMonths)[0] }) => (
     <TouchableOpacity
@@ -141,9 +137,8 @@ export const MetersScreen = () => {
           }
 
           return (
-            <View 
-              key={index} 
-              // Робимо офлайн-показники трохи прозорими
+            <View
+              key={index}
               style={[styles.readingItem, reading.isPending && { opacity: 0.6, borderColor: colors.warning, borderWidth: 1 }]}
             >
               <Ionicons name={meter.icon as any} size={16} color={getMeterColor(meter.icon)} />
@@ -152,19 +147,19 @@ export const MetersScreen = () => {
           );
         })}
       </View>
-      <TouchableOpacity 
-      onPress={(e) => handleShareAll(e, item)}
-      style={{
-        position: 'absolute',
-        right: 15,
-        bottom: 15,
-        backgroundColor: colors.surfaceSoft,
-        padding: 8,
-        borderRadius: 10,
-      }}
-    >
-      <Ionicons name="share-outline" size={22} color={colors.textSecondary} />
-    </TouchableOpacity>
+      <TouchableOpacity
+        onPress={(e) => handleShareAll(e, item)}
+        style={{
+          position: 'absolute',
+          right: 15,
+          bottom: 15,
+          backgroundColor: colors.surfaceSoft,
+          padding: 8,
+          borderRadius: 10,
+        }}
+      >
+        <Ionicons name="share-outline" size={22} color={colors.textSecondary} />
+      </TouchableOpacity>
     </TouchableOpacity>
   );
 
@@ -181,7 +176,7 @@ export const MetersScreen = () => {
         data={groupedMonths}
         keyExtractor={(item) => item.id}
         renderItem={renderMonthCard}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 150 }]}
         ListEmptyComponent={
           <Text style={{ textAlign: 'center', color: colors.textSecondary, marginTop: 40 }}>
             Ви ще не вносили показники.
@@ -190,7 +185,7 @@ export const MetersScreen = () => {
       />
 
       <TouchableOpacity
-        style={styles.fab}
+        style={[styles.fab, { bottom: insets.bottom + 80 }]}
         activeOpacity={0.9}
         onPress={() => router.push('/meters/submit')}
       >
@@ -199,7 +194,7 @@ export const MetersScreen = () => {
       </TouchableOpacity>
 
       <TouchableOpacity
-        style={[styles.bottomMenu, { paddingBottom: insets.bottom || 20 }]}
+        style={[styles.bottomMenu, { paddingBottom: insets.bottom > 0 ? insets.bottom + 20 : 20 }]}
         activeOpacity={0.9}
         onPress={() => router.push('/meters/manage')}
       >

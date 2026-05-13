@@ -1,17 +1,8 @@
 import { StyleSheet } from "react-native";
 
 export const getStyles = (colors: any) => StyleSheet.create({
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: colors.overlayHeavy,
-    justifyContent: 'flex-end',
-  },
   modalContent: {
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-    padding: 20,
-    maxHeight: '100%',
+    paddingBottom: 20,
   },
   modalHeader: {
     flexDirection: 'row',
@@ -25,51 +16,68 @@ export const getStyles = (colors: any) => StyleSheet.create({
     fontWeight: 'bold',
   },
 
-  // Перемикач
   switchRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     backgroundColor: colors.surfaceMuted,
-    padding: 15,
+    padding: 12,
     borderRadius: 15,
-    marginTop: 15,
-    marginBottom: 5,
-    borderWidth: 1,
-    borderColor: colors.outline,
+    marginBottom: 15,
   },
   switchLabel: {
     color: colors.text,
     fontSize: 14,
     fontWeight: '600',
   },
-  
-  // --- Поля вводу ---
-  inputLabel: {
-    color: colors.textSecondary,
-    fontSize: 12,
-    marginBottom: 8,
-    marginTop: 15,
-    marginLeft: 5,
+
+  // --- Інпут з прев'ю іконки ---
+  inputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+    gap: 15,
+  },
+  previewIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   input: {
+    flex: 1,
     backgroundColor: colors.background,
     color: colors.text,
-    padding: 15,
+    padding: 16,
     borderRadius: 15,
     fontSize: 16,
     borderWidth: 1,
     borderColor: colors.outline,
+    height: 56,
   },
 
-  // --- НОВЕ: Сітка кольорів ---
-  colorsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
+  // --- Заголовки секцій ---
+  sectionLabel: {
+    color: colors.textSecondary,
+    fontSize: 13,
+    fontWeight: '600',
     marginBottom: 10,
     marginLeft: 5,
   },
+
+  // --- Горизонтальні списки ---
+  scrollWrapper: {
+    marginBottom: 20,
+    marginHorizontal: -20,
+  },
+  scrollContent: {
+    paddingHorizontal: 20,
+    paddingBottom: 5,
+    paddingTop: 5,
+  },
+
+  // Кольори
   colorBox: {
     width: 44,
     height: 44,
@@ -78,42 +86,36 @@ export const getStyles = (colors: any) => StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 2,
     borderColor: 'transparent',
+    marginRight: 12,
   },
   colorBoxActive: {
     transform: [{ scale: 1.1 }],
-    borderColor: colors.text, 
+    borderColor: colors.text,
   },
 
-  // --- ОНОВЛЕНО: Сітка іконок ---
-  iconsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between', 
-    marginBottom: 10,
-  },
+  // Іконки
   iconBox: {
-    width: '18%', 
-    aspectRatio: 1, 
+    width: 48,
+    height: 48,
     borderRadius: 16,
     backgroundColor: colors.background,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 12,
+    marginRight: 12,
     borderWidth: 1,
-    borderColor: 'transparent',
+    borderColor: colors.outline,
   },
   iconBoxActive: {
     borderColor: colors.primary,
     backgroundColor: `${colors.primary}15`,
   },
-  
-  // --- Кнопка збереження ---
+
+  // Кнопка
   saveBtn: {
     backgroundColor: colors.primary,
     padding: 18,
     borderRadius: 20,
-    // marginTop: 20,
-    marginBottom: 30, 
+    marginTop: 10,
     alignItems: 'center',
   },
   saveBtnText: {
