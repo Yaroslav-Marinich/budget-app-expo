@@ -62,7 +62,7 @@ cd ..
 
 ### Оновлення додатку через ОТА
 ```bash
-eas update --branch production --message "Виправив баг на головному екрані"
+eas update --branch production --platform android,ios --message "Оновлено віджет на головному екрані"
 ```
 
 ### Оновлення додатку при нативних змінах
