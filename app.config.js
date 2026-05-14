@@ -11,7 +11,10 @@ export default {
     userInterfaceStyle: "automatic",
     newArchEnabled: true,
     updates: {
-      url: "https://u.expo.dev/b9d31e56-5bcd-4454-a1ec-c4f23749b423"
+      url: "https://u.expo.dev/b9d31e56-5bcd-4454-a1ec-c4f23749b423",
+      requestHeaders: {
+        "expo-channel-name": "production"
+      },
     },
     runtimeVersion: {
       policy: "appVersion"

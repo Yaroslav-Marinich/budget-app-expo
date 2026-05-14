@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
 import React, { useState } from "react";
-import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { Alert, Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { auth } from "@/src/config/firebase";
@@ -40,24 +40,24 @@ export const UserScreen = () => {
       if (result.success) {
         setUser(auth.currentUser);
         appAlert("Успіх", "Ваш прогрес успішно збережено в хмарі!");
-      } 
+      }
       else if (result.conflict) {
         appAlert(
           "Акаунт вже існує",
           "Цей Google акаунт вже містить збережені дані. Які дані ви хочете залишити?",
           [
-            { 
-              text: "Залишити ті, що на телефоні (старі зникнуть)", 
-              onPress: () => handleResolveConflict(result.credential, 'keep_local') 
+            {
+              text: "Залишити ті, що на телефоні (старі зникнуть)",
+              onPress: () => handleResolveConflict(result.credential, 'keep_local')
             },
-            { 
-              text: "Завантажити з хмари (поточні зникнуть)", 
-              onPress: () => handleResolveConflict(result.credential, 'keep_cloud') 
+            {
+              text: "Завантажити з хмари (поточні зникнуть)",
+              onPress: () => handleResolveConflict(result.credential, 'keep_cloud')
             },
             { text: "Скасувати", style: "cancel" }
           ]
         );
-      } 
+      }
       else {
         appAlert("Помилка", "Не вдалося прив'язати акаунт. Спробуйте ще раз.");
       }
@@ -135,7 +135,7 @@ export const UserScreen = () => {
               <Ionicons name="person" size={40} color={colors.textSecondary} />
             </View>
           )}
-          
+
           <Text style={styles.userName}>
             {isAnonymous ? "Гостьовий акаунт" : (user?.displayName || "Користувач")}
           </Text>
@@ -171,6 +171,39 @@ export const UserScreen = () => {
 
         <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
           <Text style={styles.logoutText}>Вийти з акаунту</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={{ padding: 15, backgroundColor: '#d32f2f', borderRadius: 10, margin: 20, alignItems: 'center' }}
+          onPress={async () => {
+            // Захист від падіння в Expo Go
+            if (__DEV__) {
+              Alert.alert("Режим розробки", "Оновлення працюють лише у зібраному APK!");
+              return;
+            }
+
+            try {
+              // Динамічний імпорт (не зламає Expo Go при завантаженні екрана)
+              const Updates = require('expo-updates');
+
+              Alert.alert("Інфо про збірку", `Канал: "${Updates.channel}"\nID: ${Updates.updateId || 'Базова'}`);
+
+              const update = await Updates.checkForUpdateAsync();
+              if (update.isAvailable) {
+                Alert.alert("Оновлення знайдено!", "Завантажую...");
+                await Updates.fetchUpdateAsync();
+                Alert.alert("Успіх", "Оновлення встановлено. Перезапускаю!", [
+                  { text: "OK", onPress: () => Updates.reloadAsync() }
+                ]);
+              } else {
+                Alert.alert("Оновлень немає", "Сервер сказав, що для цього каналу нічого нового немає.");
+              }
+            } catch (error) {
+              Alert.alert("Помилка EAS", String(error));
+            }
+          }}
+        >
+          <Text style={{ color: 'white', fontWeight: 'bold' }}>Діагностика оновлень</Text>
         </TouchableOpacity>
       </ScrollView>
     </View>

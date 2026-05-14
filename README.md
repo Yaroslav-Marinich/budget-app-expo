@@ -62,7 +62,7 @@ cd ..
 
 ### Оновлення додатку через ОТА
 ```bash
-eas update --branch production --platform android,ios --message "Оновлено віджет на головному екрані"
+eas update --branch production --platform android --message "Оновлено віджет на головному екрані"
 ```
 
 ### Оновлення додатку при нативних змінах
@@ -81,6 +81,11 @@ cd android
 rm -rf app/.cxx
 rm -rf .gradle
 ./gradlew clean
+```
+Якщо завис процес
+```bash
+taskkill -F -IM java.exe
+taskkill -F -IM node.exe
 ```
 Примусове оновлення нативних модулів:
 ```bash
