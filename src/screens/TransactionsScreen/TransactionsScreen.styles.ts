@@ -21,7 +21,7 @@ export const getStyles = (colors: any) => StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
   },
-  
+
   // Селектор рахунків
   walletsSelector: {
     height: 45,
@@ -67,7 +67,7 @@ export const getStyles = (colors: any) => StyleSheet.create({
     textTransform: 'capitalize',
   },
 
-  // 👈 НОВІ СТИЛІ: Картка заблокованого режиму
+  // Картка заблокованого режиму
   lockedWalletCard: {
     backgroundColor: colors.surface,
     marginHorizontal: 20,
@@ -109,19 +109,60 @@ export const getStyles = (colors: any) => StyleSheet.create({
     backgroundColor: colors.surfaceMuted,
     borderRadius: 12,
   },
+  lockedDetailsRow: {
+    flexDirection: 'column',
+    gap: 10,
+  },
   lockedPeriodContainer: {
+    width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.surfaceMuted,
     padding: 12,
     borderRadius: 16,
-    gap: 8,
+    gap: 10,
   },
   lockedPeriodText: {
     color: colors.text,
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '600',
     textTransform: 'capitalize',
+  },
+  // lockedPeriodContainer: {
+  //   flexDirection: 'row',
+  //   alignItems: 'center',
+  //   backgroundColor: colors.surfaceMuted,
+  //   padding: 12,
+  //   borderRadius: 16,
+  //   gap: 8,
+  // },
+  // lockedPeriodText: {
+  //   color: colors.text,
+  //   fontSize: 15,
+  //   fontWeight: '600',
+  //   textTransform: 'capitalize',
+  // },
+  lockedTotalContainer: {
+    width: '100%',
+    backgroundColor: colors.surfaceSoft,
+    padding: 15,
+    borderRadius: 16,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  lockedTotalLabel: {
+    color: colors.textSecondary,
+    fontSize: 14,
+    textTransform: 'uppercase',
+    fontWeight: 'bold',
+    flex: 1,
+  },
+  lockedTotalAmount: {
+    color: colors.text,
+    fontSize: 20,
+    fontWeight: 'bold',
+    textAlign: 'right',
   },
 
   // Список операцій

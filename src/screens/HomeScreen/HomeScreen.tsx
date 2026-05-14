@@ -215,6 +215,20 @@ export const HomeScreen = () => {
 	// 	return () => unsubscribeCategories();
 	// }, []);
 
+	const formattedExpense = `${formatMoney(totalExpense)} ${selectedWalletCurrencySymbol}`;
+	const formattedIncome = `${formatMoney(totalIncome)} ${selectedWalletCurrencySymbol}`;
+
+	const maxAmountLength = Math.max(formattedExpense.length, formattedIncome.length);
+
+	let amountFontSize = 20;
+	if (maxAmountLength > 16) {
+		amountFontSize = 13;
+	} else if (maxAmountLength > 13) {
+		amountFontSize = 16;
+	} else if (maxAmountLength > 10) {
+		amountFontSize = 18;
+	}
+
 	return (
 		<View style={[styles.container, { paddingTop: insets.top }]}>
 			<Stack.Screen options={{ headerShown: false }} />
@@ -317,7 +331,10 @@ export const HomeScreen = () => {
 							onPress={() => setActiveTab("expense")}
 						>
 							<Text style={[styles.toggleLabel, activeTab === "expense" && { color: colors.error }]}>Витрати</Text>
-							<Text style={styles.toggleAmount}>{formatMoney(totalExpense)} {selectedWalletCurrencySymbol}</Text>
+							<Text
+								style={[styles.toggleAmount, { fontSize: amountFontSize }]}
+								numberOfLines={1}
+							>{formatMoney(totalExpense)} {selectedWalletCurrencySymbol}</Text>
 						</TouchableOpacity>
 
 						<TouchableOpacity
@@ -325,7 +342,10 @@ export const HomeScreen = () => {
 							onPress={() => setActiveTab("income")}
 						>
 							<Text style={[styles.toggleLabel, activeTab === "income" && { color: colors.primary }]}>Доходи</Text>
-							<Text style={styles.toggleAmount}>{formatMoney(totalIncome)} {selectedWalletCurrencySymbol}</Text>
+							<Text
+								style={[styles.toggleAmount, { fontSize: amountFontSize }]}
+								numberOfLines={1}
+							>{formatMoney(totalIncome)} {selectedWalletCurrencySymbol}</Text>
 						</TouchableOpacity>
 					</View>
 

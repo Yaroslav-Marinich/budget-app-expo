@@ -28,33 +28,36 @@ export const TransactionsScreen = () => {
   const { showLoader, hideLoader } = useLoader();
   const swipeableRefs = useRef<Map<string, Swipeable>>(new Map());
   const walletsListRef = useRef<FlatList>(null);
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
-  
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
+
   const {
     initialWalletId,
     initialDate,
     categoryId: lockedCategoryIdParam,
+    categoryName: lockedCategoryNameParam,
     lockFilters,
   } = useLocalSearchParams<{
     initialWalletId?: string;
     initialDate?: string;
     categoryId?: string;
+    categoryName?: string;
     lockFilters?: string;
   }>();
 
   const normalizedInitialWalletId = typeof initialWalletId === 'string' ? initialWalletId : null;
   const normalizedInitialDate = typeof initialDate === 'string' ? initialDate : null;
   const lockedCategoryId = typeof lockedCategoryIdParam === 'string' ? lockedCategoryIdParam : null;
+  const lockedCategoryName = typeof lockedCategoryNameParam === 'string' ? lockedCategoryNameParam : 'Категорія';
   const isLockedFiltersMode = lockFilters === '1' && Boolean(lockedCategoryId);
 
   const [wallets, setWallets] = useState<Wallet[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [transactions, setTransactions] = useState<UITransaction[]>([]);
-  
+
   const [selectedWalletId, setSelectedWalletId] = useState<string | null>(normalizedInitialWalletId);
   const [currentDate, setCurrentDate] = useState(normalizedInitialDate ? new Date(normalizedInitialDate) : new Date());
-  
+
   const [isMonthPickerVisible, setMonthPickerVisible] = useState(false);
   const [activeMonths, setActiveMonths] = useState<string[]>([]);
   const [openedRowId, setOpenedRowId] = useState<string | null>(null);
@@ -63,7 +66,7 @@ export const TransactionsScreen = () => {
   const [editingTransaction, setEditingTransaction] = useState<UITransaction | null>(null);
 
   const monthYearStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
-  
+
   const getFormattedDate = (date: Date) => {
     const monthName = date.toLocaleString("uk-UA", { month: "long" }).replace(/^./, (char) => char.toUpperCase());
     return `${monthName} ${date.getFullYear()}`;
@@ -89,12 +92,12 @@ export const TransactionsScreen = () => {
           walletsListRef.current?.scrollToIndex({
             index,
             animated: true,
-            viewPosition: 0.5 
+            viewPosition: 0.5
           });
         }, 200);
       }
     }
-  }, [wallets, selectedWalletId, isLockedFiltersMode]); 
+  }, [wallets, selectedWalletId, isLockedFiltersMode]);
 
   useEffect(() => {
     const unsub = subscribeToMonthlyTransactions(monthYearStr, (data) => setTransactions(data as UITransaction[]));
@@ -108,10 +111,10 @@ export const TransactionsScreen = () => {
       try {
         let qParams = [where("userId", "==", user.uid)];
         if (selectedWalletId) qParams.push(where("walletId", "==", selectedWalletId));
-        
+
         const q = query(collection(db, "transactions"), ...qParams);
         const snap = await getDocs(q);
-        
+
         const months = new Set<string>();
         snap.forEach(doc => { if (doc.data().monthYear) months.add(doc.data().monthYear); });
         setActiveMonths(Array.from(months));
@@ -138,6 +141,14 @@ export const TransactionsScreen = () => {
   const selectedWalletTitle = selectedWallet?.title || 'Рахунок';
   const cryptoColor = colors.warningAccent;
 
+  const lockedCategoryTotal = useMemo(() => {
+    if (!isLockedFiltersMode || !lockedCategoryId) return 0;
+
+    return transactions
+      .filter(t => t.walletId === selectedWalletId && t.categoryId === lockedCategoryId)
+      .reduce((sum, t) => sum + t.amount, 0);
+  }, [transactions, selectedWalletId, isLockedFiltersMode, lockedCategoryId]);
+
   const groupedTransactions = useMemo(() => {
     const filtered = transactions.filter((transaction) => {
       if (transaction.walletId !== selectedWalletId) return false;
@@ -152,7 +163,7 @@ export const TransactionsScreen = () => {
     filtered.forEach(t => {
       const dateObj = t.date ? new Date(t.date) : new Date();
       const dayStr = `${dateObj.getDate()} ${dateObj.toLocaleString('uk-UA', { month: 'long' })}`;
-      
+
       if (!groups[dayStr]) groups[dayStr] = [];
       groups[dayStr].push(t);
     });
@@ -175,8 +186,8 @@ export const TransactionsScreen = () => {
       `Видалити цю операцію на суму ${formatMoney(item.amount)}?`,
       [
         { text: "Скасувати", style: "cancel", onPress: () => swipeableRefs.current.get(item.id)?.close() },
-        { 
-          text: "Видалити", 
+        {
+          text: "Видалити",
           style: "destructive",
           onPress: async () => {
             showLoader();
@@ -202,8 +213,8 @@ export const TransactionsScreen = () => {
   };
 
   const renderRightActions = (item: UITransaction) => (
-    <TouchableOpacity 
-      style={styles.deleteAction} 
+    <TouchableOpacity
+      style={styles.deleteAction}
       onPress={() => confirmDelete(item)}
       activeOpacity={0.8}
     >
@@ -217,7 +228,7 @@ export const TransactionsScreen = () => {
 
     return (
       <View style={styles.itemContainer}>
-        <Swipeable 
+        <Swipeable
           ref={(ref) => {
             if (ref) swipeableRefs.current.set(item.id, ref);
             else swipeableRefs.current.delete(item.id);
@@ -227,17 +238,17 @@ export const TransactionsScreen = () => {
           onSwipeableWillOpen={() => onSwipeableWillOpen(item.id)}
           overshootRight={false}
           friction={1.5}
-          rightThreshold={40} 
+          rightThreshold={40}
         >
-          <TouchableOpacity 
-            activeOpacity={1} 
+          <TouchableOpacity
+            activeOpacity={1}
             onPress={() => handleEdit(item)}
             style={styles.transactionCard}
           >
             <View style={[styles.iconBox, { backgroundColor: `${category?.color || colors.primary}15` }]}>
               <Ionicons name={(category?.icon as any) || 'help'} size={24} color={category?.color || colors.primary} />
             </View>
-            
+
             <View style={styles.transactionInfo}>
               <Text style={styles.categoryName}>{category?.name || 'Невідома категорія'}</Text>
               {item.comment ? (
@@ -280,10 +291,30 @@ export const TransactionsScreen = () => {
               <Ionicons name="lock-closed" size={18} color={colors.textSecondary} />
             </View>
           </View>
-          
-          <View style={styles.lockedPeriodContainer}>
-            <Ionicons name="calendar-outline" size={18} color={colors.textSecondary} />
-            <Text style={styles.lockedPeriodText}>{getFormattedDate(currentDate)}</Text>
+
+          <View style={styles.lockedDetailsRow}>
+            {/* Рядок з датою */}
+            <View style={styles.lockedPeriodContainer}>
+              <Ionicons name="calendar-outline" size={20} color={colors.textSecondary} />
+              <Text style={styles.lockedPeriodText}>
+                {getFormattedDate(currentDate)}
+              </Text>
+            </View>
+
+            {/* Рядок з сумою на всю ширину */}
+            <View style={styles.lockedTotalContainer}>
+              <Text style={styles.lockedTotalLabel} numberOfLines={1}>
+                Разом ({lockedCategoryName}):
+              </Text>
+              <Text
+                style={styles.lockedTotalAmount}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.6}
+              >
+                {formatMoney(lockedCategoryTotal)} {selectedWalletCurrencySymbol}
+              </Text>
+            </View>
           </View>
         </View>
       ) : (
@@ -305,7 +336,7 @@ export const TransactionsScreen = () => {
               renderItem={({ item: wallet, index }) => {
                 const isSelected = selectedWalletId === wallet.id;
                 const walletCurrencySymbol = CURRENCIES.find(c => c.code === wallet.currency)?.symbol || wallet.currency;
-                
+
                 const activeColor = wallet.isCrypto ? cryptoColor : colors.primary;
 
                 return (

@@ -25,9 +25,9 @@ export const FinancesAnalytics = () => {
   const [loading, setLoading] = useState(true);
   const [transactions, setTransactions] = useState<TransactionData[]>([]);
   const [wallets, setWallets] = useState<Wallet[]>([]);
-  
+
   const [exchangeRates, setExchangeRates] = useState<Record<string, number>>({});
-  
+
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedWalletId, setSelectedWalletId] = useState<string | null>(null);
   const [globalCurrency, setGlobalCurrency] = useState<string>('UAH');
@@ -41,9 +41,9 @@ export const FinancesAnalytics = () => {
   useFocusEffect(
     useCallback(() => {
       setSelectedWalletId(null);
-      
+
       walletsScrollViewRef.current?.scrollTo({ x: 0, animated: true });
-      
+
       setCurrentDate(new Date());
     }, [])
   );
@@ -73,35 +73,35 @@ export const FinancesAnalytics = () => {
     const fetchActiveMonths = async () => {
       const user = auth.currentUser;
       if (!user) return;
-      
+
       try {
         let qParams = [where("userId", "==", user.uid)];
         if (selectedWalletId) {
           qParams.push(where("walletId", "==", selectedWalletId));
         }
-        
+
         const q = query(collection(db, "transactions"), ...qParams);
         const snap = await getDocs(q);
-        
+
         const months = new Set<string>();
         snap.forEach(doc => {
           if (doc.data().monthYear) months.add(doc.data().monthYear);
         });
-        
+
         const monthsArr = Array.from(months);
         setActiveMonths(monthsArr);
 
         const wallet = wallets.find(w => w.id === selectedWalletId);
         if (wallet?.isArchived && monthsArr.length > 0) {
-           const latestMonthStr = monthsArr.sort().reverse()[0];
-           const [y, m] = latestMonthStr.split('-');
-           setCurrentDate(new Date(parseInt(y), parseInt(m) - 1, 1));
+          const latestMonthStr = monthsArr.sort().reverse()[0];
+          const [y, m] = latestMonthStr.split('-');
+          setCurrentDate(new Date(parseInt(y), parseInt(m) - 1, 1));
         }
       } catch (error) {
         console.error("Помилка завантаження активних місяців:", error);
       }
     };
-    
+
     fetchActiveMonths();
   }, [selectedWalletId, wallets]);
 
@@ -159,7 +159,7 @@ export const FinancesAnalytics = () => {
       const wallet = wallets.find(w => w.id === t.walletId);
       if (!wallet) return false;
       if (wallet.excludeFromTotal) return false;
-      return true; 
+      return true;
     });
 
     filteredTransactions.forEach(t => {
@@ -176,7 +176,7 @@ export const FinancesAnalytics = () => {
     });
 
     const sortedCategories = Object.keys(expenseGroups).sort((a, b) => expenseGroups[b] - expenseGroups[a]);
-    
+
     const chartElements: any[] = [];
     const legendElements: any[] = [];
 
@@ -189,7 +189,7 @@ export const FinancesAnalytics = () => {
       legendElements.push({ name: catName, amount, percentage, color });
     });
 
-    return { 
+    return {
       totalIncome: inc,
       totalExpense: exp,
       chartData: chartElements,
@@ -199,7 +199,7 @@ export const FinancesAnalytics = () => {
 
   return (
     <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 40, paddingTop: 10 }}>
-      
+
       {/* Селектор рахунків */}
       <View style={{ height: 50, marginBottom: 5 }}>
         <ScrollView ref={walletsScrollViewRef} horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 20, gap: 10 }}>
@@ -235,7 +235,7 @@ export const FinancesAnalytics = () => {
                   flexDirection: 'row',
                   alignItems: 'center',
                   gap: 8,
-                  opacity: wallet.isArchived && !isSelected ? 0.6 : 1, 
+                  opacity: wallet.isArchived && !isSelected ? 0.6 : 1,
                   borderWidth: wallet.isArchived ? 1 : 0,
                   borderColor: wallet.isArchived && !isSelected ? colors.textSecondary : 'transparent',
                   borderStyle: wallet.isArchived ? 'dashed' : 'solid',
@@ -253,7 +253,7 @@ export const FinancesAnalytics = () => {
 
       {/* Глобальна валюта */}
       {selectedWalletId === null && uniqueCurrencies.length > 1 && (
-        <View style={{ paddingHorizontal: 20, marginBottom: 15,marginTop: 10, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+        <View style={{ paddingHorizontal: 20, marginBottom: 15, marginTop: 10, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
           <Text style={{ color: colors.textSecondary, fontSize: 13 }}>Звести у валюті:</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
             {uniqueCurrencies.map(code => {
@@ -287,7 +287,7 @@ export const FinancesAnalytics = () => {
         <TouchableOpacity onPress={() => changeMonth(-1)} style={{ padding: 10, backgroundColor: colors.surfaceSoft, borderRadius: 12 }}>
           <Ionicons name="chevron-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        
+
         <TouchableOpacity onPress={() => setMonthPickerVisible(true)} style={{ paddingHorizontal: 10, paddingVertical: 5 }}>
           <Text style={{ color: colors.text, fontSize: 18, fontWeight: 'bold' }}>
             {displayMonthStr}
@@ -300,20 +300,28 @@ export const FinancesAnalytics = () => {
       </View>
 
       {/* Картки Балансу */}
- <View style={{ flexDirection: 'row', paddingHorizontal: 20, gap: 15, marginBottom: 30 }}>
-        
+      <View style={{ flexDirection: 'row', paddingHorizontal: 20, gap: 15, marginBottom: 30 }}>
+
         {/* Картка ДОХОДИ (Зелена) */}
         <View style={{ flex: 1, backgroundColor: 'rgba(46, 125, 50, 0.1)', padding: 15, borderRadius: 16, borderLeftWidth: 4, borderColor: colors.accent }}>
-          <Text style={{ color: colors.textSecondary, fontSize: 13, marginBottom: 5 }}>Доходи</Text>
-          <Text style={{ color: colors.accent, fontSize: 20, fontWeight: 'bold' }}>
+          <Text style={{ color: colors.textSecondary, fontSize: 16, marginBottom: 5 }}>Доходи</Text>
+          <Text style={{ color: colors.accent, fontSize: 20, fontWeight: 'bold' }}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.5}
+          >
             + {formatMoney(totalIncome)} {currencySymbol}
           </Text>
         </View>
 
         {/* Картка ВИТРАТИ (Червона) */}
         <View style={{ flex: 1, backgroundColor: colors.errorSoft, padding: 15, borderRadius: 16, borderLeftWidth: 4, borderColor: colors.errorBright }}>
-          <Text style={{ color: colors.textSecondary, fontSize: 13, marginBottom: 5 }}>Витрати</Text>
-          <Text style={{ color: colors.errorBright, fontSize: 20, fontWeight: 'bold' }}>
+          <Text style={{ color: colors.textSecondary, fontSize: 16, marginBottom: 5 }}>Витрати</Text>
+          <Text style={{ color: colors.errorBright, fontSize: 20, fontWeight: 'bold' }}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.5}
+          >
             - {formatMoney(totalExpense)} {currencySymbol}
           </Text>
         </View>
@@ -333,16 +341,16 @@ export const FinancesAnalytics = () => {
             <PieChart
               data={chartData}
               donut
-              radius={screenWidth * 0.3} 
-              innerRadius={screenWidth * 0.22} 
-              innerCircleColor={colors.background} 
-              innerCircleBorderWidth={1} 
+              radius={screenWidth * 0.3}
+              innerRadius={screenWidth * 0.22}
+              innerCircleColor={colors.background}
+              innerCircleBorderWidth={1}
               innerCircleBorderColor={colors.outlineSoft}
               centerLabelComponent={() => {
                 return (
                   <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                    <Text style={{ fontSize: 13, color: colors.textSecondary, marginBottom: 4 }}>Всього</Text>
-                    <Text style={{ fontSize: 22, color: colors.text, fontWeight: 'bold' }} numberOfLines={1} adjustsFontSizeToFit>
+                    <Text style={{ fontSize: 18, color: colors.textSecondary, marginBottom: 4 }}>Всього</Text>
+                    <Text style={{ fontSize: 22, color: colors.text, fontWeight: 'bold' }} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.4}>
                       {formatMoney(totalExpense)} {currencySymbol}
                     </Text>
                   </View>
@@ -365,7 +373,7 @@ export const FinancesAnalytics = () => {
           <Text style={{ color: colors.text, fontSize: 16, fontWeight: 'bold', marginBottom: 15 }}>
             Топ категорій
           </Text>
-          
+
           {legendData.map((item, index) => (
             <View key={index} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
               <View style={{ width: 14, height: 14, borderRadius: 7, backgroundColor: item.color, marginRight: 12 }} />

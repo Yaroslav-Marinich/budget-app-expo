@@ -183,16 +183,9 @@ export const getStyles = (colors: any) => StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
-  toggleLabel: { color: colors.textSecondary, fontSize: 14, marginBottom: 4 },
+  toggleLabel: { color: colors.textSecondary, fontSize: 16, marginBottom: 4 },
   toggleAmount: { color: colors.text, fontSize: 20, fontWeight: 'bold' },
 
-  // Лінія-розділювач
-  // divider: {
-  //   height: 1,
-  //   backgroundColor: colors.outline, 
-  //   marginHorizontal: 20,
-  //   marginBottom: 20,
-  // },
   // --- РОЗДІЛЮВАЧ ІЗ ЗАМКОМ ---
   dividerContainer: {
     position: 'relative',
@@ -258,13 +251,13 @@ export const getStyles = (colors: any) => StyleSheet.create({
   },
   categoryName: {
     color: colors.textSecondary,
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: '500',
     marginBottom: 2,
   },
   categoryAmount: {
     color: colors.text,
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: 'bold',
   },
   addCategoryCard: {

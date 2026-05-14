@@ -1,8 +1,9 @@
-import * as Updates from 'expo-updates';
 import React from 'react';
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-export const UpdateObserver = () => {
+const UpdateObserverContent = () => {
+    const Updates = require('expo-updates');
+
     const { isUpdatePending, isDownloading } = Updates.useUpdates();
 
     if (!isDownloading && !isUpdatePending) {
@@ -11,7 +12,8 @@ export const UpdateObserver = () => {
 
     return (
         <View style={styles.container}>
-            <View style={styles.card}>
+            <View style={styles.toast}>
+
                 {isDownloading && (
                     <View style={styles.row}>
                         <ActivityIndicator size="small" color="#4CAF50" />
@@ -20,8 +22,8 @@ export const UpdateObserver = () => {
                 )}
 
                 {isUpdatePending && (
-                    <View>
-                        <Text style={styles.successText}>✨ Нова версія додатка готова!</Text>
+                    <View style={styles.row}>
+                        <Text style={styles.successText}>🚀 Оновлення готове</Text>
                         <TouchableOpacity
                             style={styles.button}
                             onPress={() => Updates.reloadAsync()}
@@ -30,42 +32,65 @@ export const UpdateObserver = () => {
                         </TouchableOpacity>
                     </View>
                 )}
+
             </View>
         </View>
     );
 };
 
+export const UpdateObserver = () => {
+    if (__DEV__) {
+        return null;
+    }
+
+    return <UpdateObserverContent />;
+};
+
 const styles = StyleSheet.create({
     container: {
         position: 'absolute',
-        top: 50,
-        left: 20,
-        right: 20,
+        bottom: 40,
+        alignSelf: 'center',
         zIndex: 9999,
     },
-    card: {
-        backgroundColor: '#1E1E1E',
-        padding: 15,
-        borderRadius: 12,
-        borderWidth: 1,
-        borderColor: '#333',
-        elevation: 5,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4,
-        alignItems: 'center',
-    },
-    row: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-    text: { color: '#bbb', fontSize: 14, fontWeight: '500' },
-    successText: { color: '#4CAF50', fontWeight: 'bold', fontSize: 15, textAlign: 'center', marginBottom: 10 },
-    button: {
-        backgroundColor: '#2196F3',
+    toast: {
+        backgroundColor: '#2A2A2A',
         paddingVertical: 10,
-        paddingHorizontal: 20,
-        borderRadius: 8,
+        paddingHorizontal: 16,
+        borderRadius: 30,
+        flexDirection: 'row',
         alignItems: 'center',
-        width: '100%',
+        justifyContent: 'center',
+        elevation: 6,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.3,
+        shadowRadius: 5,
     },
-    buttonText: { color: '#fff', fontWeight: 'bold', fontSize: 15 },
+    row: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12
+    },
+    text: {
+        color: '#E0E0E0',
+        fontSize: 14,
+        fontWeight: '500'
+    },
+    successText: {
+        color: '#FFFFFF',
+        fontWeight: 'bold',
+        fontSize: 14
+    },
+    button: {
+        backgroundColor: '#4CAF50',
+        paddingVertical: 8,
+        paddingHorizontal: 16,
+        borderRadius: 20,
+    },
+    buttonText: {
+        color: '#FFFFFF',
+        fontWeight: 'bold',
+        fontSize: 13
+    },
 });
