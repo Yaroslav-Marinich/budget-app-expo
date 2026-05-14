@@ -3,61 +3,32 @@ import React from 'react';
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export const UpdateObserver = () => {
-    // Витягуємо лише ті властивості, які реально існують в UseUpdatesReturnType
-    const {
-        isUpdateAvailable,
-        isUpdatePending,
-        isChecking,
-        isDownloading,
-        checkError,
-        downloadError,
-    } = Updates.useUpdates();
+    const { isUpdatePending, isDownloading } = Updates.useUpdates();
 
-    // Об'єднуємо можливі помилки для зручного відображення
-    const error = checkError || downloadError;
-
-    // Якщо нічого не відбувається і немає помилок — ховаємо віджет
-    if (!isChecking && !isDownloading && !isUpdateAvailable && !isUpdatePending && !error) {
+    if (!isDownloading && !isUpdatePending) {
         return null;
     }
 
     return (
         <View style={styles.container}>
             <View style={styles.card}>
-                <Text style={styles.title}>🚀 EAS Update Manager</Text>
-
-                {isChecking && (
-                    <View style={styles.row}>
-                        <ActivityIndicator size="small" color="#2196F3" />
-                        <Text style={styles.text}>Перевіряю наявність оновлень...</Text>
-                    </View>
-                )}
-
                 {isDownloading && (
                     <View style={styles.row}>
                         <ActivityIndicator size="small" color="#4CAF50" />
-                        <Text style={styles.text}>Завантажую нову версію...</Text>
+                        <Text style={styles.text}>Завантаження оновлення...</Text>
                     </View>
-                )}
-
-                {isUpdateAvailable && !isUpdatePending && !isDownloading && (
-                    <Text style={styles.text}>✅ Оновлення знайдено на сервері!</Text>
                 )}
 
                 {isUpdatePending && (
                     <View>
-                        <Text style={styles.successText}>✨ Нова версія готова до запуску!</Text>
+                        <Text style={styles.successText}>✨ Нова версія додатка готова!</Text>
                         <TouchableOpacity
                             style={styles.button}
                             onPress={() => Updates.reloadAsync()}
                         >
-                            <Text style={styles.buttonText}>Перезавантажити зараз</Text>
+                            <Text style={styles.buttonText}>Перезапустити</Text>
                         </TouchableOpacity>
                     </View>
-                )}
-
-                {error && (
-                    <Text style={styles.errorText}>❌ Помилка: {error.message}</Text>
                 )}
             </View>
         </View>
@@ -83,18 +54,18 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.3,
         shadowRadius: 4,
+        alignItems: 'center',
     },
-    title: { color: '#fff', fontWeight: 'bold', marginBottom: 10, fontSize: 14 },
     row: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-    text: { color: '#bbb', fontSize: 13 },
-    successText: { color: '#4CAF50', fontWeight: 'bold', marginVertical: 10 },
-    errorText: { color: '#FF5252', fontSize: 12, marginTop: 5 },
+    text: { color: '#bbb', fontSize: 14, fontWeight: '500' },
+    successText: { color: '#4CAF50', fontWeight: 'bold', fontSize: 15, textAlign: 'center', marginBottom: 10 },
     button: {
         backgroundColor: '#2196F3',
-        padding: 10,
+        paddingVertical: 10,
+        paddingHorizontal: 20,
         borderRadius: 8,
         alignItems: 'center',
-        marginTop: 5,
+        width: '100%',
     },
-    buttonText: { color: '#fff', fontWeight: 'bold' },
+    buttonText: { color: '#fff', fontWeight: 'bold', fontSize: 15 },
 });
