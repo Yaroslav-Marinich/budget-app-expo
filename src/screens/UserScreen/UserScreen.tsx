@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
 import React, { useState } from "react";
-import { Alert, Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { auth } from "@/src/config/firebase";
@@ -173,7 +173,7 @@ export const UserScreen = () => {
           <Text style={styles.logoutText}>Вийти з акаунту</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={{ padding: 15, backgroundColor: '#d32f2f', borderRadius: 10, margin: 20, alignItems: 'center' }}
           onPress={async () => {
             // Захист від падіння в Expo Go
@@ -204,7 +204,7 @@ export const UserScreen = () => {
           }}
         >
           <Text style={{ color: 'white', fontWeight: 'bold' }}>Діагностика оновлень</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </ScrollView>
     </View>
   );
