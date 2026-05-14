@@ -12,6 +12,7 @@ import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-cont
 
 import { InitialLoadingScreen } from '@/src/components/ui/InitialLoadingScreen/InitialLoadingScreen';
 import { SyncQueueBanner } from '@/src/components/ui/SyncQueueBanner/SyncQueueBanner';
+import { UpdateObserver } from '@/src/components/ui/UpdateObserver/UpdateObserver';
 import { auth } from '@/src/config/firebase';
 import { ThemeProvider, useTheme } from '@/src/context/ThemeContext';
 import { scheduleSubscriptionNotifications } from '@/src/services/notifications';
@@ -174,6 +175,7 @@ export default function RootLayout() {
               <SyncQueueProvider>
                 <DataProvider>
                   <AppContent />
+                  <UpdateObserver />
                 </DataProvider>
               </SyncQueueProvider>
             </CustomAlertProvider>
