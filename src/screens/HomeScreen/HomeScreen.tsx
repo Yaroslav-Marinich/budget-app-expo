@@ -450,6 +450,7 @@ export const HomeScreen = () => {
 				categoryId={selectedCategory?.id}
 				walletId={selectedWalletId}
 				currencySymbol={selectedWalletCurrencySymbol}
+				initialDate={currentDate}
 			/>
 
 			<MonthPickerModal

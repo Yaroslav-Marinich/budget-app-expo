@@ -64,7 +64,7 @@ export const addTransaction = async (data: CreateTransactionInput) => {
     await addToSyncQueue('TRANSACTION', {
       ...cleanData,
       userId: user.uid,
-      date: new Date().toISOString(),
+      date: data.date ?? new Date().toISOString(),
       monthYear: new Date().toISOString().slice(0, 7),
     });
 
@@ -167,11 +167,11 @@ export const subscribeToMonthlyTransactions = (
   onUpdate: (transactions: any[]) => void
 ) => {
   const user = auth.currentUser;
-  
+
   if (!user) {
     console.warn("Користувач ще не авторизований, очікуємо...");
-    onUpdate([]); 
-    return () => {}; 
+    onUpdate([]);
+    return () => { };
   }
 
   const cacheKey = `@cached_transactions_${monthYear}`;
@@ -211,7 +211,7 @@ export const subscribeToMonthlyTransactions = (
         isPending: true,
       }))
       .filter((transaction) => !pendingDeleteIds.has(transaction.id))
-    .filter((pendingTx) => {
+      .filter((pendingTx) => {
         return !baseTransactions.some(
           (baseTx) => baseTx.date === pendingTx.date && baseTx.amount === pendingTx.amount
         );
