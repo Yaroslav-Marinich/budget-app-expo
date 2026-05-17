@@ -22,8 +22,8 @@ export const CategoriesScreen = () => {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const swipeableRefs = useRef<Map<string, Swipeable>>(new Map());
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const { showLoader, hideLoader } = useLoader();
 
@@ -32,7 +32,7 @@ export const CategoriesScreen = () => {
   const [activeTab, setActiveTab] = useState<'expense' | 'income'>('expense');
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
-  
+
   const [reassignModalVisible, setReassignModalVisible] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
 
@@ -54,21 +54,21 @@ export const CategoriesScreen = () => {
   const handleDragEnd = async (updatedGroup: Category[], isCrypto: boolean) => {
     const originalGroup = isCrypto ? cryptoCategories : fiatCategories;
     const isOrderChanged = updatedGroup.some((cat, index) => cat.id !== originalGroup[index]?.id);
-    
+
     if (!isOrderChanged) return;
-    
+
     const reordered = updatedGroup.map((c, index) => ({ ...c, order: index }));
     const otherTabsAndTypes = categories.filter(c => c.type !== activeTab || (!!c.isCrypto !== isCrypto));
-  
-    setCategories([...otherTabsAndTypes, ...reordered]); 
 
-    showLoader(); 
+    setCategories([...otherTabsAndTypes, ...reordered]);
+
+    showLoader();
     try {
-      await updateCategoriesOrder(reordered); 
+      await updateCategoriesOrder(reordered);
     } catch (error) {
       console.error(error);
     } finally {
-      hideLoader(); 
+      hideLoader();
     }
   };
 
@@ -80,8 +80,8 @@ export const CategoriesScreen = () => {
   };
 
   const handleDeletePress = async (cat: Category) => {
-    showLoader(); 
-    
+    showLoader();
+
     try {
       const hasTransactions = await checkCategoryHasTransactions(cat.id);
 
@@ -91,10 +91,10 @@ export const CategoriesScreen = () => {
           "Видалення категорії",
           `Ви впевнені, що хочете видалити категорію "${cat.name}"?`,
           [
-            { 
-              text: "Скасувати", 
-              style: "cancel", 
-              onPress: () => swipeableRefs.current.get(cat.id)?.close() 
+            {
+              text: "Скасувати",
+              style: "cancel",
+              onPress: () => swipeableRefs.current.get(cat.id)?.close()
             },
             {
               text: "Видалити",
@@ -121,7 +121,7 @@ export const CategoriesScreen = () => {
       if (availableToReassign.length === 0) {
         hideLoader();
         appAlert(
-          "Помилка", 
+          "Помилка",
           "Ця категорія має операції, але немає інших категорій для їх перенесення. Спочатку створіть нову категорію."
         );
         swipeableRefs.current.get(cat.id)?.close();
@@ -141,7 +141,7 @@ export const CategoriesScreen = () => {
 
   const confirmReassignAndDelete = async (newCategory: Category) => {
     if (!categoryToDelete) return;
-    
+
     setReassignModalVisible(false);
     showLoader();
     try {
@@ -170,8 +170,8 @@ export const CategoriesScreen = () => {
   };
 
   const renderRightActions = (item: Category) => (
-    <TouchableOpacity 
-      style={styles.deleteAction} 
+    <TouchableOpacity
+      style={styles.deleteAction}
       onPress={() => handleDeletePress(item)}
       activeOpacity={0.8}
     >
@@ -182,7 +182,7 @@ export const CategoriesScreen = () => {
   const renderItem = ({ item, drag, isActive }: RenderItemParams<Category>) => (
     <ScaleDecorator>
       <View style={styles.itemContainer}>
-        <Swipeable 
+        <Swipeable
           ref={(ref) => {
             if (ref) swipeableRefs.current.set(item.id, ref);
             else swipeableRefs.current.delete(item.id);
@@ -191,10 +191,10 @@ export const CategoriesScreen = () => {
           onSwipeableWillOpen={() => onSwipeableWillOpen(item.id)}
           overshootRight={false}
           friction={1.5}
-          rightThreshold={40} 
+          rightThreshold={40}
         >
           <View style={[
-            styles.categoryRow, 
+            styles.categoryRow,
             isActive && { borderColor: colors.primary, backgroundColor: colors.outline }
           ]}>
             {/* Бейдж крипти зверху бордера */}
@@ -207,7 +207,7 @@ export const CategoriesScreen = () => {
             <View style={[styles.iconBox, { backgroundColor: `${item.color}15` }]}>
               <Ionicons name={item.icon as any} size={24} color={item.color} />
             </View>
-            
+
             {/* Блок інфо тепер просто виводить назву */}
             <View style={styles.infoBox}>
               <Text style={styles.title}>{item.name}</Text>
@@ -228,8 +228,8 @@ export const CategoriesScreen = () => {
   );
 
   // Список категорій для перенесення
-  const availableToReassign = categoryToDelete 
-    ? categories.filter(c => c.type === categoryToDelete.type && c.id !== categoryToDelete.id && !!c.isCrypto === !!categoryToDelete.isCrypto) 
+  const availableToReassign = categoryToDelete
+    ? categories.filter(c => c.type === categoryToDelete.type && c.id !== categoryToDelete.id && !!c.isCrypto === !!categoryToDelete.isCrypto)
     : [];
 
   return (
@@ -237,20 +237,20 @@ export const CategoriesScreen = () => {
       <View style={styles.headerRow}>
         <Text style={styles.screenTitle}>Категорії</Text>
         <TouchableOpacity onPress={() => router.back()} style={{ padding: 5 }}>
-           <Ionicons name="close-circle-outline" size={32} color={colors.textSecondary} />
+          <Ionicons name="close-circle-outline" size={32} color={colors.textSecondary} />
         </TouchableOpacity>
       </View>
 
       <View style={styles.toggleContainer}>
-        <TouchableOpacity 
-          style={[styles.toggleBtn, activeTab === 'expense' && styles.toggleBtnActive]} 
+        <TouchableOpacity
+          style={[styles.toggleBtn, activeTab === 'expense' && styles.toggleBtnActive]}
           onPress={() => { setActiveTab('expense'); setOpenedRowId(null); }}
         >
           <Text style={[styles.toggleLabel, activeTab === 'expense' && { color: colors.error }]}>Витрати</Text>
         </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={[styles.toggleBtn, activeTab === 'income' && styles.toggleBtnActive]} 
+
+        <TouchableOpacity
+          style={[styles.toggleBtn, activeTab === 'income' && styles.toggleBtnActive]}
           onPress={() => { setActiveTab('income'); setOpenedRowId(null); }}
         >
           <Text style={[styles.toggleLabel, activeTab === 'income' && { color: colors.primary }]}>Доходи</Text>
@@ -259,7 +259,7 @@ export const CategoriesScreen = () => {
 
       {/* NestableScrollContainer для двох списків */}
       <NestableScrollContainer showsVerticalScrollIndicator={false} contentContainerStyle={styles.listContent}>
-        
+
         {/* --- СЕКЦІЯ: ФІАТ --- */}
         {fiatCategories.length > 0 && (
           <View style={styles.listWrapper} collapsable={false}>
@@ -302,30 +302,30 @@ export const CategoriesScreen = () => {
         overlayStyle={styles.modalOverlay}
         contentStyle={styles.modalContent}
       >
-            <View style={styles.modalHeaderRow}>
-              <View style={styles.modalHeaderSpacer} />
-              <Text style={styles.modalTitle}>Видалення: {categoryToDelete?.name}</Text>
-              <TouchableOpacity onPress={() => setReassignModalVisible(false)} style={styles.modalCloseBtn}>
-                <Ionicons name="close" size={28} color={colors.textSecondary} />
-              </TouchableOpacity>
-            </View>
+        <View style={styles.modalHeaderRow}>
+          <View style={styles.modalHeaderSpacer} />
+          <Text style={styles.modalTitle}>Видалення: {categoryToDelete?.name}</Text>
+          <TouchableOpacity onPress={() => setReassignModalVisible(false)} style={styles.modalCloseBtn}>
+            <Ionicons name="close" size={28} color={colors.textSecondary} />
+          </TouchableOpacity>
+        </View>
 
-            <Text style={styles.modalSubtitle}>Оберіть категорію, куди будуть перенесені всі існуючі операції:</Text>
-            
-            <FlatList 
-              data={availableToReassign}
-              keyExtractor={item => item.id}
-              renderItem={({item}) => (
-                <TouchableOpacity style={styles.reassignItem} onPress={() => confirmReassignAndDelete(item)}>
-                  <Ionicons name={item.icon as any} size={24} color={item.color} style={{marginRight: 15}} />
-                  <Text style={styles.title}>{item.name}</Text>
-                </TouchableOpacity>
-              )}
-            />
+        <Text style={styles.modalSubtitle}>Оберіть категорію, куди будуть перенесені всі існуючі операції:</Text>
 
-            <TouchableOpacity style={styles.cancelBtn} onPress={() => setReassignModalVisible(false)}>
-              <Text style={{color: colors.error, fontSize: 16, fontWeight: 'bold'}}>Скасувати</Text>
+        <FlatList
+          data={availableToReassign}
+          keyExtractor={item => item.id}
+          renderItem={({ item }) => (
+            <TouchableOpacity style={styles.reassignItem} onPress={() => confirmReassignAndDelete(item)}>
+              <Ionicons name={item.icon as any} size={24} color={item.color} style={{ marginRight: 15 }} />
+              <Text style={styles.title}>{item.name}</Text>
             </TouchableOpacity>
+          )}
+        />
+
+        <TouchableOpacity style={styles.cancelBtn} onPress={() => setReassignModalVisible(false)}>
+          <Text style={{ color: colors.error, fontSize: 16, fontWeight: 'bold' }}>Скасувати</Text>
+        </TouchableOpacity>
       </DefaultModal>
 
       {/* FAB Кнопка */}
@@ -334,7 +334,7 @@ export const CategoriesScreen = () => {
       </TouchableOpacity>
 
       {/* Модалка створення/редагування */}
-      <EditCategoryModal 
+      <EditCategoryModal
         visible={editModalVisible}
         category={selectedCategory}
         onClose={() => setEditModalVisible(false)}

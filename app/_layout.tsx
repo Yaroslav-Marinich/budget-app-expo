@@ -10,6 +10,7 @@ import { AppState, LogBox, StyleSheet, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useSessionTimeout } from '@/hooks/useSessionTimeout';
 import { InitialLoadingScreen } from '@/src/components/ui/InitialLoadingScreen/InitialLoadingScreen';
 import { SyncQueueBanner } from '@/src/components/ui/SyncQueueBanner/SyncQueueBanner';
 import { UpdateObserver } from '@/src/components/ui/UpdateObserver/UpdateObserver';
@@ -166,10 +167,12 @@ const AppContent = () => {
 };
 
 export default function RootLayout() {
+  useSessionTimeout(5);
+
   return (
-    <SafeAreaProvider>
-      <ThemeProvider>
-        <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <ThemeProvider>
           <LoaderProvider>
             <CustomAlertProvider>
               <SyncQueueProvider>
@@ -180,9 +183,9 @@ export default function RootLayout() {
               </SyncQueueProvider>
             </CustomAlertProvider>
           </LoaderProvider>
-        </GestureHandlerRootView>
-      </ThemeProvider>
-    </SafeAreaProvider>
+        </ThemeProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
 

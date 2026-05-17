@@ -5,7 +5,7 @@ export const getStyles = (colors: any) => StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
     paddingHorizontal: 20,
-    paddingBottom: 120,
+    // paddingBottom: 120,
   },
   headerRow: {
     flexDirection: 'row',
@@ -74,7 +74,7 @@ export const getStyles = (colors: any) => StyleSheet.create({
     color: colors.textSecondary,
     fontWeight: 'bold',
   },
-  
+
   // Відступ для списків
   listWrapper: {
     marginBottom: 10,
@@ -131,9 +131,9 @@ export const getStyles = (colors: any) => StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.outline,
     borderLeftWidth: 0,
-    marginLeft: -40, 
+    marginLeft: -40,
   },
-      fab: {
+  fab: {
     position: 'absolute',
     bottom: 30,
     right: 20,
@@ -205,17 +205,17 @@ export const getStyles = (colors: any) => StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
-cryptoBadge: {
+  cryptoBadge: {
     position: 'absolute',
-    top: -1, 
-    right: '40%', 
+    top: -1,
+    right: '40%',
     backgroundColor: colors.accentSoft,
     paddingHorizontal: 12,
     paddingVertical: 3,
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
     borderWidth: 1,
-    borderTopWidth: 0, 
+    borderTopWidth: 0,
     borderColor: colors.accentBorderSoft,
     zIndex: 2,
   },
