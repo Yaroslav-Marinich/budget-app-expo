@@ -402,7 +402,7 @@ export const HomeScreen = () => {
 											{category.name}
 										</Text>
 										<Text
-											style={[styles.categoryAmount, category.sum === 0 && { color: colors.textSecondary }]}
+											style={[styles.categoryAmount, { color: category.color }, category.sum === 0 && { opacity: 0.6 }]}
 											numberOfLines={1}
 										>
 											{formatMoney(category.sum)} {selectedWalletCurrencySymbol}
