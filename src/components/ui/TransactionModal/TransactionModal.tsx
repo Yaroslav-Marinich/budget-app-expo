@@ -4,7 +4,7 @@ import { appAlert } from "@/src/services/alert";
 import { addTransaction, updateTransaction } from "@/src/services/transactions";
 import { parseAmountInput } from "@/src/utils/formatMoney";
 import { Ionicons } from "@expo/vector-icons";
-import DateTimePicker from '@react-native-community/datetimepicker'; // <-- Імпорт пікера дати
+import DateTimePicker from '@react-native-community/datetimepicker';
 import React, { useEffect, useState } from "react";
 import { Platform, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { Calculator } from "../Calculator/Calculator";
@@ -19,7 +19,7 @@ interface TransactionModalProps {
   categoryName?: string;
   walletId: string | null;
   currencySymbol?: string;
-  initialDate?: Date; // <-- Додали новий пропс
+  initialDate?: Date;
   editingTransaction?: {
     id: string;
     amount: number;
@@ -54,7 +54,6 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
   const [isSaving, setIsSaving] = useState(false);
   const [step, setStep] = useState<'amount' | 'comment'>('amount');
 
-  // --- Стан для дати ---
   const [transactionDate, setTransactionDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
 
@@ -65,16 +64,16 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
       setStep('amount');
       setIsSaving(false);
 
-      // Встановлюємо правильну дату при відкритті модалки
       if (editingTransaction?.date) {
         setTransactionDate(new Date(editingTransaction.date));
       } else if (initialDate) {
         const now = new Date();
-        // Якщо initialDate - це поточний місяць, ставимо сьогоднішній день. Інакше - залишаємо як передали.
         if (initialDate.getMonth() === now.getMonth() && initialDate.getFullYear() === now.getFullYear()) {
           setTransactionDate(now);
         } else {
-          setTransactionDate(initialDate);
+          const customDate = new Date(initialDate);
+          customDate.setDate(1);
+          setTransactionDate(customDate);
         }
       } else {
         setTransactionDate(new Date());
@@ -95,9 +94,15 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
     setIsSaving(true);
     const numericAmount = parseAmountInput(amount);
 
-    // Форматуємо обрану дату для бази
-    const isoDate = transactionDate.toISOString();
-    const monthYear = isoDate.slice(0, 7);
+    const year = transactionDate.getFullYear();
+    const month = String(transactionDate.getMonth() + 1).padStart(2, '0');
+    const day = String(transactionDate.getDate()).padStart(2, '0');
+    const hours = String(transactionDate.getHours()).padStart(2, '0');
+    const minutes = String(transactionDate.getMinutes()).padStart(2, '0');
+    const seconds = String(transactionDate.getSeconds()).padStart(2, '0');
+
+    const localIsoDate = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.000`;
+    const localMonthYear = `${year}-${month}`;
 
     let success = false;
 
@@ -113,8 +118,8 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
         categoryId: (categoryId || editingTransaction.categoryId) as string,
         categoryName: (categoryName || editingTransaction.categoryName || "") as string,
         comment: comment.trim() || undefined,
-        monthYear: monthYear, // Передаємо оновлену дату
-        date: isoDate,        // Передаємо оновлену дату
+        monthYear: localMonthYear,
+        date: localIsoDate,
       });
     } else {
       success = await addTransaction({
@@ -124,8 +129,8 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
         categoryName: categoryName as string,
         walletId: walletId as string,
         comment: comment.trim() || undefined,
-        monthYear: monthYear, // Передаємо кастомну дату
-        date: isoDate,        // Передаємо кастомну дату
+        monthYear: localMonthYear,
+        date: localIsoDate,
       });
     }
 
@@ -157,27 +162,26 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
         </TouchableOpacity>
       </View>
 
-      {/* --- КНОПКА ВИБОРУ ДАТИ --- */}
+      {/* --- ВИБІР ДАТИ ТРАНЗАКЦІЇ (ПІД ТАЙТЛОМ) --- */}
       {step === 'amount' && (
         <TouchableOpacity
-          style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom: 15 }}
+          style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom: 20, marginTop: 5 }}
           onPress={() => setShowDatePicker(true)}
         >
           <Ionicons name="calendar-outline" size={18} color={colors.textSecondary} style={{ marginRight: 8 }} />
-          <Text style={{ color: colors.text, fontSize: 16, fontWeight: '500' }}>
+          <Text style={{ color: colors.text, fontSize: 16, fontWeight: '600', borderBottomWidth: 1, borderBottomColor: colors.outlineSoft, paddingBottom: 2 }}>
             {transactionDate.toLocaleDateString('uk-UA', { day: '2-digit', month: 'long', year: 'numeric' })}
           </Text>
         </TouchableOpacity>
       )}
 
-      {/* --- ПІКЕР ДАТИ --- */}
+      {/* --- НАВІГАТОР КАЛЕНДАРЯ ТЕЛЕФОНУ --- */}
       {showDatePicker && (
         <DateTimePicker
           value={transactionDate}
           mode="date"
           display="default"
           onChange={(event, selectedDate) => {
-            // На Android ховаємо одразу, на iOS поведінка може залежати від версії
             if (Platform.OS === 'android') {
               setShowDatePicker(false);
             } else if (event.type === 'set' || event.type === 'dismissed') {

@@ -53,7 +53,6 @@ export const addTransaction = async (data: CreateTransactionInput) => {
   try {
     const user = auth.currentUser;
     if (!user) {
-      // console.error("Користувач не авторизований");
       return false;
     }
 
@@ -61,15 +60,15 @@ export const addTransaction = async (data: CreateTransactionInput) => {
       Object.entries(data).filter(([_, v]) => v !== undefined)
     );
 
-    await addToSyncQueue('TRANSACTION', {
-      ...cleanData,
+    const payload = {
       userId: user.uid,
-      date: data.date ?? new Date().toISOString(),
-      monthYear: new Date().toISOString().slice(0, 7),
-    });
+      ...cleanData,
+      date: cleanData.date || new Date().toISOString(),
+      monthYear: cleanData.monthYear || new Date().toISOString().slice(0, 7),
+    };
 
+    await addToSyncQueue('TRANSACTION', payload);
     startSync();
-
     return true;
   } catch (error) {
     console.error("Помилка додавання транзакції:", error);
