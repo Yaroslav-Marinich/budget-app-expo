@@ -88,10 +88,11 @@ export const HomeScreen = () => {
 		const monthName = date
 			.toLocaleString("uk-UA", { month: "long" })
 			.replace(/^./, (char) => char.toUpperCase());
-		const monthNum = String(date.getMonth() + 1).padStart(2, "0");
+		// const monthNum = String(date.getMonth() + 1).padStart(2, "0");
 		const year = date.getFullYear();
 
-		return `${monthNum} ${monthName} ${year}`;
+		// return `${monthNum} ${monthName} ${year}`;
+		return `${monthName} ${year}`;
 	};
 
 	const handleCategoryPress = (category: any) => {
