@@ -238,7 +238,7 @@ export const TransactionsScreen = () => {
   );
 
   const renderTransferTransaction = (item: UITransaction) => {
-    const isSource = item.type === 'expense'; // Поточна картка є списанням коштів
+    const isSource = item.type === 'expense';
 
     const companion = transactions.find(t => t.id === item.linkedTransferId);
 
@@ -253,6 +253,8 @@ export const TransactionsScreen = () => {
 
     const srcAmount = isSource ? item.amount : (companion ? companion.amount : item.amount);
     const dstAmount = isSource ? (companion ? companion.amount : item.amount) : item.amount;
+
+    const isCrossCurrency = srcWallet?.currency !== dstWallet?.currency;
 
     return (
       <View style={styles.transactionCard}>
@@ -276,12 +278,20 @@ export const TransactionsScreen = () => {
         </View>
 
         <View style={[styles.amountBox, { gap: 2 }]}>
-          <Text style={[styles.transferAmountText, styles.transferAmountMinus]}>
-            -{formatMoney(srcAmount)} {srcSymbol}
-          </Text>
-          <Text style={[styles.transferAmountText, styles.transferAmountPlus]}>
-            +{formatMoney(dstAmount)} {dstSymbol}
-          </Text>
+          {isCrossCurrency ? (
+            <>
+              <Text style={[styles.transferAmountText, styles.transferAmountMinus]}>
+                -{formatMoney(srcAmount)} {srcSymbol}
+              </Text>
+              <Text style={[styles.transferAmountText, styles.transferAmountPlus]}>
+                +{formatMoney(dstAmount)} {dstSymbol}
+              </Text>
+            </>
+          ) : (
+            <Text style={[styles.transferAmountText, { color: colors.textSecondary }]}>
+              {formatMoney(Math.abs(item.amount))} {srcSymbol}
+            </Text>
+          )}
         </View>
         <Ionicons name="chevron-back" size={18} color={colors.textSecondary} style={styles.swipeHintIcon} />
       </View>
