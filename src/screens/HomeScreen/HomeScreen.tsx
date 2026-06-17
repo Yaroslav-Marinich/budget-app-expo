@@ -8,6 +8,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CategoryModal } from "@/src/components/ui/CategoryModal/CategoryModal";
 import { MonthPickerModal } from "@/src/components/ui/MonthPickerModal/MonthPickerModal";
 import { TransactionModal } from "@/src/components/ui/TransactionModal/TransactionModal";
+import { TransferModal } from "@/src/components/ui/TransferModal/TransferModal";
 import { UpcomingSubscriptionsWidget } from "@/src/components/ui/Widget/UpcomingSubscriptionsWidget";
 import { CURRENCIES } from "@/src/constants/Currencies";
 import { useGlobalData } from "@/src/context/DataContext";
@@ -37,6 +38,7 @@ export const HomeScreen = () => {
 	const [currentDate, setCurrentDate] = useState(new Date());
 	const [isMonthPickerVisible, setMonthPickerVisible] = useState(false);
 	const [isCategoryModalVisible, setCategoryModalVisible] = useState(false);
+	const [isTransferModalVisible, setTransferModalVisible] = useState(false);
 
 	const handleWalletPress = (walletId: string, index: number) => {
 		setSelectedWalletId(walletId);
@@ -180,42 +182,6 @@ export const HomeScreen = () => {
 		});
 	}, [wallets]);
 
-	// useEffect(() => {
-	// 	const unsubscribeWallets = subscribeToWallets((data) => {
-	// 		setWallets(data);
-
-	// 		const sortedActive = data
-	// 			.filter((wallet) => !wallet.isArchived)
-	// 			.sort(
-	// 				(left, right) =>
-	// 					(left.order ?? Number.MAX_SAFE_INTEGER) - (right.order ?? Number.MAX_SAFE_INTEGER),
-	// 			);
-
-	// 		setSelectedWalletId((currentSelectedId) => {
-	// 			if (sortedActive.length === 0) {
-	// 				return null;
-	// 			}
-
-	// 			const selectedStillActive = sortedActive.some((wallet) => wallet.id === currentSelectedId);
-	// 			if (!currentSelectedId || !selectedStillActive) {
-	// 				return sortedActive[0].id;
-	// 			}
-
-	// 			return currentSelectedId;
-	// 		});
-	// 	});
-
-	// 	return () => unsubscribeWallets();
-	// }, []);
-
-	// useEffect(() => {
-	// 	const unsubscribeCategories = subscribeToCategories((data) => {
-	// 		setCategories(data);
-	// 	});
-
-	// 	return () => unsubscribeCategories();
-	// }, []);
-
 	const formattedExpense = `${formatMoney(totalExpense)} ${selectedWalletCurrencySymbol}`;
 	const formattedIncome = `${formatMoney(totalIncome)} ${selectedWalletCurrencySymbol}`;
 
@@ -229,6 +195,22 @@ export const HomeScreen = () => {
 	} else if (maxAmountLength > 10) {
 		amountFontSize = 18;
 	}
+
+	const viewabilityConfig = useRef({
+		itemVisiblePercentThreshold: 50
+	}).current;
+
+	const onViewableItemsChanged = useRef(({ viewableItems }: any) => {
+		if (viewableItems && viewableItems.length > 0) {
+			const visibleWallet = viewableItems[0].item;
+			setSelectedWalletId((prevId) => {
+				if (prevId !== visibleWallet.id) {
+					return visibleWallet.id;
+				}
+				return prevId;
+			});
+		}
+	}).current;
 
 	return (
 		<View style={[styles.container, { paddingTop: insets.top }]}>
@@ -251,6 +233,8 @@ export const HomeScreen = () => {
 						offset: (cardWidth + cardSpacing) * index,
 						index,
 					})}
+					onViewableItemsChanged={onViewableItemsChanged}
+					viewabilityConfig={viewabilityConfig}
 					renderItem={({ item: wallet, index }) => {
 						const cryptoColor = colors.warningAccent;
 						const accentColor = wallet.isCrypto ? cryptoColor : colors.accent;
@@ -301,11 +285,30 @@ export const HomeScreen = () => {
 										<Text style={styles.walletTitle}>{wallet.title}</Text>
 									</View>
 								</View>
-								<Text style={styles.walletAmount}>
-									{formatMoney(wallet.balance)} <Text style={[styles.currency, { color: wallet.isArchived ? colors.textSecondary : accentColor }]}>
-										{wallet.currency}
-									</Text>
-								</Text>
+
+								<View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: 10 }}>
+
+									<View>
+										<Text style={styles.walletAmount}>
+											{formatMoney(wallet.balance)} <Text style={[styles.currency, { color: wallet.isArchived ? colors.textSecondary : accentColor }]}>
+												{wallet.currency}
+											</Text>
+										</Text>
+									</View>
+
+									{!wallet.isArchived && (
+										<TouchableOpacity
+											style={{
+												padding: 8,
+												backgroundColor: colors.surfacePressed,
+												borderRadius: 10
+											}}
+											onPress={() => setTransferModalVisible(true)}
+										>
+											<Ionicons name="swap-horizontal" size={22} color={colors.textSecondary} />
+										</TouchableOpacity>
+									)}
+								</View>
 							</TouchableOpacity>
 						)
 					}}
@@ -467,6 +470,12 @@ export const HomeScreen = () => {
 				type={activeTab}
 				existingCategories={categories}
 				isCryptoWallet={isCryptoWallet}
+			/>
+
+			<TransferModal
+				visible={isTransferModalVisible}
+				onClose={() => setTransferModalVisible(false)}
+				defaultSourceWalletId={selectedWalletId}
 			/>
 
 			<UpcomingSubscriptionsWidget />

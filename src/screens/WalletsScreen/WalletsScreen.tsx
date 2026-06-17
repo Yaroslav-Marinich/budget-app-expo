@@ -17,8 +17,8 @@ export const WalletsScreen = () => {
   const insets = useSafeAreaInsets();
   const swipeableRefs = useRef<Map<string, Swipeable>>(new Map());
   const router = useRouter();
-    const { colors } = useTheme();
-    const styles = getStyles(colors);
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   const { showLoader, hideLoader } = useLoader();
   const [wallets, setWallets] = useState<Wallet[]>([]);
@@ -30,14 +30,14 @@ export const WalletsScreen = () => {
     const isOrderChanged = data.some((wallet, index) => wallet.id !== wallets[index]?.id);
     if (!isOrderChanged) return;
 
-    setWallets(data); 
-    showLoader(); 
+    setWallets(data);
+    showLoader();
     try {
-      await updateWalletsOrder(data); 
+      await updateWalletsOrder(data);
     } catch (error) {
       console.error("Помилка сортування", error);
     } finally {
-      hideLoader(); 
+      hideLoader();
     }
   };
 
@@ -55,8 +55,8 @@ export const WalletsScreen = () => {
       `Рахунок "${wallet.title}" буде перенесено в архів. Ви не зможете додавати нові операції на нього, але історія та статистика збережуться.`,
       [
         { text: "Скасувати", style: "cancel" },
-        { 
-          text: "В архів", 
+        {
+          text: "В архів",
           style: "destructive",
           onPress: async () => {
             showLoader();
@@ -75,8 +75,8 @@ export const WalletsScreen = () => {
       `Ви видаляєте рахунок "${wallet.title}" з архіву. Це призведе до видалення ВСІХ пов'язаних транзакцій без можливості відновлення. Продовжити?`,
       [
         { text: "Скасувати", style: "cancel" },
-        { 
-          text: "Видалити назавжди", 
+        {
+          text: "Видалити назавжди",
           style: "destructive",
           onPress: async () => {
             showLoader();
@@ -98,22 +98,22 @@ export const WalletsScreen = () => {
     setSelectedWallet(wallet);
     setEditModalVisible(true);
   };
-    
+
   const openCreate = () => {
     setSelectedWallet(null);
     setEditModalVisible(true);
   };
-    
-useEffect(() => {
+
+  useEffect(() => {
     const unsubscribe = subscribeToWallets((data) => {
       const sortedWallets = data.sort((a, b) => {
         if (a.isArchived && !b.isArchived) return 1;
         if (!a.isArchived && b.isArchived) return -1;
-        
+
         return (a.order ?? Number.MAX_SAFE_INTEGER) - (b.order ?? Number.MAX_SAFE_INTEGER);
       });
-      
-      setWallets([...sortedWallets]); 
+
+      setWallets([...sortedWallets]);
     });
     return () => unsubscribe();
   }, []);
@@ -128,10 +128,10 @@ useEffect(() => {
       setWallets(prev => prev.map(w => w.id === wallet.id ? { ...w, excludeFromTotal: !newValue } : w));
     }
   };
-  
+
   const renderRightActions = (item: Wallet) => (
-    <TouchableOpacity 
-      style={styles.deleteAction} 
+    <TouchableOpacity
+      style={styles.deleteAction}
       onPress={() => confirmArchive(item)}
       activeOpacity={0.8}
     >
@@ -143,7 +143,7 @@ useEffect(() => {
     const isPrimary = item.id === wallets[0]?.id;
     const isArchived = item.isArchived;
     const isPending = item.isPending;
-    
+
     return (
       <ScaleDecorator>
         <View style={styles.itemContainer}>
@@ -167,7 +167,7 @@ useEffect(() => {
             </View>
           )}
 
-          <Swipeable 
+          <Swipeable
             ref={(ref) => {
               if (ref) swipeableRefs.current.set(item.id, ref);
               else swipeableRefs.current.delete(item.id);
@@ -177,7 +177,7 @@ useEffect(() => {
             onSwipeableWillOpen={() => onSwipeableWillOpen(item.id)}
             overshootRight={false}
             friction={1.5}
-            rightThreshold={40} 
+            rightThreshold={40}
           >
             <View style={[
               styles.walletCard,
@@ -192,7 +192,7 @@ useEffect(() => {
                 <View style={styles.iconBox}>
                   <Ionicons name={item.icon as any} size={22} color={isArchived ? colors.textSecondary : colors.accent} />
                 </View>
-                
+
                 <View style={styles.infoBox}>
                   <Text style={styles.title}>{item.title}</Text>
                   <Text style={styles.balance}>{formatMoney(item.balance)} {item.currency}</Text>
@@ -202,10 +202,10 @@ useEffect(() => {
                   {!isArchived ? (
                     <>
                       <TouchableOpacity style={styles.actionBtn} onPress={() => {
-                          if (isPending) return;
-                          swipeableRefs.current.get(item.id)?.close();
-                          openEdit(item);
-                        }} disabled={isPending}>
+                        if (isPending) return;
+                        swipeableRefs.current.get(item.id)?.close();
+                        openEdit(item);
+                      }} disabled={isPending}>
                         <Ionicons name="pencil" size={20} color={colors.textSecondary} />
                       </TouchableOpacity>
                       <TouchableOpacity onLongPress={drag} delayLongPress={200} style={styles.actionBtn} disabled={isPending}>
@@ -213,48 +213,41 @@ useEffect(() => {
                       </TouchableOpacity>
                     </>
                   ) : (
-                    <TouchableOpacity 
-                      style={styles.actionBtn} 
+                    <TouchableOpacity
+                      style={styles.actionBtn}
                       onPress={() => confirmPermanentDelete(item)}
                     >
                       <Ionicons name="trash" size={22} color={colors.error} />
                     </TouchableOpacity>
                   )}
                 </View>
+                {!isArchived && !isPending && (
+                  <Ionicons name="chevron-back" size={18} color={colors.textSecondary} style={styles.swipeHintIcon} />
+                )}
               </View>
 
               {/* НИЖНЯ ЧАСТИНА (ПЕРЕМИКАЧ) */}
-              {/* <View style={styles.excludeContainer}>
-                <Text style={styles.excludeText}>Враховувати у загальному балансі</Text>
-                <Switch
-                  value={!item.excludeFromTotal}
-                  onValueChange={(val) => toggleExcludeFromTotal(item, !val)}
-                  trackColor={{ false: colors.error, true: colors.primary }}
-                  thumbColor={colors.outline}
-                  disabled={isPending || isArchived} 
-                />
-              </View> */}
               {!item.isCrypto && (
-  <View style={styles.excludeContainer}>
-    <Text style={styles.excludeText}>Враховувати у загальному балансі</Text>
-    <Switch
-      value={!item.excludeFromTotal}
-      onValueChange={(val) => toggleExcludeFromTotal(item, !val)}
-      trackColor={{ false: colors.error, true: colors.primary }}
-      thumbColor={colors.outline}
-      disabled={isPending} 
-    />
-  </View>
-)}
+                <View style={styles.excludeContainer}>
+                  <Text style={styles.excludeText}>Враховувати у загальному балансі</Text>
+                  <Switch
+                    value={!item.excludeFromTotal}
+                    onValueChange={(val) => toggleExcludeFromTotal(item, !val)}
+                    trackColor={{ false: colors.error, true: colors.primary }}
+                    thumbColor={colors.outline}
+                    disabled={isPending}
+                  />
+                </View>
+              )}
 
-{/* 👈 ОПЦІОНАЛЬНО: Можна додати інфо-плашку для крипти, щоб юзер розумів, чому там немає світчера */}
-{item.isCrypto && (
-  <View style={[styles.excludeContainer, { borderTopWidth: 0, marginTop: 4 }]}>
-    <Text style={[styles.excludeText, { fontStyle: 'italic', color: colors.warningAccent }]}>
-      Криптовалюта (тільки індивідуальна аналітика)
-    </Text>
-  </View>
-)}
+              {item.isCrypto && (
+                <View style={[styles.excludeContainer, { borderTopWidth: 0, marginTop: 4 }]}>
+                  <Text style={[styles.excludeText, { fontStyle: 'italic', color: colors.warningAccent }]}>
+                    Криптовалюта (тільки індивідуальна аналітика)
+                  </Text>
+                </View>
+              )}
+
 
             </View>
           </Swipeable>
@@ -268,7 +261,7 @@ useEffect(() => {
       <View style={styles.headerRow}>
         <Text style={styles.screenTitle}>Рахунки</Text>
         <TouchableOpacity onPress={() => router.back()} style={{ padding: 5 }}>
-           <Ionicons name="close-circle-outline" size={32} color={colors.textSecondary} />
+          <Ionicons name="close-circle-outline" size={32} color={colors.textSecondary} />
         </TouchableOpacity>
       </View>
 
@@ -281,13 +274,13 @@ useEffect(() => {
       />
 
       <TouchableOpacity style={[styles.fab, { bottom: insets.bottom + 20 }]} onPress={openCreate}>
-                      <Ionicons name="add" size={32} color={colors.white} />
+        <Ionicons name="add" size={32} color={colors.white} />
       </TouchableOpacity>
 
-      <EditWalletModal 
-        visible={editModalVisible} 
-        wallet={selectedWallet} 
-        onClose={() => setEditModalVisible(false)} 
+      <EditWalletModal
+        visible={editModalVisible}
+        wallet={selectedWallet}
+        onClose={() => setEditModalVisible(false)}
       />
     </View>
   );

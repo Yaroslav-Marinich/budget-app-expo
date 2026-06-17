@@ -41,9 +41,7 @@ export const FinancesAnalytics = () => {
   useFocusEffect(
     useCallback(() => {
       setSelectedWalletId(null);
-
       walletsScrollViewRef.current?.scrollTo({ x: 0, animated: true });
-
       setCurrentDate(new Date());
     }, [])
   );
@@ -55,7 +53,6 @@ export const FinancesAnalytics = () => {
       .catch(err => console.error('Помилка завантаження курсів валют:', err));
   }, []);
 
-  // ПІДПИСКА НА РАХУНКИ (включаючи архівні)
   useEffect(() => {
     const unsubscribe = subscribeToWallets((data) => {
       const sortedWallets = data.sort((a, b) => {
@@ -68,7 +65,6 @@ export const FinancesAnalytics = () => {
     return () => unsubscribe();
   }, []);
 
-  // ОТРИМАННЯ АКТИВНИХ МІСЯЦІВ ТА АВТО-ПЕРЕМИКАННЯ АРХІВУ
   useEffect(() => {
     const fetchActiveMonths = async () => {
       const user = auth.currentUser;
@@ -156,6 +152,11 @@ export const FinancesAnalytics = () => {
       if (selectedWalletId) {
         return t.walletId === selectedWalletId;
       }
+
+      if (t.isTransfer || (t as any).type === 'transfer') {
+        return false;
+      }
+
       const wallet = wallets.find(w => w.id === t.walletId);
       if (!wallet) return false;
       if (wallet.excludeFromTotal) return false;
@@ -171,7 +172,12 @@ export const FinancesAnalytics = () => {
         inc += convertedAmount;
       } else if (t.type === 'expense') {
         exp += convertedAmount;
-        expenseGroups[t.categoryName] = (expenseGroups[t.categoryName] || 0) + convertedAmount;
+
+        const categoryName = t.isTransfer || (t as any).type === 'transfer'
+          ? 'Трансфер'
+          : t.categoryName;
+
+        expenseGroups[categoryName] = (expenseGroups[categoryName] || 0) + convertedAmount;
       }
     });
 
@@ -183,7 +189,10 @@ export const FinancesAnalytics = () => {
     sortedCategories.forEach((catName, index) => {
       const amount = expenseGroups[catName];
       const percentage = exp > 0 ? ((amount / exp) * 100).toFixed(1) : '0';
-      const color = CATEGORY_COLORS[index % CATEGORY_COLORS.length];
+
+      const color = catName === 'Трансфер'
+        ? '#78909C'
+        : CATEGORY_COLORS[index % CATEGORY_COLORS.length];
 
       chartElements.push({ value: amount, color: color });
       legendElements.push({ name: catName, amount, percentage, color });
@@ -301,7 +310,6 @@ export const FinancesAnalytics = () => {
 
       {/* Картки Балансу */}
       <View style={{ flexDirection: 'row', paddingHorizontal: 20, gap: 15, marginBottom: 30 }}>
-
         {/* Картка ДОХОДИ (Зелена) */}
         <View style={{ flex: 1, backgroundColor: 'rgba(46, 125, 50, 0.1)', padding: 15, borderRadius: 16, borderLeftWidth: 4, borderColor: colors.accent }}>
           <Text style={{ color: colors.textSecondary, fontSize: 16, marginBottom: 5 }}>Доходи</Text>
@@ -325,7 +333,6 @@ export const FinancesAnalytics = () => {
             - {formatMoney(totalExpense)} {currencySymbol}
           </Text>
         </View>
-
       </View>
 
       {/* Кільцева діаграма */}

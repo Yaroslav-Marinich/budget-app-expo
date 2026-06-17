@@ -10,8 +10,8 @@ type ViewMode = 'months' | 'years';
 const screenWidth = Dimensions.get('window').width;
 
 export const MetersAnalytics = () => {
-    const { colors } = useTheme();
-  
+  const { colors } = useTheme();
+
   const [loading, setLoading] = useState(true);
   const [meters, setMeters] = useState<Meter[]>([]);
   const [selectedMeter, setSelectedMeter] = useState<Meter | null>(null);
@@ -19,7 +19,7 @@ export const MetersAnalytics = () => {
   const [chartData, setChartData] = useState<any[]>([]);
   const [viewMode, setViewMode] = useState<ViewMode>('months');
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
-    
+
   const currentMeterColor = getMeterColor(selectedMeter?.icon || '');
 
   useEffect(() => {
@@ -34,14 +34,14 @@ export const MetersAnalytics = () => {
     return () => unsubscribe();
   }, []);
 
-useEffect(() => {
+  useEffect(() => {
     const fetchReadings = async () => {
       if (!selectedMeter) {
         setLoading(false);
         setAllReadings([]);
         return;
       }
-      
+
       setLoading(true);
       const readings = await getMeterReadingsForAnalytics(selectedMeter.id);
       setAllReadings(readings);
@@ -61,22 +61,22 @@ useEffect(() => {
     // 🎨 Функція для створення маленького контейнера над точкою
     const renderLabel = (value: number) => (
       <View style={{
-        backgroundColor: colors.surface, 
+        backgroundColor: colors.surface,
         borderWidth: 1,
-        borderColor: currentMeterColor, 
+        borderColor: currentMeterColor,
         borderRadius: 6,
-        width: 40, 
+        width: 40,
         paddingVertical: 3,
         alignItems: 'center',
         justifyContent: 'center',
       }}>
-        <Text 
-          numberOfLines={1} 
-          adjustsFontSizeToFit 
-          style={{ 
-            color: colors.text, 
-            fontSize: 16, 
-            fontWeight: 'bold' 
+        <Text
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          style={{
+            color: colors.text,
+            fontSize: 16,
+            fontWeight: 'bold'
           }}
         >
           {value}
@@ -132,11 +132,11 @@ useEffect(() => {
   }
 
   const maxDataValue = chartData.length > 0 ? Math.max(...chartData.map(d => d.value)) : 0;
-  
-  const avgConsumption = chartData.length > 0 
-    ? (chartData.reduce((acc, curr) => acc + curr.value, 0) / chartData.length).toFixed(1) 
+
+  const avgConsumption = chartData.length > 0
+    ? (chartData.reduce((acc, curr) => acc + curr.value, 0) / chartData.length).toFixed(1)
     : "0";
-  
+
   const yAxisMax = maxDataValue > 0 ? Math.ceil(maxDataValue * 1.2) : 10;
   const noOfSections = 4;
 
@@ -199,47 +199,49 @@ useEffect(() => {
       </View>
 
       {/* 3. Блок з графіком */}
-      <View style={{ marginHorizontal: 20, backgroundColor: colors.surfaceMuted, borderRadius: 20, padding: 20, alignItems: 'center' }}>
+      <View style={{
+        marginHorizontal: 20, backgroundColor: colors.surfaceMuted, borderRadius: 20, padding: 20, alignItems: 'center', overflow: 'hidden'
+      }}>
         <Text style={{ color: colors.text, fontSize: 16, fontWeight: 'bold', marginBottom: 25, alignSelf: 'flex-start' }}>
           {viewMode === 'months' ? `Споживання за ${selectedYear} рік` : 'Глобальний тренд'}
         </Text>
 
         {loading ? (
-           <View style={{ height: 200, justifyContent: 'center' }}><ActivityIndicator color={colors.primary} /></View>
+          <View style={{ height: 200, justifyContent: 'center' }}><ActivityIndicator color={colors.primary} /></View>
         ) : chartData.length > 0 ? (
-            <LineChart
-              key={`chart-${viewMode}-${chartData.length}`}
+          <LineChart
+            key={`chart-${viewMode}-${chartData.length}`}
             data={chartData}
             height={200}
-            width={screenWidth - 100} 
+            width={screenWidth - 100}
             initialSpacing={30}
             endSpacing={30}
             color={currentMeterColor}
             thickness={3}
             dataPointsColor={currentMeterColor}
             dataPointsRadius={5}
-            
+
             // 🛠️ ОСІ ТА ЗАЗОР (Залишили як було, з правильним запасом зверху)
-            maxValue={yAxisMax} 
+            maxValue={yAxisMax}
             noOfSections={noOfSections}
-            stepValue={yAxisMax / noOfSections} 
+            stepValue={yAxisMax / noOfSections}
             yAxisColor="transparent"
             xAxisColor={colors.outlineMuted}
             yAxisTextStyle={{ color: colors.textSecondary, fontSize: 10 }}
             xAxisLabelTextStyle={{ color: colors.textSecondary, fontSize: 10 }}
-            
+
             // 🛠️ СІТКА (Вертикальна та горизонтальна)
             hideRules={false}
             rulesColor={colors.outlineSoft}
             rulesType="solid"
             showVerticalLines
             verticalLinesColor={colors.outlineSoft}
-            
+
             // Дизайн лінії
             curved={viewMode === 'months'}
             animateOnDataChange
             animationDuration={800}
-            areaChart 
+            areaChart
             startFillColor={currentMeterColor}
             startOpacity={0.3}
             endOpacity={0.01}
@@ -256,18 +258,18 @@ useEffect(() => {
       {/* 4. Статистика */}
       {chartData.length > 0 && !loading && (
         <View style={{ flexDirection: 'row', paddingHorizontal: 20, marginTop: 20, gap: 15 }}>
-            <View style={{ flex: 1, backgroundColor: colors.surfaceMuted, padding: 15, borderRadius: 15 }}>
-                <Text style={{ color: colors.textSecondary, fontSize: 13, marginBottom: 5 }}>Середнє</Text>
-                <Text style={{ color: colors.text, fontSize: 22, fontWeight: 'bold' }}>
-                    {(maxDataValue > 0 ? avgConsumption : 0)}
-                </Text>
-            </View>
-            <View style={{ flex: 1, backgroundColor: colors.surfaceMuted, padding: 15, borderRadius: 15 }}>
-                <Text style={{ color: colors.textSecondary, fontSize: 13, marginBottom: 5 }}>Максимум</Text>
-                <Text style={{ color: colors.text, fontSize: 22, fontWeight: 'bold' }}>
-                    {maxDataValue}
-                </Text>
-            </View>
+          <View style={{ flex: 1, backgroundColor: colors.surfaceMuted, padding: 15, borderRadius: 15 }}>
+            <Text style={{ color: colors.textSecondary, fontSize: 13, marginBottom: 5 }}>Середнє</Text>
+            <Text style={{ color: colors.text, fontSize: 22, fontWeight: 'bold' }}>
+              {(maxDataValue > 0 ? avgConsumption : 0)}
+            </Text>
+          </View>
+          <View style={{ flex: 1, backgroundColor: colors.surfaceMuted, padding: 15, borderRadius: 15 }}>
+            <Text style={{ color: colors.textSecondary, fontSize: 13, marginBottom: 5 }}>Максимум</Text>
+            <Text style={{ color: colors.text, fontSize: 22, fontWeight: 'bold' }}>
+              {maxDataValue}
+            </Text>
+          </View>
         </View>
       )}
     </ScrollView>

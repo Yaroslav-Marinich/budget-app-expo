@@ -11,7 +11,7 @@ export const getStyles = (colors: any) => StyleSheet.create({
   primaryBadge: {
     position: 'absolute',
     top: 0,
-    left: 20, 
+    left: 20,
     backgroundColor: colors.primary,
     paddingHorizontal: 12,
     paddingVertical: 4,
@@ -25,17 +25,17 @@ export const getStyles = (colors: any) => StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
-  
+
   walletCard: {
-    flexDirection: 'column', 
+    flexDirection: 'column',
     backgroundColor: colors.surface,
-    paddingVertical: 12, 
+    paddingVertical: 12,
     paddingHorizontal: 15,
     borderRadius: 20,
     borderWidth: 1,
     borderColor: colors.outline,
   },
-  
+
   walletTopRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -46,15 +46,15 @@ export const getStyles = (colors: any) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginTop: 8,   
-    paddingTop: 8,   
+    marginTop: 8,
+    paddingTop: 8,
     borderTopWidth: 1,
-    borderTopColor: colors.outlineSoft, 
+    borderTopColor: colors.outlineSoft,
   },
   excludeText: {
     color: colors.textSecondary,
-    fontSize: 14,  
-    flex: 1, 
+    fontSize: 14,
+    flex: 1,
     paddingRight: 10,
   },
 
@@ -88,14 +88,14 @@ export const getStyles = (colors: any) => StyleSheet.create({
   infoBox: { flex: 1 },
   title: { color: colors.text, fontSize: 16, fontWeight: 'bold' },
   balance: { color: colors.textSecondary, fontSize: 14, marginTop: 2 },
-  
-  actions: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    marginLeft: 10 
+
+  actions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: 10
   },
   actionBtn: { padding: 8, marginLeft: 4 },
-  
+
   fab: {
     position: 'absolute',
     bottom: 30,
@@ -167,6 +167,9 @@ export const getStyles = (colors: any) => StyleSheet.create({
     borderColor: colors.warning,
     borderStyle: 'dashed',
   },
+  swipeHintIcon: {
+    marginLeft: 8,
+  },
 
   // Модалка
   modalContent: {
@@ -186,7 +189,7 @@ export const getStyles = (colors: any) => StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.outline,
   },
-  
+
   // Пошук валют
   currencyItem: {
     flexDirection: 'row',

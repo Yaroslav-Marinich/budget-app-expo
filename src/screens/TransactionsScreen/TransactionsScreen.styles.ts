@@ -128,20 +128,6 @@ export const getStyles = (colors: any) => StyleSheet.create({
     fontWeight: '600',
     textTransform: 'capitalize',
   },
-  // lockedPeriodContainer: {
-  //   flexDirection: 'row',
-  //   alignItems: 'center',
-  //   backgroundColor: colors.surfaceMuted,
-  //   padding: 12,
-  //   borderRadius: 16,
-  //   gap: 8,
-  // },
-  // lockedPeriodText: {
-  //   color: colors.text,
-  //   fontSize: 15,
-  //   fontWeight: '600',
-  //   textTransform: 'capitalize',
-  // },
   lockedTotalContainer: {
     width: '100%',
     backgroundColor: colors.surfaceSoft,
@@ -239,11 +225,38 @@ export const getStyles = (colors: any) => StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  swipeHintIcon: {
+    marginLeft: 8,
+  },
   expenseText: {
     color: colors.error,
   },
   incomeText: {
     color: colors.primary,
+  },
+
+  // СТИЛІ ДЛЯ ТРАНСФЕРІВ
+  transferWalletsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 2,
+    gap: 4,
+  },
+  transferWalletName: {
+    color: colors.textSecondary,
+    fontSize: 13,
+    fontWeight: '500',
+  },
+  transferAmountText: {
+    fontSize: 15,
+    fontWeight: 'bold',
+  },
+  transferAmountMinus: {
+    color: colors.error,
+    marginBottom: 2,
+  },
+  transferAmountPlus: {
+    color: colors.success,
   },
 
   // Порожній стан

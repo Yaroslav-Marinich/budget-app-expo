@@ -1,14 +1,14 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { collection, onSnapshot, query, where } from "firebase/firestore";
+import NetInfo from "@react-native-community/netinfo";
+import { collection, doc, getDoc, increment, onSnapshot, query, where, writeBatch } from "firebase/firestore";
 
 import { auth, db } from "../config/firebase";
 import { startSync } from './syncEngine';
 import {
   addToSyncQueue,
   getSyncQueue,
-  removeTaskFromQueue,
   subscribeToSyncQueueChanges,
-  updateTaskInQueue,
+  updateTaskInQueue
 } from './syncManager';
 
 export interface TransactionData {
@@ -22,6 +22,9 @@ export interface TransactionData {
   monthYear?: string;
   date?: string;
   isPending?: boolean;
+  isTransfer?: boolean;
+  linkedTransferId?: string;
+  transferWalletId?: string;
 }
 
 export type CreateTransactionInput = Omit<TransactionData, 'userId'>;
@@ -32,6 +35,9 @@ export interface DeleteTransactionInput {
   amount: number;
   type: 'income' | 'expense';
   monthYear?: string;
+  isTransfer?: boolean;
+  linkedTransferId?: string;
+  transferWalletId?: string;
 }
 
 export interface UpdateTransactionInput {
@@ -76,34 +82,72 @@ export const addTransaction = async (data: CreateTransactionInput) => {
   }
 };
 
-export const deleteTransaction = async (data: DeleteTransactionInput) => {
+export const deleteTransaction = async (input: DeleteTransactionInput) => {
   try {
     const user = auth.currentUser;
-    if (!user) {
-      return false;
+    if (!user) throw new Error("Користувач не авторизований");
+
+    const netInfo = await NetInfo.fetch();
+    const isOnline = netInfo.isConnected && netInfo.isInternetReachable !== false;
+
+    if (!isOnline) {
+      throw new Error("Немає підключення до інтернету. Видалення переказу можливе лише онлайн.");
     }
 
-    // If transaction exists only in local queue, remove create task instead of syncing delete.
-    if (data.transactionId.startsWith('task_')) {
-      await removeTaskFromQueue(data.transactionId);
-      return true;
-    }
+    const batch = writeBatch(db);
 
-    await addToSyncQueue('TRANSACTION_DELETE', {
-      userId: user.uid,
-      transactionId: data.transactionId,
-      walletId: data.walletId,
-      amount: data.amount,
-      type: data.type,
-      monthYear: data.monthYear,
-      date: new Date().toISOString(),
+    const currentTxRef = doc(db, "transactions", input.transactionId);
+    batch.delete(currentTxRef);
+
+    const currentWalletRef = doc(db, "wallets", input.walletId);
+    batch.update(currentWalletRef, {
+      balance: increment(input.type === 'expense' ? input.amount : -input.amount)
     });
 
-    startSync();
-    return true;
+    if (input.isTransfer && input.linkedTransferId && input.transferWalletId) {
+      const linkedTxRef = doc(db, "transactions", input.linkedTransferId);
+
+      const linkedTxSnap = await getDoc(linkedTxRef);
+      let linkedAmountToReverse = input.amount;
+
+      if (linkedTxSnap.exists()) {
+        linkedAmountToReverse = linkedTxSnap.data().amount;
+      }
+
+      batch.delete(linkedTxRef);
+
+      const linkedWalletRef = doc(db, "wallets", input.transferWalletId);
+
+      const linkedAmountChange = input.type === 'expense' ? -linkedAmountToReverse : linkedAmountToReverse;
+
+      batch.update(linkedWalletRef, {
+        balance: increment(linkedAmountChange)
+      });
+    }
+
+    await batch.commit();
+
+    if (input.monthYear) {
+      const cacheKey = `@cached_transactions_${input.monthYear}`;
+      const cachedData = await AsyncStorage.getItem(cacheKey);
+
+      if (cachedData) {
+        let transactions: any[] = JSON.parse(cachedData);
+
+        transactions = transactions.filter(t => t.id !== input.transactionId);
+
+        if (input.isTransfer && input.linkedTransferId) {
+          transactions = transactions.filter(t => t.id !== input.linkedTransferId);
+        }
+
+        await AsyncStorage.setItem(cacheKey, JSON.stringify(transactions));
+      }
+    }
+
+    return { success: true };
   } catch (error) {
-    console.error('Помилка видалення транзакції:', error);
-    return false;
+    console.error("❌ Помилка видалення транзакції:", error);
+    throw error;
   }
 };
 
@@ -158,6 +202,72 @@ export const updateTransaction = async (data: UpdateTransactionInput) => {
   } catch (error) {
     console.error('Помилка редагування транзакції:', error);
     return false;
+  }
+};
+
+export const createTransfer = async (
+  sourceWalletId: string,
+  destWalletId: string,
+  amount: number,
+  destAmount: number,
+  date: string,
+  monthYear: string
+) => {
+  try {
+    const user = auth.currentUser;
+    if (!user) throw new Error("Користувач не авторизований");
+
+    const batch = writeBatch(db);
+
+    const expenseDocRef = doc(collection(db, "transactions"));
+    const incomeDocRef = doc(collection(db, "transactions"));
+
+    // 1. Транзакція Списання (Expense)
+    const expenseData: TransactionData = {
+      userId: user.uid,
+      amount: amount,
+      type: 'expense',
+      categoryId: 'transfer_system',
+      categoryName: 'Переказ',
+      walletId: sourceWalletId,
+      date: date,
+      monthYear: monthYear,
+      isTransfer: true,
+      linkedTransferId: incomeDocRef.id,
+      transferWalletId: destWalletId,
+    };
+
+    // 2. Транзакція Зарахування (Income)
+    const incomeData: TransactionData = {
+      userId: user.uid,
+      amount: destAmount,
+      type: 'income',
+      categoryId: 'transfer_system',
+      categoryName: 'Переказ',
+      walletId: destWalletId,
+      date: date,
+      monthYear: monthYear,
+      isTransfer: true,
+      linkedTransferId: expenseDocRef.id,
+      transferWalletId: sourceWalletId,
+    };
+
+    batch.set(expenseDocRef, expenseData);
+    batch.set(incomeDocRef, incomeData);
+
+    // 3. Оновлення балансів рахунків у Firebase
+    const sourceWalletRef = doc(db, "wallets", sourceWalletId);
+    const destWalletRef = doc(db, "wallets", destWalletId);
+
+    batch.update(sourceWalletRef, { balance: increment(-amount) });
+    batch.update(destWalletRef, { balance: increment(destAmount) });
+
+    // Виконуємо пакетний запис
+    await batch.commit();
+    return { success: true };
+  } catch (error) {
+    console.error("Помилка при створенні переказу:", error);
+    throw error;
   }
 };
 

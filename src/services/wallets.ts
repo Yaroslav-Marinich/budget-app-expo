@@ -31,7 +31,7 @@ const getMergedWallets = async (baseWallets: Wallet[]): Promise<Wallet[]> => {
   const pendingWallets = queue
     .filter((task) => task.type === 'WALLET_CREATE' && task.status !== 'FAILED')
     .map((task) => ({ ...task.payload, id: task.id, isPending: true } as Wallet))
-  .filter((pendingWallet) => {
+    .filter((pendingWallet) => {
       return !baseWallets.some((baseWallet) => (baseWallet as any).createdAt === (pendingWallet as any).createdAt);
     });
 
@@ -97,7 +97,7 @@ export const subscribeToWallets = (onUpdate: (wallets: Wallet[]) => void) => {
   const user = auth.currentUser;
   if (!user) {
     onUpdate([]);
-    return () => {};
+    return () => { };
   }
 
   let baseWallets: Wallet[] = [];
@@ -248,7 +248,7 @@ export const archiveWallet = async (walletId: string) => {
     }
 
     const walletRef = doc(db, "wallets", walletId);
-    await updateDoc(walletRef, { 
+    await updateDoc(walletRef, {
       isArchived: true,
       order: 999
     });
@@ -278,7 +278,7 @@ export const permanentDeleteWallet = async (walletId: string) => {
     where("walletId", "==", walletId)
   );
   const snapshot = await getDocs(q);
-  
+
   snapshot.forEach((transactionDoc) => {
     batch.delete(transactionDoc.ref);
   });

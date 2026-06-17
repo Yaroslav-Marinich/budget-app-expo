@@ -129,9 +129,15 @@ export const TransactionsScreen = () => {
     setCurrentDate(prev => new Date(prev.getFullYear(), prev.getMonth() + offset, 1));
   };
 
+  const getCurrencySymbol = (code?: string) => {
+    if (!code) return "";
+    const currency = CURRENCIES.find((c: any) => c.code === code);
+    return currency?.symbol ?? code;
+  };
+
   const selectedWalletCurrencySymbol = useMemo(() => {
     const wallet = wallets.find(w => w.id === selectedWalletId);
-    return CURRENCIES.find(c => c.code === wallet?.currency)?.symbol || wallet?.currency || '₴';
+    return getCurrencySymbol(wallet?.currency);
   }, [wallets, selectedWalletId]);
 
   const selectedWallet = useMemo(() => {
@@ -183,11 +189,11 @@ export const TransactionsScreen = () => {
     if (item.isPending) return;
     appAlert(
       "Видалення",
-      `Видалити цю операцію на суму ${formatMoney(item.amount)}?`,
+      `Видалити цю operation на суму ${formatMoney(item.amount)}?`,
       [
         { text: "Скасувати", style: "cancel", onPress: () => swipeableRefs.current.get(item.id)?.close() },
         {
-          text: "Видалити",
+          text: "Вилити",
           style: "destructive",
           onPress: async () => {
             showLoader();
@@ -196,7 +202,10 @@ export const TransactionsScreen = () => {
               walletId: item.walletId,
               amount: item.amount,
               type: item.type,
-              monthYear: item.monthYear
+              monthYear: item.monthYear,
+              isTransfer: item.isTransfer,
+              linkedTransferId: item.linkedTransferId,
+              transferWalletId: item.transferWalletId
             });
             hideLoader();
           }
@@ -208,6 +217,12 @@ export const TransactionsScreen = () => {
   const handleEdit = (item: UITransaction) => {
     if (item.isPending) return;
     swipeableRefs.current.get(item.id)?.close();
+
+    if (item.isTransfer) {
+      appAlert("Інфо", "Редагування трансферів буде доступне у наступних оновленнях.");
+      return;
+    }
+
     setEditingTransaction(item);
     setTransactionModalVisible(true);
   };
@@ -222,7 +237,81 @@ export const TransactionsScreen = () => {
     </TouchableOpacity>
   );
 
+  const renderTransferTransaction = (item: UITransaction) => {
+    const isSource = item.type === 'expense'; // Поточна картка є списанням коштів
+
+    const companion = transactions.find(t => t.id === item.linkedTransferId);
+
+    const srcWalletId = isSource ? item.walletId : item.transferWalletId;
+    const dstWalletId = isSource ? item.transferWalletId : item.walletId;
+
+    const srcWallet = wallets.find(w => w.id === srcWalletId);
+    const dstWallet = wallets.find(w => w.id === dstWalletId);
+
+    const srcSymbol = getCurrencySymbol(srcWallet?.currency);
+    const dstSymbol = getCurrencySymbol(dstWallet?.currency);
+
+    const srcAmount = isSource ? item.amount : (companion ? companion.amount : item.amount);
+    const dstAmount = isSource ? (companion ? companion.amount : item.amount) : item.amount;
+
+    return (
+      <View style={styles.transactionCard}>
+        <View style={[styles.iconBox, { backgroundColor: colors.primary + '15' }]}>
+          <Ionicons name="swap-horizontal" size={24} color={colors.primary} />
+        </View>
+
+        <View style={styles.transactionInfo}>
+          <Text style={styles.categoryName} numberOfLines={1}>
+            Трансфер
+          </Text>
+          <View style={styles.transferWalletsRow}>
+            <Text style={styles.transferWalletName} numberOfLines={1}>
+              {srcWallet?.title || "..."}
+            </Text>
+            <Ionicons name="arrow-forward" size={12} color={colors.textSecondary} />
+            <Text style={styles.transferWalletName} numberOfLines={1}>
+              {dstWallet?.title || "..."}
+            </Text>
+          </View>
+        </View>
+
+        <View style={[styles.amountBox, { gap: 2 }]}>
+          <Text style={[styles.transferAmountText, styles.transferAmountMinus]}>
+            -{formatMoney(srcAmount)} {srcSymbol}
+          </Text>
+          <Text style={[styles.transferAmountText, styles.transferAmountPlus]}>
+            +{formatMoney(dstAmount)} {dstSymbol}
+          </Text>
+        </View>
+        <Ionicons name="chevron-back" size={18} color={colors.textSecondary} style={styles.swipeHintIcon} />
+      </View>
+    );
+  };
+
   const renderTransaction = ({ item }: { item: UITransaction }) => {
+    if (item.isTransfer) {
+      return (
+        <View style={styles.itemContainer}>
+          <Swipeable
+            ref={(ref) => {
+              if (ref) swipeableRefs.current.set(item.id, ref);
+              else swipeableRefs.current.delete(item.id);
+            }}
+            renderRightActions={() => renderRightActions(item)}
+            enabled={!item.isPending}
+            onSwipeableWillOpen={() => onSwipeableWillOpen(item.id)}
+            overshootRight={false}
+            friction={1.5}
+            rightThreshold={40}
+          >
+            <TouchableOpacity activeOpacity={1} onPress={() => handleEdit(item)}>
+              {renderTransferTransaction(item)}
+            </TouchableOpacity>
+          </Swipeable>
+        </View>
+      );
+    }
+
     const category = categories.find(c => c.id === item.categoryId);
     const isIncome = item.type === 'income';
 
@@ -240,11 +329,7 @@ export const TransactionsScreen = () => {
           friction={1.5}
           rightThreshold={40}
         >
-          <TouchableOpacity
-            activeOpacity={1}
-            onPress={() => handleEdit(item)}
-            style={styles.transactionCard}
-          >
+          <TouchableOpacity activeOpacity={1} onPress={() => handleEdit(item)} style={styles.transactionCard}>
             <View style={[styles.iconBox, { backgroundColor: `${category?.color || colors.primary}15` }]}>
               <Ionicons name={(category?.icon as any) || 'help'} size={24} color={category?.color || colors.primary} />
             </View>
@@ -262,6 +347,7 @@ export const TransactionsScreen = () => {
               </Text>
               {item.isPending && <Ionicons name="time-outline" size={14} color={colors.warning} style={{ marginTop: 2 }} />}
             </View>
+            <Ionicons name="chevron-back" size={18} color={colors.textSecondary} style={styles.swipeHintIcon} />
           </TouchableOpacity>
         </Swipeable>
       </View>
@@ -293,25 +379,14 @@ export const TransactionsScreen = () => {
           </View>
 
           <View style={styles.lockedDetailsRow}>
-            {/* Рядок з датою */}
             <View style={styles.lockedPeriodContainer}>
               <Ionicons name="calendar-outline" size={20} color={colors.textSecondary} />
-              <Text style={styles.lockedPeriodText}>
-                {getFormattedDate(currentDate)}
-              </Text>
+              <Text style={styles.lockedPeriodText}>{getFormattedDate(currentDate)}</Text>
             </View>
 
-            {/* Рядок з сумою на всю ширину */}
             <View style={styles.lockedTotalContainer}>
-              <Text style={styles.lockedTotalLabel} numberOfLines={1}>
-                Разом ({lockedCategoryName}):
-              </Text>
-              <Text
-                style={styles.lockedTotalAmount}
-                numberOfLines={1}
-                adjustsFontSizeToFit
-                minimumFontScale={0.6}
-              >
+              <Text style={styles.lockedTotalLabel} numberOfLines={1}>Разом ({lockedCategoryName}):</Text>
+              <Text style={styles.lockedTotalAmount} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>
                 {formatMoney(lockedCategoryTotal)} {selectedWalletCurrencySymbol}
               </Text>
             </View>
@@ -329,14 +404,11 @@ export const TransactionsScreen = () => {
               keyExtractor={(item) => item.id}
               onScrollToIndexFailed={(info) => {
                 const wait = new Promise(resolve => setTimeout(resolve, 500));
-                wait.then(() => {
-                  walletsListRef.current?.scrollToIndex({ index: info.index, animated: true });
-                });
+                wait.then(() => { walletsListRef.current?.scrollToIndex({ index: info.index, animated: true }); });
               }}
               renderItem={({ item: wallet, index }) => {
                 const isSelected = selectedWalletId === wallet.id;
                 const walletCurrencySymbol = CURRENCIES.find(c => c.code === wallet.currency)?.symbol || wallet.currency;
-
                 const activeColor = wallet.isCrypto ? cryptoColor : colors.primary;
 
                 return (

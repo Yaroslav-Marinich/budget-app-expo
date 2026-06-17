@@ -120,6 +120,9 @@ export const getStyles = (colors: any) => StyleSheet.create({
     padding: 10,
     marginLeft: 5,
   },
+  swipeHintIcon: {
+    marginLeft: 8,
+  },
   deleteAction: {
     backgroundColor: colors.error,
     justifyContent: 'center',

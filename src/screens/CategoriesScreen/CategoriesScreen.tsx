@@ -220,6 +220,7 @@ export const CategoriesScreen = () => {
               <TouchableOpacity onLongPress={drag} delayLongPress={200} style={styles.actionBtn}>
                 <Ionicons name="menu" size={24} color={colors.textSecondary} />
               </TouchableOpacity>
+              <Ionicons name="chevron-back" size={18} color={colors.textSecondary} style={styles.swipeHintIcon} />
             </View>
           </View>
         </Swipeable>
